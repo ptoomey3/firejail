@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT(firejail, 0.9-test1, netblue30@yahoo.com, , http://firejail.sourceforge.net)
+AC_INIT(firejail, 0.9-test2, netblue30@yahoo.com, , http://firejail.sourceforge.net)
 AC_CONFIG_SRCDIR([main.c])
 #AC_CONFIG_HEADERS([config.h])
 
@@ -30,3 +30,5 @@ fi
 echo "Found $BRCTL"
 
 AC_OUTPUT(Makefile)
+AC_OUTPUT(src/firejail/Makefile)
+AC_OUTPUT(src/firemon/Makefile)

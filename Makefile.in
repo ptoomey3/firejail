@@ -1,28 +1,29 @@
-all: firejail firejail.1
+all: apps firejail.1
+APPS = src/firejail src/firemon
 
 PREFIX=@prefix@
 VERSION=@PACKAGE_VERSION@
 NAME=@PACKAGE_NAME@
 
-H_FILE_LIST       = $(wildcard *.[h])
-C_FILE_LIST       = $(wildcard *.c)
-OBJS = $(C_FILE_LIST:.c=.o)
-BINOBJS =  $(foreach file, $(OBJS), $file)
-CFLAGS += -ggdb -O2 -DVERSION='"$(VERSION)"' -fstack-protector-all -D_FORTIFY_SOURCE=2 -fPIE -pie -Wformat -Wformat-security
-LDFLAGS:=-Wl,-z,relro
 
-%.o : %.c $(H_FILE_LIST)
-	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
-
-firejail: $(OBJS)
-	$(CXX)  $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+.PHONY: apps $(APPS)
+apps: $(APPS)
+$(APPS):
+	$(MAKE) -C $@
 
 firejail.1: man/firejail.txt
 	./mkman.sh $(VERSION) man/firejail.txt firejail.1
 
-clean:; rm -f *.o firejail firejail.1 firejail.1.gz
+clean:;
+	for dir in $(APPS); do \
+		$(MAKE) -C $$dir clean; \
+	done
+	rm -f firejail.1 firejail.1.gz
 
-distclean: clean
+distclean:;
+	for dir in $(APPS); do \
+		$(MAKE) -C $$dir distclean; \
+	done
 	rm -fr Makefile autom4te.cache config.log config.status config.h
 
 install: all

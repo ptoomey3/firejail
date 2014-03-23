@@ -3,68 +3,41 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <string.h>
+#include <fcntl.h>
 #include "firejail.h"
 #define BUFLEN 1023
 
-typedef struct mylist_t {
-	struct mylist_t *next;
-	pid_t pid;
-} MyList;
-MyList *mylist = NULL;
-
-static void add(pid_t pid) {
-	MyList *e = malloc(sizeof(MyList));
-	if (!e)
-		errExit("malloc");
-	e->pid = pid;
-	e->next = mylist;
-	mylist = e;
-}
-
-static int is_listed(pid_t pid) {
-	MyList *ptr = mylist;
-	while (ptr) {
-		if (ptr->pid == pid)
-			return 1;
-		ptr = ptr->next;
+static char *proc_cmdline(const pid_t pid) {
+	// open /proc/pid/cmdline file
+	char *fname;
+	int fd;
+	if (asprintf(&fname, "/proc/%d/cmdline", pid) == -1)
+		return NULL;
+	if ((fd = open(fname, O_RDONLY)) < 0) {
+		free(fname);
+		return NULL;
 	}
-	return 0;
-}
+	free(fname);
 
-static void clean(void) {
-	MyList *ptr = mylist;
-	while (ptr) {
-		MyList *next = ptr->next;
-		free(ptr);
-		ptr = next;
+	// read file
+	char buffer[BUFLEN];
+	ssize_t len;
+	if ((len = read(fd, buffer, sizeof(buffer) - 1)) <= 0) {
+		close(fd);
+		return NULL;
 	}
-}
+	buffer[len] = '\0';
+	close(fd);
 
-static void print_args(pid_t pid) {
-	char *name;
-	if (asprintf(&name, "/proc/%u/cmdline", pid) == -1)
-		errExit("asprintf");
-	FILE *fp = fopen(name, "r");
-	if (!fp) {
-		fprintf(stderr, "Error: cannot open /proc directory\n");
-		exit(1);
-	}
+	// clean data
+	int i;
+	for (i = 0; i < len; i++)
+		if (buffer[i] == '\0')
+			buffer[i] = ' ';
 
-	char buf[BUFLEN + 1];
-	memset(buf, 0, sizeof(buf));
-	int cnt = fread(buf, 1, BUFLEN, fp);
-	if (cnt > 0) {
-		int len = strlen(buf) + 1;	// first string is the name of the program
-		char *ptr = buf + len;
-		cnt -= len;
-		while (cnt > 0) {
-			printf("%s ", ptr);
-			len = strlen(ptr) + 1;
-			ptr += len;
-			cnt -= len;
-		}
-	}
-	printf("\n");
+	// return a malloc copy of the command line
+	char *rv = strdup(buffer);
+	return rv;
 }
 
 void list(void) {
@@ -99,7 +72,6 @@ void list(void) {
 		
 		// look for firejail executable name
 		char buf[BUFLEN + 1];
-		char *name = NULL;
 		while (fgets(buf, BUFLEN, fp)) {
 			if (strncmp(buf, "Name:", 5) == 0) {
 				char *ptr = buf + 5;
@@ -112,34 +84,19 @@ void list(void) {
 				}
 
 				if (strncmp(ptr, "firejail", 8) == 0) {
-					printf("%u - firejail ", pid);
-					add(pid);	// place the pid in the container list
-					print_args(pid);
-					break;
-				}
-				if (mylist == NULL)
-					break;
-				else {
-					if (asprintf(&name, "%s", ptr) == -1)
-						errExit("asprintf");
-				}
-			}
-			else if (strncmp(buf, "PPid:", 5) == 0) {
-				pid_t parent;
-				if (sscanf(buf, "PPid:\t%u", &parent) == 1) {
-					if (is_listed(parent)) {
-						printf("\t%u - %s", pid, name);
-//						print_args(pid);
+					char *cmd = proc_cmdline(pid);
+					if (!cmd)
+						printf("%u - firejail\n", pid);
+					else {
+						printf("%u - %s\n", pid, cmd);
+						free(cmd);
 					}
+					break;
 				}
-				break;
 			}
 		}
-		if (name)
-			free(name);
 		fclose(fp);
 		free(file);
 	}
-	clean();
 	closedir(dir);
 }

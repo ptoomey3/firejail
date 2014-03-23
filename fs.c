@@ -105,7 +105,7 @@ void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) 
 		printf("Creating /tmp/firjail.dir.%s directory\n", childstr);
 
 	// create tmp directory
-	if (asprintf(&emptydir, "/tmp/firejail.dir.%s", childstr) == 1)
+	if (asprintf(&emptydir, "/tmp/firejail.dir.%s", childstr) == -1)
 		errExit("asprintf");
 	mkdir(emptydir, S_IRWXU);
 	uid_t u = getuid();
@@ -114,7 +114,7 @@ void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) 
 		errExit("chown");
 
 	// create tmp file
-	if (asprintf(&emptyfile, "/tmp/firejail.dir.%s/firejail.file.%s", childstr, childstr) == 1)
+	if (asprintf(&emptyfile, "/tmp/firejail.dir.%s/firejail.file.%s", childstr, childstr) == -1)
 		errExit("asprintf");
 	FILE *fp = fopen(emptyfile, "w");
 	if (!fp)

@@ -33,7 +33,7 @@ void join(pid_t pid) {
 	if (uid != 0) {
 		struct stat s;
 		char *dir;
-		if (asprintf(&dir, "/proc/%u/ns", pid) < 0)
+		if (asprintf(&dir, "/proc/%u/ns", pid) == -1)
 			errExit("asprintf");
 		if (stat(dir, &s) < 0)
 			errExit("stat");

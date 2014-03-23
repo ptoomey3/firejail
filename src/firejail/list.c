@@ -5,7 +5,14 @@
 #include <string.h>
 #include <fcntl.h>
 #include "firejail.h"
-#define BUFLEN 1023
+#define BUFLEN 4096
+#define MAX_PIDS 32769
+
+typedef struct {
+	unsigned char level;
+	pid_t parent;
+} Task;
+Task pids[MAX_PIDS];
 
 static char *proc_cmdline(const pid_t pid) {
 	// open /proc/pid/cmdline file
@@ -40,7 +47,36 @@ static char *proc_cmdline(const pid_t pid) {
 	return rv;
 }
 
+// recursivity!!!
+void print_elem(unsigned index) {
+	int i;
+	for (i = 0; i < pids[index].level - 1; i++)
+		printf("    ");
+	
+	char *cmd = proc_cmdline(index);
+	if (cmd) {
+		if (strlen(cmd) > 50)
+			printf("%u - %-50.50s...\n", index, cmd);
+		else
+			printf("%u - %-50.50s\n", index, cmd);
+		free(cmd);
+	}
+	else
+		printf("%u", index);
+}
+
+void print_tree(unsigned index, unsigned parent) {
+	print_elem(index);
+	
+	int i;
+	for (i = index + 1; i < MAX_PIDS; i++) {
+		if (pids[i].parent == index)
+			print_tree(i, index);
+	}
+}
+
 void list(void) {
+	memset(pids, 0, sizeof(pids));
 	pid_t mypid = getpid();
 
 	DIR *dir;
@@ -69,10 +105,10 @@ void list(void) {
 			free(file);
 			continue;
 		}
-		
+
 		// look for firejail executable name
-		char buf[BUFLEN + 1];
-		while (fgets(buf, BUFLEN, fp)) {
+		char buf[BUFLEN];
+		while (fgets(buf, BUFLEN - 1, fp)) {
 			if (strncmp(buf, "Name:", 5) == 0) {
 				char *ptr = buf + 5;
 				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
@@ -84,19 +120,39 @@ void list(void) {
 				}
 
 				if (strncmp(ptr, "firejail", 8) == 0) {
-					char *cmd = proc_cmdline(pid);
-					if (!cmd)
-						printf("%u - firejail\n", pid);
-					else {
-						printf("%u - %s\n", pid, cmd);
-						free(cmd);
-					}
+					pid %= MAX_PIDS;
+					pids[pid].level = 1;
 					break;
 				}
+			}
+			else if (strncmp(buf, "PPid:", 5) == 0) {
+				char *ptr = buf + 5;
+				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+					ptr++;
+				}
+				if (*ptr == '\0') {
+					fprintf(stderr, "Error: cannot read /proc file\n");
+					exit(1);
+				}
+				unsigned parent = atoi(ptr);
+				parent %= MAX_PIDS;
+				if (pids[parent].level) {
+					pid %= MAX_PIDS;
+					pids[pid].level = pids[parent].level + 1;
+					pids[pid].parent = parent;
+				}
+				break; // break regardless!
 			}
 		}
 		fclose(fp);
 		free(file);
 	}
 	closedir(dir);
+	
+	// print files
+	int i;
+	for (i = 0; i < MAX_PIDS; i++) {
+		if (pids[i].level == 1)
+			print_tree(i, 0);
+	}
 }

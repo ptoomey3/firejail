@@ -225,6 +225,13 @@ static int monitor(const int sock, pid_t mypid) {
 			int remove_pid = 0;
 			switch (proc_ev->what) {
 				case PROC_EVENT_FORK:
+#if 0
+printf("%u-%u - %u-%u\n",				
+proc_ev->event_data.fork.parent_pid,
+proc_ev->event_data.fork.parent_tgid,
+proc_ev->event_data.fork.child_pid,
+proc_ev->event_data.fork.child_tgid);
+#endif
 					pid = proc_ev->event_data.fork.parent_pid;
 					if (pids[pid]) {
 						child = proc_ev->event_data.fork.child_pid;
@@ -234,10 +241,20 @@ static int monitor(const int sock, pid_t mypid) {
 					sprintf(lineptr, " fork");
 					break;
 				case PROC_EVENT_EXEC:
+#if 0
+printf("%u-%u\n",				
+proc_ev->event_data.exec.process_pid,
+proc_ev->event_data.exec.process_tgid);
+#endif
 					pid = proc_ev->event_data.exec.process_pid;
 					sprintf(lineptr, " exec");
 					break;
 				case PROC_EVENT_EXIT:
+#if 0
+printf("%u-%u\n",				
+proc_ev->event_data.exit.process_pid,
+proc_ev->event_data.exit.process_tgid);
+#endif
 					pid = proc_ev->event_data.exit.process_pid;
 					remove_pid = 1;
 					sprintf(lineptr, " exit");

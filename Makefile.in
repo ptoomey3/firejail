@@ -27,10 +27,12 @@ distclean:;
 	rm -fr Makefile autom4te.cache config.log config.status config.h
 
 install: all
-	strip firejail
+	strip src/firejail/firejail
 	mkdir -p $(PREFIX)/bin
-	install -c -m 0755 firejail $(PREFIX)/bin/.
+	install -c -m 0755 src/firejail/firejail $(PREFIX)/bin/.
 	chmod u+s $(PREFIX)/bin/firejail
+	strip src/firemon/firemon
+	install -c -m 0755 src/firemon/firemon $(PREFIX)/bin/.
 	mkdir -p $(PREFIX)/share/doc/firejail
 	install -c -m 0644 COPYING $(PREFIX)/share/doc/firejail/.
 	install -c -m 0644 README $(PREFIX)/share/doc/firejail/.

@@ -1,6 +1,6 @@
 AC_PREREQ([2.68])
 AC_INIT(firejail, 0.9-test2, netblue30@yahoo.com, , http://firejail.sourceforge.net)
-AC_CONFIG_SRCDIR([main.c])
+AC_CONFIG_SRCDIR([src/firejail/main.c])
 #AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_CC

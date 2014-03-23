@@ -225,52 +225,48 @@ static int monitor(const int sock, pid_t mypid) {
 			int remove_pid = 0;
 			switch (proc_ev->what) {
 				case PROC_EVENT_FORK:
-#if 0
-printf("%u-%u - %u-%u\n",				
-proc_ev->event_data.fork.parent_pid,
-proc_ev->event_data.fork.parent_tgid,
-proc_ev->event_data.fork.child_pid,
-proc_ev->event_data.fork.child_tgid);
-#endif
-					pid = proc_ev->event_data.fork.parent_pid;
+					if (proc_ev->event_data.fork.child_pid !=
+					    proc_ev->event_data.fork.child_tgid)
+					    	continue; // this is a thread, not a process
+
+					pid = proc_ev->event_data.fork.parent_tgid;
 					if (pids[pid]) {
-						child = proc_ev->event_data.fork.child_pid;
+						child = proc_ev->event_data.fork.child_tgid;
 						child %= MAX_PIDS;
 						pids[child] = 1;
 					}
 					sprintf(lineptr, " fork");
 					break;
 				case PROC_EVENT_EXEC:
-#if 0
-printf("%u-%u\n",				
-proc_ev->event_data.exec.process_pid,
-proc_ev->event_data.exec.process_tgid);
-#endif
-					pid = proc_ev->event_data.exec.process_pid;
+					pid = proc_ev->event_data.exec.process_tgid;
 					sprintf(lineptr, " exec");
 					break;
+					
 				case PROC_EVENT_EXIT:
-#if 0
-printf("%u-%u\n",				
-proc_ev->event_data.exit.process_pid,
-proc_ev->event_data.exit.process_tgid);
-#endif
-					pid = proc_ev->event_data.exit.process_pid;
+					if (proc_ev->event_data.exit.process_pid !=
+					    proc_ev->event_data.exit.process_tgid)
+						continue; // this is a thread, not a process
+
+					pid = proc_ev->event_data.exit.process_tgid;
 					remove_pid = 1;
 					sprintf(lineptr, " exit");
 					break;
+					
 				case PROC_EVENT_UID:
-					pid = proc_ev->event_data.id.process_pid;
+					pid = proc_ev->event_data.id.process_tgid;
 					sprintf(lineptr, " uid ");
 					break;
+
 				case PROC_EVENT_GID:
-					pid = proc_ev->event_data.id.process_pid;
+					pid = proc_ev->event_data.id.process_tgid;
 					sprintf(lineptr, " gid ");
 					break;
+
 				case PROC_EVENT_SID:
-					pid = proc_ev->event_data.sid.process_pid;
+					pid = proc_ev->event_data.sid.process_tgid;
 					sprintf(lineptr, " sid ");
 					break;
+
 				default:
 					sprintf(lineptr, "\n");
 					continue;

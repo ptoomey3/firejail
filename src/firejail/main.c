@@ -179,11 +179,10 @@ int worker(void* worker_arg) {
 	if (setuid(getuid()) < 0)
 		errExit("setuid/getuid");
 	// set prompt for non-debian/ubuntu/mint systems
-	if (setenv("PS1", "\\e[01;31m\\u@\\h::\\w \\$ \\e[00m", 1) < 0)
-		errExit("setenv");
+//	if (setenv("PS1", "\\e[01;31m\\u@\\h::\\w \\$ \\e[00m", 1) < 0)
+//		errExit("setenv");
 	if (setenv("color_prompt", "yes", 1) < 0)
 		errExit("setenv");
-
 	char *arg[4];
 	arg[0] = "bash";
 	arg[1] = "-c";

@@ -48,6 +48,7 @@ install: all
 
 uninstall:;
 	rm -f $(PREFIX)/bin/firejail
+	rm -f $(PREFIX)/bin/firemon
 	rm -fr $(PREFIX)/share/doc/firejail
 	rm -fr $(PREFIX)/share/man/man1/firejail.1*
 	

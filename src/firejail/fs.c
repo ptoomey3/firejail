@@ -221,8 +221,8 @@ void mnt_basic_fs(void) {
 		printf("Mounting a new /root directory\n");
 	if (mount("tmpfs", "/root", "tmpfs", MS_STRICTATIME | MS_REC,  "mode=700,gid=0") < 0)
 		errExit("/root");
-	if (system("cp -r /etc/skel/.bashrc /root/.") == -1)
-		errExit("system");
+//	if (system("cp /etc/skel/.bashrc /root/. 2>&1") == -1)
+//		errExit("system");
 
 	// check /run directory exists
 	struct stat s;
@@ -234,10 +234,13 @@ void mnt_basic_fs(void) {
 			errExit("/run");
 		if (system("mkdir /run/shm") == -1)
 			errExit("system");
-		if (system("chown root.root /run/shm") == -1)
-			errExit("system");
-		if (system("chmod 777 /run/shm") == -1)
-			errExit("system");
+		if (chown("/run/shm", 0, 0))
+			errExit("chown");
+		if (chmod("/run/shm",
+			S_IRUSR | S_IWUSR | S_IXUSR |
+			S_IRGRP | S_IWGRP | S_IXGRP |
+			S_IROTH | S_IWOTH | S_IXOTH))
+			errExit("chmod");
 	}
 	else {
 		if (arg_debug)
@@ -250,7 +253,7 @@ void mnt_basic_fs(void) {
 
 void mnt_home(const char *homedir) {
 	if (arg_debug)
-		printf("Mounting a new /home directory\n");
+		printf("Mounting a new /home directory\n");  
 	if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 		errExit("/home");
 	mkdir(homedir, S_IRWXU|S_IRGRP|S_IXGRP);

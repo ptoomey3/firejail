@@ -1,5 +1,7 @@
-blacklist /sbin
+   blacklist /sbin
 blacklist /usr/sbin
-blacklist /etc/shadow
-${NEWTMP}
+blacklist		 /etc/shadow
+blacklist /bin/rmdir
+
+newdir   /tmp
 

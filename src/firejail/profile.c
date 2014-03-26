@@ -49,31 +49,67 @@ static void check_file_name(char *ptr, int lineno) {
 
 
 static void check_line(char *ptr, int lineno) {
-	if (strcmp(ptr, "${NEWTMP}") == 0)
-		return;
-	else if (strncmp(ptr, "blacklist", 9) == 0)
+	if (strncmp(ptr, "newdir ", 7) == 0)
+		ptr += 7;
+	else if (strncmp(ptr, "blacklist ", 10) == 0)
+		ptr += 10;
+	else if (strncmp(ptr, "preserve ", 9) == 0)
 		ptr += 9;
-	else if (strncmp(ptr, "preserve", 8) == 0)
-		ptr += 8;
 	else {
 		fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
 		exit(1);
 	}
 
-	if (*ptr != ' ' && *ptr != '\t') {
-		fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
-		exit(1);
-	}
-	while (*ptr == ' ' || *ptr == '\t')
-		ptr++;
-	
-	// some characters just don't appear in filenames
+	// some characters just don't belong in filenames
 	if (strncmp(ptr, "${HOME}", 7) == 0)
 		check_file_name(ptr + 7, lineno);
 	else if (strncmp(ptr, "${PATH}", 7) == 0)
 		check_file_name(ptr + 7, lineno);
 	else
 		check_file_name(ptr, lineno);
+}
+
+
+static char *remove_spaces(const char *buf) {
+	assert(buf);
+	if (strlen(buf) == 0)
+		return NULL;
+	
+	// allocate memory for the new string
+	char *rv = malloc(strlen(buf) + 1);
+	if (rv == NULL)
+		errExit("malloc");
+	
+	// remove space at start of line
+	const char *ptr1 = buf;
+	while (*ptr1 == ' ' || *ptr1 == '\t')
+		ptr1++;
+	
+	// copy data and remove additional spaces
+	char *ptr2 = rv;
+	int state = 0;
+	while (*ptr1 != '\0') {
+		if (*ptr1 == '\n' || *ptr1 == '\r')
+			break;
+			
+		if (state == 0) {
+			if (*ptr1 != ' ' && *ptr1 != '\t')
+				*ptr2++ = *ptr1++;
+			else {
+				*ptr2++ = ' ';
+				ptr1++;
+				state = 1;
+			}
+		}
+		else { // state == 1
+			while (*ptr1 == ' ' || *ptr1 == '\t')
+				ptr1++;
+			state = 0;
+		}
+	}
+	*ptr2 = '\0';
+
+	return rv;
 }
 
 
@@ -91,8 +127,7 @@ void read_profile(const char *fname) {
 	}
 
 	// linked list of lines
-	struct mylist
-	{
+	struct mylist {
 		char *line;
 		struct mylist *next;
 	}
@@ -108,40 +143,20 @@ void read_profile(const char *fname) {
 	while (fgets(buf, MAX_READ, fp)) {
 		++lineno;
 		// remove empty space
-		char *ptr = buf;
-		while (*ptr == ' ' || *ptr == '\t')
-			ptr++;
-
-		// empty line
-		if (*ptr == '\n' || *ptr == '\r')
+		char *ptr = remove_spaces(buf);
+		if (ptr == NULL || *ptr == '\0')
 			continue;
-
+		
 		// comments
 		if (*ptr == '#')
 			continue;
-
-		// strip end of line
-		char *end = ptr;
-		while (*end != '\0' && *end != '\n' && *end != '\r')
-			end++;
-		if (*end == '\0')
-			continue;
-		*end = '\0';
-		char *ptr1 = end;
-		while (*ptr1 == ' ' || *ptr1 == '\t')
-			ptr1--;
-		*ptr1 = '\0';
 
 		// verify syntax, exit in case of error
 		check_line(ptr, lineno);
 
 		// populate the linked list
 		assert(mptr);
-		int len =strlen(ptr);
-		mptr->line = malloc(len + 1);
-		if (mptr->line == NULL)
-			errExit("malloc");
-		strcpy(mptr->line, ptr);
+		mptr->line = ptr;
 		mptr->next = malloc(sizeof(struct mylist));
 		if (mptr->next == NULL)
 			errExit("malloc");
@@ -152,7 +167,7 @@ void read_profile(const char *fname) {
 	}
 
 	// build blacklist array
-	custom_profile  = malloc(sizeof(struct mylist *) * mylist_cnt);
+	custom_profile  = malloc(sizeof(char *) * mylist_cnt);
 	if (custom_profile == NULL) {
 		fprintf(stderr, "Error: cannot allocate memory");
 		exit(1);
@@ -166,4 +181,13 @@ void read_profile(const char *fname) {
 		lineno++;
 	}
 	custom_profile[lineno] = NULL;
+	
+	// free the list
+	mptr = &m;
+	mptr = mptr->next;
+	while (mptr) {
+		struct mylist *next = mptr->next;
+		free(mptr);
+		mptr = next;
+	}
 }

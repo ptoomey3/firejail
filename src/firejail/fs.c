@@ -49,15 +49,14 @@ static void disable_file(const char *fname, const char *emptydir, const char *em
 	assert(emptydir);
 	assert(emptyfile);
 	
-	// check if the file exists
 	struct stat s;
 	if (stat(fname, &s) == 0) {
 		if (S_ISDIR(s.st_mode)) {
-			if (mount(emptydir, fname, "none", MS_BIND, NULL) < 0)
+			if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
 				errExit(fname);
 		}
 		else {
-			if (mount(emptyfile, fname, "none", MS_BIND, NULL) < 0)
+			if (mount(emptyfile, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
 				errExit(fname);
 		}
 		if (arg_debug)
@@ -98,29 +97,37 @@ static void expand_path(const char *path, const char *fname, const char *emptydi
 
 // blacklist files or directoies by mounting empty files on top of them
 void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) {
+	char *tmpdir;
 	char *emptydir;
 	char *emptyfile;
 	
 	if (arg_debug)
-		printf("Creating /tmp/firjail.dir.%s directory\n", childstr);
+		printf("Creating /tmp/firejail.dir.%s directory\n", childstr);
 
 	// create tmp directory
-	if (asprintf(&emptydir, "/tmp/firejail.dir.%s", childstr) == -1)
+	if (asprintf(&tmpdir, "/tmp/firejail.dir.%s", childstr) == -1)
 		errExit("asprintf");
-	mkdir(emptydir, S_IRWXU);
+	mkdir(tmpdir, S_IRWXU);
 	uid_t u = getuid();
 	gid_t g = getgid();
-	if (chown(emptydir, u, g) < 0)
+	if (chown(tmpdir, u, g) < 0)
 		errExit("chown");
 
-	// create tmp file
-	if (asprintf(&emptyfile, "/tmp/firejail.dir.%s/firejail.file.%s", childstr, childstr) == -1)
+	// create read-only root directory
+	if (asprintf(&emptydir, "/tmp/firejail.dir.%s/firejail.ro.dir.%s", childstr, childstr) == -1)
+		errExit("asprintf");
+	mkdir(emptydir, S_IRWXU);
+	if (chown(emptydir, 0, 0) < 0)
+		errExit("chown");
+
+	// create read-only root file
+	if (asprintf(&emptyfile, "/tmp/firejail.dir.%s/firejail.ro.file.%s", childstr, childstr) == -1)
 		errExit("asprintf");
 	FILE *fp = fopen(emptyfile, "w");
 	if (!fp)
 		errExit("fopen");
 	fclose(fp);
-	if (chown(emptyfile, u, g) < 0)
+	if (chown(emptyfile, 0, 0) < 0)
 		errExit("chown");
 	if (chmod(emptyfile, S_IRUSR) < 0)
 		errExit("chown");
@@ -128,8 +135,11 @@ void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) 
 	int i = 0;
 	while (blacklist[i]) {
 		// process newtmp macro
-		if (strcmp(blacklist[i], "${NEWTMP}") == 0) {
-			mnt_tmp();
+		if (strncmp(blacklist[i], "newdir", 6) == 0) {
+			if (strcmp(blacklist[i], "newdir /tmp") == 0)
+				mnt_tmp();
+			else
+				fprintf(stderr, "Warning: %s not implemented yet\n", blacklist[i]);
 			i++;
 			continue;
 		}
@@ -144,19 +154,14 @@ void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) 
 		
 		char *ptr = blacklist[i] + 10;
 		// replace home macro in blacklist array
+		char *new_name = NULL;
 		if (strncmp(ptr, "${HOME}", 7) == 0) {
-			char *new_name = malloc(strlen(homedir) + strlen(ptr + 7) + 1);
-			if (new_name == NULL) {
-				fprintf(stderr, "Error: cannot allocate memory\n");
-				i++;
-				continue;
-			}
-			sprintf(new_name, "%s%s", homedir, ptr + 7);
+			if (asprintf(&new_name, "%s%s", homedir, ptr + 7) == -1)
+				errExit("asprintf");
 			ptr = new_name;
 		}
 		
 		// expand path macro - look for the file in /bin, /usr/bin, /sbin and  /usr/sbin directories
-		
 		if (strncmp(ptr, "${PATH}", 7) == 0) {
 			expand_path("/bin", ptr + 7, emptydir, emptyfile);
 			expand_path("/sbin", ptr + 7, emptydir, emptyfile);
@@ -165,9 +170,14 @@ void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) 
 		}
 		else
 			globbing(ptr, emptydir, emptyfile);
-
+		if (new_name)
+			free(new_name);
 		i++;
 	}
+	
+	free(tmpdir);
+	free(emptydir);
+	free(emptyfile);
 }
 
 

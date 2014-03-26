@@ -168,10 +168,8 @@ void read_profile(const char *fname) {
 
 	// build blacklist array
 	custom_profile  = malloc(sizeof(char *) * mylist_cnt);
-	if (custom_profile == NULL) {
-		fprintf(stderr, "Error: cannot allocate memory");
-		exit(1);
-	}
+	if (!custom_profile)
+		errExit("malloc");
 	mptr = &m;
 	lineno = 0;
 	while (mptr->next != NULL) {

@@ -45,7 +45,7 @@ int fds[2];
 static void extract_user_data(void) {
 	// check suid
 	if (geteuid()) {
-		fprintf(stderr, "Error: the sandbox is not seteuid root, aborting\n");
+		fprintf(stderr, "Error: the sandbox is not setuid root, aborting...\n");
 		exit(1);
 	}
 
@@ -75,7 +75,12 @@ static void extract_user_data(void) {
 // Worker thread
 //*******************************************
 int worker(void* worker_arg) {
+	if (arg_debug)
+		printf("Initializing child process\n");	
+
+	//****************************
 	// wait for the parent to be initialized
+	//****************************
 	char childstr[BUFLEN + 1];
 	FILE* stream;
 	close(fds[1]);
@@ -93,13 +98,12 @@ int worker(void* worker_arg) {
 	else
 		errExit("fgets");
 	close(fds[0]);
-
-	if (arg_debug) {
-		printf("Initializing child process\n");	
-		if (getpid() == 1)
+	if (arg_debug && getpid() == 1)
 			printf("PID namespace installed\n");
-	}
 
+	//****************************
+	// set hostname
+	//****************************
 	if (hostname) {
 		if (sethostname(hostname, strlen(hostname)) < 0)
 			errExit("sethostname");
@@ -117,13 +121,16 @@ int worker(void* worker_arg) {
 	if (chrootdir) {
 		if (chroot(chrootdir) < 0)
 			errExit("chroot");
-		perror("chroot");
 	}
-	mnt_basic_fs();
+	else
+		mnt_basic_fs();
+	
 	if (arg_private)
 		mnt_home(homedir);
 		
-	// set blacklist
+	//****************************
+	// apply the profile file
+	//****************************
 	assert(command_name);
 	if (!custom_profile) {
 		// look for a profile in ~/.config/firejail directory
@@ -138,6 +145,9 @@ int worker(void* worker_arg) {
 	if (custom_profile)
 		mnt_blacklist(custom_profile, homedir, childstr);
 	
+	//****************************
+	// update /proc filesystem
+	//****************************
 	mnt_proc_sys();
 
 	//****************************
@@ -178,9 +188,6 @@ int worker(void* worker_arg) {
 	// drop privileges
 	if (setuid(getuid()) < 0)
 		errExit("setuid/getuid");
-	// set prompt for non-debian/ubuntu/mint systems
-//	if (setenv("PS1", "\\e[01;31m\\u@\\h::\\w \\$ \\e[00m", 1) < 0)
-//		errExit("setenv");
 	if (setenv("color_prompt", "yes", 1) < 0)
 		errExit("setenv");
 	char *arg[4];

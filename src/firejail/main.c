@@ -77,7 +77,7 @@ static void extract_user_data(void) {
 int worker(void* worker_arg) {
 	if (arg_debug)
 		printf("Initializing child process\n");	
-
+	
 	//****************************
 	// wait for the parent to be initialized
 	//****************************
@@ -366,7 +366,7 @@ int main(int argc, char **argv) {
 	if (pipe(fds) < 0)
 		errExit("pipe");
 	
-	set_exit(getpid());
+	set_exit_parent(getpid());
 
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
@@ -409,5 +409,7 @@ int main(int argc, char **argv) {
 	
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
+	bye_parent();
+printf("%u, %u\n", getuid(), geteuid());
 	return 0;
 }

@@ -48,7 +48,8 @@ int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
 
 // fs.c
-void set_exit(pid_t pid);
+void set_exit_parent(pid_t pid);
+void bye_parent(void);
 void mnt_blacklist(char **blacklist, const char *homedir);
 void mnt_rdonly(const char *dir);
 void mnt_proc_sys(void);

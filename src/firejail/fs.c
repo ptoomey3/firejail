@@ -13,26 +13,21 @@
 //***********************************************
 static char *tmpdir = NULL;
 
-static void bye(void) {
+void bye_parent(void) {
 	if (!tmpdir)
 		return;
 
 	if (!arg_command)
-		printf("\nbye...\n");
-
-	// unmount the overlay, just in case... 
-	char *root;
-	if (asprintf(&root, "%s/root", tmpdir) == -1)
-		errExit("asprintf");
-	umount(root);
+		printf("\nparent is shutting down, bye...\n");
 
 	char cmd[strlen(tmpdir) + 20];
 	sprintf(cmd, "rm -fr %s", tmpdir);
 	if (system(cmd) < 0)
 		errExit("system");
+	tmpdir = NULL;
 }
 
-void set_exit(pid_t pid) {
+void set_exit_parent(pid_t pid) {
 	// create tmp directory
 	if (arg_debug)
 		printf("Creating /tmp/firejail.dir.%u directory\n", pid);
@@ -44,7 +39,7 @@ void set_exit(pid_t pid) {
 	if (chown(tmpdir, u, g) < 0)
 		errExit("chown");
 
-	if (atexit(bye))
+	if (atexit(bye_parent))
 		errExit("atexit");
 }
 
@@ -315,6 +310,13 @@ void mnt_overlayfs(void) {
 	if (mount("overlayfs", root, "overlayfs", MS_MGC_VAL, option) < 0)
 		errExit("mount overlayfs");
 
+	// mount-bind dev directory
+	char *dev;
+	if (asprintf(&dev, "%s/dev", root) == -1)
+		errExit("asprintf");
+	if (mount("/dev", dev, NULL, MS_BIND|MS_REC, NULL) < 0)
+		errExit("mount /dev");
+		
 	// chroot in the new filesystem
 	if (chroot(root) == -1)
 		errExit("chroot");
@@ -323,4 +325,5 @@ void mnt_overlayfs(void) {
 	free(option);
 	free(root);
 	free(overlay);
+//	free(dev);
 }

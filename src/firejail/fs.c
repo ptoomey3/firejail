@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <linux/limits.h>
 #include <glob.h>
+#include <dirent.h>
 #include "firejail.h"
 
 
@@ -13,17 +14,51 @@
 //***********************************************
 static char *tmpdir = NULL;
 
+static void unlink_walker(void) {
+	struct dirent *dir;
+	DIR *d = opendir( "." );
+	if (d == NULL)
+		return;
+
+	while ((dir = readdir(d))) {
+		if(strcmp( dir->d_name, "." ) == 0 || strcmp( dir->d_name, ".." ) == 0 )
+			continue;
+
+		if( dir->d_type == DT_DIR ) {
+			int rv = chdir(dir->d_name);
+			if (dir->d_type == DT_REG)
+				unlink_walker();
+			rv = chdir( ".." );
+			rmdir(dir->d_name);
+			(void) rv;
+		}
+		else {
+			unlink(dir->d_name);
+		}
+	}
+
+	closedir(d);
+}
+
+
 void bye_parent(void) {
 	if (!tmpdir)
 		return;
 
 	if (!arg_command)
 		printf("\nparent is shutting down, bye...\n");
-
+	
+	int rv = chdir(tmpdir);
+	unlink_walker();
+	rv = chdir("..");
+	(void) rv;	
+	rmdir(tmpdir);
+#if 0	
 	char cmd[strlen(tmpdir) + 20];
 	sprintf(cmd, "rm -fr %s", tmpdir);
 	if (system(cmd) < 0)
 		errExit("system");
+#endif
 	tmpdir = NULL;
 }
 

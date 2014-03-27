@@ -410,6 +410,5 @@ int main(int argc, char **argv) {
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
 	bye_parent();
-printf("%u, %u\n", getuid(), geteuid());
 	return 0;
 }

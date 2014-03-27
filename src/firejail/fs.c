@@ -360,5 +360,5 @@ void mnt_overlayfs(void) {
 	free(option);
 	free(root);
 	free(overlay);
-//	free(dev);
+	free(dev);
 }

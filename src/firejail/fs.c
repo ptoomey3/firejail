@@ -20,6 +20,12 @@ static void bye(void) {
 	if (!arg_command)
 		printf("\nbye...\n");
 
+	// unmount the overlay, just in case... 
+	char *root;
+	if (asprintf(&root, "%s/root", tmpdir) == -1)
+		errExit("asprintf");
+	umount(root);
+
 	char cmd[strlen(tmpdir) + 20];
 	sprintf(cmd, "rm -fr %s", tmpdir);
 	if (system(cmd) < 0)
@@ -300,21 +306,21 @@ void mnt_overlayfs(void) {
 		errExit("chown");
 	if (chmod(root, S_IRWXU|S_IRWXG|S_IRWXO))
 		errExit("chmod");
-	
-	// mount -t overlayfs -o lowerdir=/,upperdir=$tmpdir/overlay overlayfs $tmpdir/root
+
+	// mount overlayfs:
+	//      mount -t overlayfs -o lowerdir=/,upperdir=$tmpdir/overlay overlayfs $tmpdir/root
 	char *option;
 	if (asprintf(&option, "lowerdir=/,upperdir=%s", overlay) == -1)
 		errExit("asprintf");
-	char *cmd;
-	if (asprintf(&cmd, "id && mount -t overlayfs -o lowerdir=/,upperdir=%s overlayfs %s", tmpdir, root) == -1)
-		errExit("asprintf");
-printf("#%s#\n", cmd);
-	system(cmd);
+	if (mount("overlayfs", root, "overlayfs", MS_MGC_VAL, option) < 0)
+		errExit("mount overlayfs");
+
+	// chroot in the new filesystem
 	if (chroot(root) == -1)
 		errExit("chroot");
-printf("here %d\n", __LINE__);
-system("pwd");		
-printf("here %d\n", __LINE__);
+
+	// cleanup and exit
+	free(option);
 	free(root);
 	free(overlay);
 }

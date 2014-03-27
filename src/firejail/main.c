@@ -118,7 +118,7 @@ int worker(void* worker_arg) {
 	//****************************
 	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0)
 		errExit("mount slave");
-	mnt_proc_sys();
+
 	if (chrootdir) {
 		if (chroot(chrootdir) < 0)
 			errExit("chroot");
@@ -147,6 +147,8 @@ int worker(void* worker_arg) {
 		get_profile(command_name, "/etc/firejail");
 	if (custom_profile)
 		mnt_blacklist(custom_profile, homedir);
+
+	mnt_proc_sys();
 	
 	//****************************
 	// networking

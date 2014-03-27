@@ -19,7 +19,7 @@
 
 #define STACK_SIZE (1024 * 1024)
 static char child_stack[STACK_SIZE];	// space for child's stack
-static char *username = NULL;	// current user
+static char *username = NULL;		// current user
 static char *chrootdir = NULL;
 static char *homedir = NULL;
 static char *bridgedev = NULL;
@@ -31,10 +31,10 @@ static uint32_t bridgeip = 0;
 static uint32_t bridgemask = 0;
 char **custom_profile = NULL;
 static int arg_private = 0;		// mount private /home directoryu
-int arg_debug = 0;			// print debug messages
+int arg_debug = 0;		// print debug messages
 int arg_nonetwork = 0;
-int arg_command = 0;			// -c
-
+int arg_command = 0;		// -c
+int arg_overlay = 0;		// --overlay
 
 // parent-child communication pipe
 int fds[2];
@@ -118,10 +118,13 @@ int worker(void* worker_arg) {
 	//****************************
 	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0)
 		errExit("mount slave");
+	mnt_proc_sys();
 	if (chrootdir) {
 		if (chroot(chrootdir) < 0)
 			errExit("chroot");
 	}
+	else if (arg_overlay)
+		mnt_overlayfs();
 	else
 		mnt_basic_fs();
 	
@@ -143,13 +146,8 @@ int worker(void* worker_arg) {
 		// look for a user profile in /etc/firejail directory
 		get_profile(command_name, "/etc/firejail");
 	if (custom_profile)
-		mnt_blacklist(custom_profile, homedir, childstr);
+		mnt_blacklist(custom_profile, homedir);
 	
-	//****************************
-	// update /proc filesystem
-	//****************************
-	mnt_proc_sys();
-
 	//****************************
 	// networking
 	//****************************
@@ -234,6 +232,8 @@ int main(int argc, char **argv) {
 			printf("firejail version %s\n", VERSION);
 			return 0;
 		}
+		else if (strcmp(argv[i], "--overlay") == 0)
+			arg_overlay = 1;
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
 		else if (strcmp(argv[i], "--debug") == 0)
@@ -364,6 +364,8 @@ int main(int argc, char **argv) {
 	if (pipe(fds) < 0)
 		errExit("pipe");
 	
+	set_exit(getpid());
+
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
 	if (bridgedev) {
@@ -402,7 +404,6 @@ int main(int argc, char **argv) {
 	fprintf(stream, "%u\n", child);
 	fflush(stream);
 	close(fds[1]);
-	set_exit(child);
 	
 	// wait for the child to finish
 	waitpid(child, NULL, 0);

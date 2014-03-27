@@ -11,10 +11,12 @@
 //***********************************************
 // atexit
 //***********************************************
-static char tmpdir[PATH_MAX];
+static char *tmpdir = NULL;
 
 static void bye(void) {
-	assert(tmpdir);
+	if (!tmpdir)
+		return;
+
 	if (!arg_command)
 		printf("\nbye...\n");
 
@@ -24,8 +26,18 @@ static void bye(void) {
 		errExit("system");
 }
 
-void set_exit(pid_t child) {
-	sprintf(tmpdir, "/tmp/firejail.dir.%u", child);
+void set_exit(pid_t pid) {
+	// create tmp directory
+	if (arg_debug)
+		printf("Creating /tmp/firejail.dir.%u directory\n", pid);
+	if (asprintf(&tmpdir, "/tmp/firejail.dir.%u", pid) == -1)
+		errExit("asprintf");
+	mkdir(tmpdir, S_IRWXU);
+	uid_t u = getuid();
+	gid_t g = getgid();
+	if (chown(tmpdir, u, g) < 0)
+		errExit("chown");
+
 	if (atexit(bye))
 		errExit("atexit");
 }
@@ -96,32 +108,20 @@ static void expand_path(const char *path, const char *fname, const char *emptydi
 }
 
 // blacklist files or directoies by mounting empty files on top of them
-void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) {
-	char *tmpdir;
+void mnt_blacklist(char **blacklist, const char *homedir) {
 	char *emptydir;
 	char *emptyfile;
+	assert(tmpdir);
 	
-	if (arg_debug)
-		printf("Creating /tmp/firejail.dir.%s directory\n", childstr);
-
-	// create tmp directory
-	if (asprintf(&tmpdir, "/tmp/firejail.dir.%s", childstr) == -1)
-		errExit("asprintf");
-	mkdir(tmpdir, S_IRWXU);
-	uid_t u = getuid();
-	gid_t g = getgid();
-	if (chown(tmpdir, u, g) < 0)
-		errExit("chown");
-
 	// create read-only root directory
-	if (asprintf(&emptydir, "/tmp/firejail.dir.%s/firejail.ro.dir.%s", childstr, childstr) == -1)
+	if (asprintf(&emptydir, "%s/firejail.ro.dir", tmpdir) == -1)
 		errExit("asprintf");
 	mkdir(emptydir, S_IRWXU);
 	if (chown(emptydir, 0, 0) < 0)
 		errExit("chown");
 
 	// create read-only root file
-	if (asprintf(&emptyfile, "/tmp/firejail.dir.%s/firejail.ro.file.%s", childstr, childstr) == -1)
+	if (asprintf(&emptyfile, "%s/firejail.ro.file", tmpdir) == -1)
 		errExit("asprintf");
 	FILE *fp = fopen(emptyfile, "w");
 	if (!fp)
@@ -175,7 +175,6 @@ void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr) 
 		i++;
 	}
 	
-	free(tmpdir);
 	free(emptydir);
 	free(emptyfile);
 }
@@ -275,4 +274,47 @@ void mnt_home(const char *homedir) {
 	if (chown(cmd, u, g) == -1)
 		errExit("chown");
 	free(cmd);
+}
+
+void mnt_overlayfs(void) {
+	assert(tmpdir);
+	
+	// build overlay directory
+	char *overlay;
+	if (asprintf(&overlay, "%s/overlay", tmpdir) == -1)
+		errExit("asprintf");
+	if (mkdir(overlay, S_IRWXU|S_IRWXG|S_IRWXO))
+		errExit("mkdir");
+	if (chown(overlay, 0, 0) == -1)
+		errExit("chown");
+	if (chmod(overlay, S_IRWXU|S_IRWXG|S_IRWXO))
+		errExit("chmod");
+	
+	// build new root directory
+	char *root;
+	if (asprintf(&root, "%s/root", tmpdir) == -1)
+		errExit("asprintf");
+	if (mkdir(root, S_IRWXU|S_IRWXG|S_IRWXO))
+		errExit("mkdir");
+	if (chown(root, 0, 0) == -1)
+		errExit("chown");
+	if (chmod(root, S_IRWXU|S_IRWXG|S_IRWXO))
+		errExit("chmod");
+	
+	// mount -t overlayfs -o lowerdir=/,upperdir=$tmpdir/overlay overlayfs $tmpdir/root
+	char *option;
+	if (asprintf(&option, "lowerdir=/,upperdir=%s", overlay) == -1)
+		errExit("asprintf");
+	char *cmd;
+	if (asprintf(&cmd, "id && mount -t overlayfs -o lowerdir=/,upperdir=%s overlayfs %s", tmpdir, root) == -1)
+		errExit("asprintf");
+printf("#%s#\n", cmd);
+	system(cmd);
+	if (chroot(root) == -1)
+		errExit("chroot");
+printf("here %d\n", __LINE__);
+system("pwd");		
+printf("here %d\n", __LINE__);
+	free(root);
+	free(overlay);
 }

@@ -19,6 +19,9 @@ void usage(void) {
 	printf("\t--net=bridgename - enable network namespaces and connect to this bridge\n");
 	printf("\t\tdevice\n");
 	printf("\t--net=none - enable a new, unconnected network namespace\n");
+	printf("\t--overlay - mount a filesystem overlay on top of the current filesystem\n");
+	printf("\t            (OverlayFS support is required in Linux kernel for this\n");
+	printf("\t            option to work)\n");    
 	printf("\t--private - mount a new /home/user directory\n");
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--version - print program version and exit\n");

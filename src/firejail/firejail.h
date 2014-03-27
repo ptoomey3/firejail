@@ -48,12 +48,13 @@ int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
 
 // fs.c
-void set_exit(pid_t child);
-void mnt_blacklist(char **blacklist, const char *homedir, const char *childstr);
+void set_exit(pid_t pid);
+void mnt_blacklist(char **blacklist, const char *homedir);
 void mnt_rdonly(const char *dir);
 void mnt_proc_sys(void);
 void mnt_basic_fs(void);
 void mnt_home(const char *homedir);
+void mnt_overlayfs(void);
 
 // profile.c
 void get_profile(const char *name, const char *dir);

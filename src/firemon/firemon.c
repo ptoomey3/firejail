@@ -108,16 +108,16 @@ static void read_pids(pid_t mypid) {
 
 static void print_pids(void) {
 	int i;
-	printf("Monitoring pids: ");
+	printf("Monitored processes:\n");
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i]) {
 			char *cmd = proc_cmdline(i);
 			if (cmd) {
-				printf("%d (%s), ", i, cmd);
+				printf("%d - %-70.70s\n", i, cmd);
 				free(cmd);
 			}
 			else
-				printf("%d, ", i);
+				printf("%d\n", i);
 		}
 	}
 	printf("\n");
@@ -308,15 +308,30 @@ static int monitor(const int sock, pid_t mypid) {
 	return 0;
 }
 
-
+static void usage(void) {
+	printf("Usage: firejail proces_id\n");
+	printf("where\n");
+	printf("\tproces_id - process id for the process being monitored\n");
+	printf("\n");
+}
 
 int main(int argc, char **argv) {
 	unsigned pid;
 	if (argc != 2) {
 		fprintf(stderr, "Error: pid argument missing\n");
+		usage();
 		return 1;
 	}
 	
+	int i;
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "--help") == 0 ||
+		    strcmp(argv[i], "-?") == 0) {
+			usage();
+			return 0;
+		}
+	}
+		
 	if (sscanf(argv[1], "%u", &pid) != 1) {
 		fprintf(stderr, "Error: invalid pid number\n");
 		return 1;

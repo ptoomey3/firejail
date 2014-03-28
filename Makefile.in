@@ -20,7 +20,7 @@ clean:;
 	done
 	rm -f firejail.1 firejail.1.gz
 
-distclean:;
+distclean: clean
 	for dir in $(APPS); do \
 		$(MAKE) -C $$dir distclean; \
 	done
@@ -53,7 +53,12 @@ uninstall:;
 	rm -fr $(PREFIX)/share/man/man1/firejail.1*
 	
 dist:
+	make distclean
+	rm -fr $(NAME)-$(VERSION) $(NAME)-$(VERSION).tar.bz2
 	mkdir $(NAME)-$(VERSION)
-	cd $(NAME)-$(VERSION); cp -a ../* .; rm -fr $(NAME)-$(VERSION); make distclean; cd ..
+	cd $(NAME)-$(VERSION); cp -a ../src .; cp -a ../man .; cp -a ../profiles .; cd ..
+	cd $(NAME)-$(VERSION); cp -a ../configure .; cp -a ../configure.ac .; cp -a ../Makefile.in .; cp -a ../install.sh .; cp -a ../mkman.sh .; cd ..
+	cd $(NAME)-$(VERSION); cp -a ../COPYING .; cp -a ../README .; cp -a ../RELNOTES .; cp -a ../ .; cp -a ../ .; cd ..
+	cd $(NAME)-$(VERSION); rm -fr `find . -name .svn`; rm -fr $(NAME)-$(VERSION); cd ..
 	tar -cjvf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
 	rm -fr $(NAME)-$(VERSION)

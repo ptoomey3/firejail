@@ -5,13 +5,6 @@ run in web browsers. Most of the time these applications are to complex to be
 bug-free, or they can come from an adversary trying to get access to our
 computer.
 
-Traditionally, restricting the environment where this kind of software programs
-run is implemented in Linux/POSIX systems using chroot jails. A chroot system
-limits the filesystem access for processes running inside the jail. Such a
-process sees a new root filesystem and has no access to the original one. Linux
-namespaces expand chroot concept and bring in process ID (PID) table,
-inter-process communication  (IPC) and network stack isolation.
-
 Firejail is a sandbox program that reduces the risk of a security breach by
 restricting the running environment of untrusted applications using Linux
 namespaces. It currently implements filesystem, PID, IPC and networking stack
@@ -24,3 +17,6 @@ by adding Linux namespace support. It can be used to restrict the login on a ser
 in a Linux namespace sandbox. For example, you can set up the login of a specific
 ssh user in a sandbox without network access. 
 
+Namespace support in Linux kernel
+ipc, net, uts since 3.0
+pid probably in 3.8

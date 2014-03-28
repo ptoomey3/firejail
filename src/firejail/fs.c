@@ -8,30 +8,51 @@
 #include <dirent.h>
 #include "firejail.h"
 
-
 //***********************************************
 // utils
 //***********************************************
+char *get_link(const char *fname) {
+	assert(fname);
+	struct stat sb;
+	char *linkname;
+	ssize_t r;
+	
+	if (lstat(fname, &sb) == -1)
+		return NULL;
+
+	linkname = malloc(sb.st_size + 1);
+	if (linkname == NULL)
+		return NULL;
+
+	r = readlink(fname, linkname, sb.st_size + 1);
+	if (r < 0)
+		return NULL;
+	return linkname;
+}
+
 int is_dir(const char *fname) {
 	assert(fname);
 	struct stat s;
-	if (stat(fname, &s) == 0) {
+	if (lstat(fname, &s) == 0) {
 		if (S_ISDIR(s.st_mode))
 			return 1;
 	}
-	
+
 	return 0;
 }
+
+
 int is_link(const char *fname) {
 	assert(fname);
 	struct stat s;
-	if (stat(fname, &s) == 0) {
-		if (S_ISDIR(s.st_mode))
+	if (lstat(fname, &s) == 0) {
+		if (S_ISLNK(s.st_mode))
 			return 1;
 	}
-	
+
 	return 0;
 }
+
 
 //***********************************************
 // atexit
@@ -74,14 +95,15 @@ void bye_parent(void) {
 
 	if (!arg_command)
 		printf("\nparent is shutting down, bye...\n");
-	
+
 	int rv = chdir(tmpdir);
 	unlink_walker();
 	rv = chdir("..");
-	(void) rv;	
+	(void) rv;
 	rmdir(tmpdir);
 	tmpdir = NULL;
 }
+
 
 void set_exit_parent(pid_t pid) {
 	// create tmp directory
@@ -113,11 +135,12 @@ static void mnt_tmp(void) {
 		errExit("/tmp");
 }
 
+
 static void disable_file(const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(fname);
 	assert(emptydir);
 	assert(emptyfile);
-	
+
 	struct stat s;
 	if (stat(fname, &s) == 0) {
 		if (S_ISDIR(s.st_mode)) {
@@ -132,6 +155,7 @@ static void disable_file(const char *fname, const char *emptydir, const char *em
 			printf("Disabling %s\n", fname);
 	}
 }
+
 
 static void globbing(const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(fname);
@@ -153,6 +177,7 @@ static void globbing(const char *fname, const char *emptydir, const char *emptyf
 		disable_file(fname, emptydir, emptyfile);
 }
 
+
 static void expand_path(const char *path, const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(path);
 	assert(fname);
@@ -160,16 +185,17 @@ static void expand_path(const char *path, const char *fname, const char *emptydi
 	assert(emptyfile);
 	char newname[strlen(path) + strlen(fname) + 1];
 	sprintf(newname, "%s%s", path, fname);
-	
+
 	globbing(newname, emptydir, emptyfile);
 }
+
 
 // blacklist files or directoies by mounting empty files on top of them
 void mnt_blacklist(char **blacklist, const char *homedir) {
 	char *emptydir;
 	char *emptyfile;
 	assert(tmpdir);
-	
+
 	// create read-only root directory
 	if (asprintf(&emptydir, "%s/firejail.ro.dir", tmpdir) == -1)
 		errExit("asprintf");
@@ -207,8 +233,7 @@ void mnt_blacklist(char **blacklist, const char *homedir) {
 			i++;
 			continue;
 		}
-				
-		
+
 		char *ptr = blacklist[i] + 10;
 		// replace home macro in blacklist array
 		char *new_name = NULL;
@@ -217,7 +242,7 @@ void mnt_blacklist(char **blacklist, const char *homedir) {
 				errExit("asprintf");
 			ptr = new_name;
 		}
-		
+
 		// expand path macro - look for the file in /bin, /usr/bin, /sbin and  /usr/sbin directories
 		if (strncmp(ptr, "${PATH}", 7) == 0) {
 			expand_path("/bin", ptr + 7, emptydir, emptyfile);
@@ -231,7 +256,7 @@ void mnt_blacklist(char **blacklist, const char *homedir) {
 			free(new_name);
 		i++;
 	}
-	
+
 	free(emptydir);
 	free(emptyfile);
 }
@@ -271,35 +296,78 @@ void mnt_proc_sys(void) {
 	//		errExit("/sys");
 }
 
+
 static void resolve_run_shm(void) {
+	if (arg_debug) {
+		char *lnk;
+		if (is_dir("/var/run"))
+			printf("/var/run is a directory\n");
+		if (is_link("/var/run")) {
+			lnk = get_link("/var/run");
+			if (lnk) {
+				printf("/var/run is a symbolic link to %s\n", lnk);
+				free(lnk);
+			}
+		}
+		if (is_dir("/dev/shm"))
+			printf("/dev/shm is a directory\n");
+		if (is_link("/dev/shm")) {
+			lnk = get_link("/dev/shm");
+			if (lnk) {
+				printf("/dev/shm is a symbolic link to %s\n", lnk);
+				free(lnk);
+			}
+		}
+	}
+
 	if (is_dir("/var/run")) {
- 		if (arg_debug)
+		if (arg_debug)
 			printf("Mounting tmpfs on /var/run\n");
 		if (mount("tmpfs", "/var/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 			errExit("mount /var/tmp");
 	}
 	else if (is_link("/var/run")) {
-		if (arg_debug)
-			printf("Mounting tmpfs on /run directory\n");
-		if (mount("tmpfs", "/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("/run");
-		if (mkdir("/run/shm", S_IRWXU|S_IRWXG|S_IRWXO))
-			errExit("mkdir");
-		if (chown("/run/shm", 0, 0))
-			errExit("chown");
-		if (chmod("/run/shm", S_IRWXU|S_IRWXG|S_IRWXO))
-			errExit("chmod");
-		if (mount("tmpfs", "/run/shm", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mount /run/shm");
+		char *lnk = get_link("/var/run");
+		if (lnk) {
+			if (is_dir(lnk)) {
+				if (arg_debug)
+					printf("Mounting tmpfs on %s directory\n", lnk);
+				if (mount("tmpfs", lnk, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+					errExit("mount tmpfs");
+			}
+		}
+		else
+			fprintf(stderr, "Warning: /var/run not mounted\n");
 	}
-	
+
 	if (is_dir("/dev/shm")) {
- 		if (arg_debug)
+		if (arg_debug)
 			printf("Mounting tmpfs on /dev/shm\n");
-		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mount /var/tmp");
+		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mount /dev/shm");
+	}
+	else {
+		char *lnk = get_link("/dev/shm");
+		if (lnk) {
+			if (!is_dir(lnk)) {
+				// create directory
+				if (mkdir(lnk, S_IRWXU|S_IRWXG|S_IRWXO))
+					errExit("mkdir");
+				if (chown(lnk, 0, 0))
+					errExit("chown");
+				if (chmod(lnk, S_IRWXU|S_IRWXG|S_IRWXO))
+					errExit("chmod");
+			}
+			if (arg_debug)
+				printf("Mounting tmpfs on %s\n", lnk);
+			if (mount("tmpfs", lnk, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+				errExit("mount /var/tmp");
+		}
+		else
+			fprintf(stderr, "Warning: /dev/shm not mounted\n");
 	}
 }
+
 
 // build a basic read-only filesystem
 void mnt_basic_fs(void) {
@@ -317,11 +385,9 @@ void mnt_basic_fs(void) {
 }
 
 
-
-
 void mnt_home(const char *homedir) {
 	if (arg_debug)
-		printf("Mounting a new /home directory\n");  
+		printf("Mounting a new /home directory\n");
 	if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 		errExit("/home");
 	mkdir(homedir, S_IRWXU);
@@ -329,7 +395,7 @@ void mnt_home(const char *homedir) {
 	gid_t g = getgid();
 	if (chown(homedir, u, g) == -1)
 		errExit("chown");
-	
+
 	// copy skel files
 	char *cmd;
 	if (asprintf(&cmd, "cp -r /etc/skel/.bashrc %s/.", homedir) == -1)
@@ -337,7 +403,7 @@ void mnt_home(const char *homedir) {
 	if (system(cmd) == -1)
 		errExit("system");
 	free(cmd);
-	
+
 	if (asprintf(&cmd, "%s/.bashrc", homedir) == -1)
 		errExit("asprintf");
 	if (chown(cmd, u, g) == -1)
@@ -345,9 +411,10 @@ void mnt_home(const char *homedir) {
 	free(cmd);
 }
 
+
 void mnt_overlayfs(void) {
 	assert(tmpdir);
-	
+
 	// build overlay directory
 	char *overlay;
 	if (asprintf(&overlay, "%s/overlay", tmpdir) == -1)
@@ -358,7 +425,7 @@ void mnt_overlayfs(void) {
 		errExit("chown");
 	if (chmod(overlay, S_IRWXU|S_IRWXG|S_IRWXO))
 		errExit("chmod");
-	
+
 	// build new root directory
 	char *root;
 	if (asprintf(&root, "%s/root", tmpdir) == -1)
@@ -386,7 +453,7 @@ void mnt_overlayfs(void) {
 		errExit("mount /dev");
 
 	resolve_run_shm();
-		
+
 	// chroot in the new filesystem
 	if (chroot(root) == -1)
 		errExit("chroot");

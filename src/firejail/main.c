@@ -188,7 +188,9 @@ int worker(void* worker_arg) {
 	// drop privileges
 	if (setuid(getuid()) < 0)
 		errExit("setuid/getuid");
-	if (setenv("color_prompt", "yes", 1) < 0)
+	// set prompt color to green
+	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
+	if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
 		errExit("setenv");
 	char *arg[4];
 	arg[0] = "bash";

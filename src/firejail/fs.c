@@ -329,12 +329,23 @@ static void resolve_run_shm(void) {
 	else if (is_link("/var/run")) {
 		char *lnk = get_link("/var/run");
 		if (lnk) {
-			if (is_dir(lnk)) {
+			// convert a link such as "../run" into "/run"
+			char *lnk2 = lnk;
+			int cnt = 0;
+			while (strncmp(lnk2, "../", 3) == 0) {
+				cnt++;
+				lnk2 = lnk2 + 3;
+			}
+			if (cnt != 0)
+				lnk2 = lnk + (cnt - 1) * 3 + 2;
+
+			if (is_dir(lnk2)) {
 				if (arg_debug)
-					printf("Mounting tmpfs on %s directory\n", lnk);
-				if (mount("tmpfs", lnk, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+					printf("Mounting tmpfs on %s directory\n", lnk2);
+				if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 					errExit("mount tmpfs");
 			}
+			free(lnk);
 		}
 		else
 			fprintf(stderr, "Warning: /var/run not mounted\n");
@@ -349,19 +360,30 @@ static void resolve_run_shm(void) {
 	else {
 		char *lnk = get_link("/dev/shm");
 		if (lnk) {
-			if (!is_dir(lnk)) {
+			// convert a link such as "../shm" into "/shm"
+			char *lnk2 = lnk;
+			int cnt = 0;
+			while (strncmp(lnk2, "../", 3) == 0) {
+				cnt++;
+				lnk2 = lnk2 + 3;
+			}
+			if (cnt != 0)
+				lnk2 = lnk + (cnt - 1) * 3 + 2;
+
+			if (!is_dir(lnk2)) {
 				// create directory
-				if (mkdir(lnk, S_IRWXU|S_IRWXG|S_IRWXO))
+				if (mkdir(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
 					errExit("mkdir");
-				if (chown(lnk, 0, 0))
+				if (chown(lnk2, 0, 0))
 					errExit("chown");
-				if (chmod(lnk, S_IRWXU|S_IRWXG|S_IRWXO))
+				if (chmod(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
 					errExit("chmod");
 			}
 			if (arg_debug)
-				printf("Mounting tmpfs on %s\n", lnk);
-			if (mount("tmpfs", lnk, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+				printf("Mounting tmpfs on %s\n", lnk2);
+			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 				errExit("mount /var/tmp");
+			free(lnk);
 		}
 		else
 			fprintf(stderr, "Warning: /dev/shm not mounted\n");
@@ -380,7 +402,6 @@ void mnt_basic_fs(void) {
 	mnt_rdonly("/usr");
 	mnt_rdonly("/boot");
 	mnt_rdonly("/etc");
-	mnt_rdonly("/opt");
 	resolve_run_shm();
 }
 
@@ -414,7 +435,8 @@ void mnt_home(const char *homedir) {
 
 void mnt_overlayfs(void) {
 	assert(tmpdir);
-
+exit(1);
+#if 0 // under testing
 	// build overlay directory
 	char *overlay;
 	if (asprintf(&overlay, "%s/overlay", tmpdir) == -1)
@@ -463,4 +485,5 @@ void mnt_overlayfs(void) {
 	free(root);
 	free(overlay);
 	free(dev);
+#endif
 }

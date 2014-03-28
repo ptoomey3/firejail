@@ -12,7 +12,7 @@ blacklist ${PATH}/fusermount
 blacklist ${PATH}/su
 blacklist ${PATH}/sudo
 blacklist ${PATH}/xinput
-blacklist /etc/shadow
+blacklist ${PATH}/strace
 	
 # HOME directory
 blacklist ${HOME}/.ssh

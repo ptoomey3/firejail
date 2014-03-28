@@ -24,15 +24,18 @@ static void unlink_walker(void) {
 		if(strcmp( dir->d_name, "." ) == 0 || strcmp( dir->d_name, ".." ) == 0 )
 			continue;
 
-		if( dir->d_type == DT_DIR ) {
+		if (dir->d_type == DT_DIR ) {
 			int rv = chdir(dir->d_name);
-			if (dir->d_type == DT_REG)
-				unlink_walker();
+			unlink_walker();
 			rv = chdir( ".." );
 			rmdir(dir->d_name);
 			(void) rv;
 		}
 		else {
+			if (dir->d_type == DT_UNKNOWN) {
+				fprintf(stderr, "Error: cannot remove temporary directory %s - unknown filesystem type\n", tmpdir);
+				return;
+			}
 			unlink(dir->d_name);
 		}
 	}
@@ -53,12 +56,6 @@ void bye_parent(void) {
 	rv = chdir("..");
 	(void) rv;	
 	rmdir(tmpdir);
-#if 0	
-	char cmd[strlen(tmpdir) + 20];
-	sprintf(cmd, "rm -fr %s", tmpdir);
-	if (system(cmd) < 0)
-		errExit("system");
-#endif
 	tmpdir = NULL;
 }
 

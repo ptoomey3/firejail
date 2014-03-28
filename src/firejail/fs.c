@@ -10,6 +10,30 @@
 
 
 //***********************************************
+// utils
+//***********************************************
+int is_dir(const char *fname) {
+	assert(fname);
+	struct stat s;
+	if (stat(fname, &s) == 0) {
+		if (S_ISDIR(s.st_mode))
+			return 1;
+	}
+	
+	return 0;
+}
+int is_link(const char *fname) {
+	assert(fname);
+	struct stat s;
+	if (stat(fname, &s) == 0) {
+		if (S_ISDIR(s.st_mode))
+			return 1;
+	}
+	
+	return 0;
+}
+
+//***********************************************
 // atexit
 //***********************************************
 static char *tmpdir = NULL;
@@ -247,6 +271,36 @@ void mnt_proc_sys(void) {
 	//		errExit("/sys");
 }
 
+static void resolve_run_shm(void) {
+	if (is_dir("/var/run")) {
+ 		if (arg_debug)
+			printf("Mounting tmpfs on /var/run\n");
+		if (mount("tmpfs", "/var/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mount /var/tmp");
+	}
+	else if (is_link("/var/run")) {
+		if (arg_debug)
+			printf("Mounting tmpfs on /run directory\n");
+		if (mount("tmpfs", "/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("/run");
+		if (mkdir("/run/shm", S_IRWXU|S_IRWXG|S_IRWXO))
+			errExit("mkdir");
+		if (chown("/run/shm", 0, 0))
+			errExit("chown");
+		if (chmod("/run/shm", S_IRWXU|S_IRWXG|S_IRWXO))
+			errExit("chmod");
+		if (mount("tmpfs", "/run/shm", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mount /run/shm");
+	}
+	
+	if (is_dir("/dev/shm")) {
+ 		if (arg_debug)
+			printf("Mounting tmpfs on /dev/shm\n");
+		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mount /var/tmp");
+	}
+}
+
 // build a basic read-only filesystem
 void mnt_basic_fs(void) {
 	if (arg_debug)
@@ -259,29 +313,11 @@ void mnt_basic_fs(void) {
 	mnt_rdonly("/boot");
 	mnt_rdonly("/etc");
 	mnt_rdonly("/opt");
-
-	// check /run directory exists
-	struct stat s;
-	int rv = stat("/run", &s);
- 	if (rv == 0) {
- 		if (arg_debug)
-			printf("Mounting a new /run directory\n");
-		if (mount("tmpfs", "/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("/run");
-		if (mkdir("/run/shm", S_IRWXU|S_IRWXG|S_IRWXO))
-			errExit("mkdir");
-		if (chown("/run/shm", 0, 0))
-			errExit("chown");
-		if (chmod("/run/shm", S_IRWXU|S_IRWXG|S_IRWXO))
-			errExit("chmod");
-	}
-	else {
-		if (arg_debug)
-			printf("Mounting a new /var/run directory\n");
- 		if (mount("tmpfs", "/var/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
- 			errExit("/var/run");
- 	}
+	resolve_run_shm();
 }
+
+
+
 
 void mnt_home(const char *homedir) {
 	if (arg_debug)
@@ -348,6 +384,8 @@ void mnt_overlayfs(void) {
 		errExit("asprintf");
 	if (mount("/dev", dev, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mount /dev");
+
+	resolve_run_shm();
 		
 	// chroot in the new filesystem
 	if (chroot(root) == -1)

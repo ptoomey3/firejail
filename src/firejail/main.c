@@ -180,8 +180,10 @@ int worker(void* worker_arg) {
 	//****************************
 	if (chdir("/") < 0)
 		errExit("chdir");
-	if (chdir(homedir) < 0)
-		errExit("chdir");
+	if (!chrootdir) {
+		if (chdir(homedir) < 0)
+			errExit("chdir");
+	}
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
 		errExit("setenv");
@@ -324,7 +326,6 @@ int main(int argc, char **argv) {
 		}
 		else {
 			// we have a program name coming
-			// lucian: extract the executable name: /bin/bash becomes bash
 			if (asprintf(&command_name, "%s", argv[i]) == -1)
 				errExit("asprintf");
 			prog_index = i;

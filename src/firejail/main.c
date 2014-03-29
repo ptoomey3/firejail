@@ -105,10 +105,10 @@ int worker(void* worker_arg) {
 		if (sethostname(hostname, strlen(hostname)) < 0)
 			errExit("sethostname");
 	}
-	else {
-		if (sethostname("firejail", 8) < 0)
-			errExit("sethostname");
-	}
+//	else {
+//		if (sethostname("firejail", 8) < 0)
+//			errExit("sethostname");
+//	}
 
 	//****************************
 	// configure filesystem
@@ -118,8 +118,6 @@ int worker(void* worker_arg) {
 
 	if (chrootdir) {
 		mnt_chroot(chrootdir);
-//		if (chroot(chrootdir) < 0)
-//			errExit("chroot");
 	}
 	else if (arg_overlay)
 		mnt_overlayfs();

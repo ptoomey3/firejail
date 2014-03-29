@@ -41,7 +41,6 @@ int is_dir(const char *fname) {
 	return 0;
 }
 
-
 int is_link(const char *fname) {
 	assert(fname);
 	struct stat s;
@@ -72,16 +71,18 @@ static void unlink_walker(void) {
 		if (dir->d_type == DT_DIR ) {
 			int rv = chdir(dir->d_name);
 			unlink_walker();
-			rv = chdir( ".." );
-			rmdir(dir->d_name);
-			(void) rv;
+			if (chdir( ".." ) != 0)
+				return;
+			if (rmdir(dir->d_name) != 0)
+				return;
 		}
 		else {
 			if (dir->d_type == DT_UNKNOWN) {
 				fprintf(stderr, "Error: cannot remove temporary directory %s - unknown filesystem type\n", tmpdir);
 				return;
 			}
-			unlink(dir->d_name);
+			if (unlink(dir->d_name) != 0)
+				return;
 		}
 	}
 
@@ -90,18 +91,24 @@ static void unlink_walker(void) {
 
 
 void bye_parent(void) {
+	// the child is just inheriting it
+	if (getpid() == 1)
+		return;
 	if (!tmpdir)
 		return;
 
-	if (!arg_command)
-		printf("\nparent is shutting down, bye...\n");
-
 	int rv = chdir(tmpdir);
-	unlink_walker();
-	rv = chdir("..");
-	(void) rv;
-	rmdir(tmpdir);
-	tmpdir = NULL;
+	if (rv == 0) {
+		if (!arg_command)
+			printf("\nparent is shutting down, bye...\n");
+		if (!arg_command && arg_debug)
+			printf("Removing %s dierctory\n", tmpdir);
+		tmpdir = NULL;
+		unlink_walker();
+		rv = chdir("..");
+		(void) rv;
+		rmdir(tmpdir);
+	}
 }
 
 
@@ -435,8 +442,7 @@ void mnt_home(const char *homedir) {
 
 void mnt_overlayfs(void) {
 	assert(tmpdir);
-exit(1);
-#if 0 // under testing
+
 	// build overlay directory
 	char *overlay;
 	if (asprintf(&overlay, "%s/overlay", tmpdir) == -1)
@@ -485,5 +491,4 @@ exit(1);
 	free(root);
 	free(overlay);
 	free(dev);
-#endif
 }

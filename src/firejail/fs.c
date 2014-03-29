@@ -69,8 +69,10 @@ static void unlink_walker(void) {
 			continue;
 
 		if (dir->d_type == DT_DIR ) {
-			int rv = chdir(dir->d_name);
-			unlink_walker();
+			if (chdir(dir->d_name) == 0)
+				unlink_walker();
+			else
+				return;
 			if (chdir( ".." ) != 0)
 				return;
 			if (rmdir(dir->d_name) != 0)
@@ -89,7 +91,6 @@ static void unlink_walker(void) {
 	closedir(d);
 }
 
-
 void bye_parent(void) {
 	// the child is just inheriting it
 	if (getpid() == 1)
@@ -97,20 +98,19 @@ void bye_parent(void) {
 	if (!tmpdir)
 		return;
 
-	int rv = chdir(tmpdir);
-	if (rv == 0) {
+	char *storage = tmpdir;
+	tmpdir = NULL;
+	
+	if (chdir(storage) == 0) {
 		if (!arg_command)
 			printf("\nparent is shutting down, bye...\n");
 		if (!arg_command && arg_debug)
-			printf("Removing %s dierctory\n", tmpdir);
-		tmpdir = NULL;
+			printf("Removing %s directory\n", storage);
 		unlink_walker();
-		rv = chdir("..");
-		(void) rv;
-		rmdir(tmpdir);
+		if (chdir("..") == 0)
+			rmdir(storage);
 	}
 }
-
 
 void set_exit_parent(pid_t pid) {
 	// create tmp directory
@@ -128,7 +128,6 @@ void set_exit_parent(pid_t pid) {
 		errExit("atexit");
 }
 
-
 //***********************************************
 // chroot filesystem
 //***********************************************
@@ -141,7 +140,6 @@ static void mnt_tmp(void) {
 	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 		errExit("/tmp");
 }
-
 
 static void disable_file(const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(fname);
@@ -163,7 +161,6 @@ static void disable_file(const char *fname, const char *emptydir, const char *em
 	}
 }
 
-
 static void globbing(const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(fname);
 	assert(emptydir);
@@ -184,7 +181,6 @@ static void globbing(const char *fname, const char *emptydir, const char *emptyf
 		disable_file(fname, emptydir, emptyfile);
 }
 
-
 static void expand_path(const char *path, const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(path);
 	assert(fname);
@@ -195,7 +191,6 @@ static void expand_path(const char *path, const char *fname, const char *emptydi
 
 	globbing(newname, emptydir, emptyfile);
 }
-
 
 // blacklist files or directoies by mounting empty files on top of them
 void mnt_blacklist(char **blacklist, const char *homedir) {
@@ -268,7 +263,6 @@ void mnt_blacklist(char **blacklist, const char *homedir) {
 	free(emptyfile);
 }
 
-
 // remount a directory read-only
 void mnt_rdonly(const char *dir) {
 	assert(dir);
@@ -284,7 +278,6 @@ void mnt_rdonly(const char *dir) {
 			errExit(dir);
 	}
 }
-
 
 // mount /proc and /sys directories
 void mnt_proc_sys(void) {
@@ -302,7 +295,6 @@ void mnt_proc_sys(void) {
 	//	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
 	//		errExit("/sys");
 }
-
 
 static void resolve_run_shm(void) {
 	if (arg_debug) {
@@ -397,7 +389,6 @@ static void resolve_run_shm(void) {
 	}
 }
 
-
 // build a basic read-only filesystem
 void mnt_basic_fs(void) {
 	if (arg_debug)
@@ -411,7 +402,6 @@ void mnt_basic_fs(void) {
 	mnt_rdonly("/etc");
 	resolve_run_shm();
 }
-
 
 void mnt_home(const char *homedir) {
 	if (arg_debug)
@@ -438,7 +428,6 @@ void mnt_home(const char *homedir) {
 		errExit("chown");
 	free(cmd);
 }
-
 
 void mnt_overlayfs(void) {
 	assert(tmpdir);

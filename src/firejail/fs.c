@@ -114,10 +114,14 @@ void bye_parent(void) {
 
 void set_exit_parent(pid_t pid) {
 	// create tmp directory
-	if (arg_debug)
-		printf("Creating /tmp/firejail.dir.%u directory\n", pid);
-	if (asprintf(&tmpdir, "/tmp/firejail.dir.%u", pid) == -1)
+	char *name_template;
+	if (asprintf(&name_template, "/tmp/firejail-%u-XXXXXX", pid) == -1)
 		errExit("asprintf");
+	tmpdir = mkdtemp(name_template);
+	if (tmpdir == NULL)
+		errExit("mkdtemp");
+	if (arg_debug)
+		printf("Creating %s directory\n", tmpdir);
 	mkdir(tmpdir, S_IRWXU);
 	uid_t u = getuid();
 	gid_t g = getgid();
@@ -392,7 +396,7 @@ static void resolve_run_shm(void) {
 // build a basic read-only filesystem
 void mnt_basic_fs(void) {
 	if (arg_debug)
-		printf("Mounting read-only /bin, /sbin, /lib, /lib64, /usr, /boot, /etc, and /opt\n");
+		printf("Mounting read-only /bin, /sbin, /lib, /lib64, /usr, /boot, /etc\n");
 	mnt_rdonly("/bin");
 	mnt_rdonly("/sbin");
 	mnt_rdonly("/lib");

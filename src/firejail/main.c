@@ -41,7 +41,6 @@ int fds[2];
 
 #define BUFLEN 500 // generic read buffer
 
-
 static void extract_user_data(void) {
 	// check suid
 	if (geteuid()) {
@@ -52,18 +51,16 @@ static void extract_user_data(void) {
 	struct passwd *pw = getpwuid(getuid());
 	if (!pw)
 		errExit("getpwuid");
-	username = malloc(strlen(pw->pw_name) + 1);
+	username = strdup(pw->pw_name);
 	if (!username)
-		errExit("malloc");
-	strcpy(username, pw->pw_name);
+		errExit("strdup");
 
 	// build home directory name
 	homedir = NULL;
 	if (pw->pw_dir != NULL) {
-		homedir = malloc(strlen(pw->pw_dir) + 1);
+		homedir = strdup(pw->pw_dir);
 		if (!homedir)
-			errExit("malloc");
-		strcpy(homedir, pw->pw_dir);
+			errExit("strdup");
 	}
 	else {
 		fprintf(stderr, "Error: user %s doesn't have a user directory assigned, aborting...\n", username);
@@ -208,7 +205,7 @@ int worker(void* worker_arg) {
 	if (!arg_command)
 		printf("Child process initialized\n");
 
-	execvp("/bin/bash", arg);
+	execvp("/bin/bash", arg); 
 
 	perror("execvp");
 	return 0;
@@ -220,6 +217,21 @@ int worker(void* worker_arg) {
 int main(int argc, char **argv) {
 	int i;
 	int prog_index = -1;		// index in argv where the program command starts
+
+	extract_user_data();
+
+	// test for restricted shell
+	if (argc == 1) { // /etc/passwd does not accept arguments in the command line
+		pid_t ppid = getppid();	
+		char *pcmd = proc_cmdline(ppid);
+		if (pcmd) {
+			printf("Parent %s, pid %u\n", pcmd, ppid);
+		
+			// sshd test
+			if (strncmp(pcmd, "sshd", 4) == 0)
+				restricted_shell("sshd", username);
+		}
+	}
 
 	// parse arguments
 	for (i = 1; i < argc; i++) {
@@ -359,7 +371,6 @@ int main(int argc, char **argv) {
 		}
 	}
 				
-	extract_user_data();
 	
 //if (setpgid(0, 0) == -1)
 //        errExit("setpgid");

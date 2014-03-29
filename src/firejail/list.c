@@ -14,7 +14,7 @@ typedef struct {
 } Task;
 Task pids[MAX_PIDS];
 
-static char *proc_cmdline(const pid_t pid) {
+char *proc_cmdline(const pid_t pid) {
 	// open /proc/pid/cmdline file
 	char *fname;
 	int fd;

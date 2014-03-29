@@ -67,10 +67,15 @@ extern char **custom_profile;
 
 // list.c
 void list(void);
+char *proc_cmdline(const pid_t pid);
 
 // usage.c
 void usage(void);
 
-// join
+// join.
 void join(pid_t pid);
+
+// restricted_shell.c
+void restricted_shell(const char *parent, const char *user);
+
 #endif

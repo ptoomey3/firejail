@@ -509,6 +509,17 @@ void mnt_chroot(const char *rootdir) {
 	if (mount("/dev", newdev, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mount /dev");
 	
+	// copy /etc/resolv.conf in chroot directory
+	if (arg_debug)
+		printf("Updating /etc/resolv.conf\n");
+	char *cmd;
+	if (asprintf(&cmd, "cp -a /etc/resolv.conf %s/etc/resolv.conf", rootdir) == -1)
+		errExit("asprintf");
+	int rv = system(cmd);
+	(void) rv;
+	
+	resolve_run_shm();
+
 	// chroot into the new directory
 	if (chroot(rootdir) < 0)
 		errExit("chroot");

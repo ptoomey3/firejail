@@ -120,8 +120,9 @@ int worker(void* worker_arg) {
 		errExit("mount slave");
 
 	if (chrootdir) {
-		if (chroot(chrootdir) < 0)
-			errExit("chroot");
+		mnt_chroot(chrootdir);
+//		if (chroot(chrootdir) < 0)
+//			errExit("chroot");
 	}
 	else if (arg_overlay)
 		mnt_overlayfs();
@@ -180,7 +181,8 @@ int worker(void* worker_arg) {
 	//****************************
 	if (chdir("/") < 0)
 		errExit("chdir");
-	if (!chrootdir) {
+	struct stat s;
+	if (stat(homedir, &s) == 0) {
 		if (chdir(homedir) < 0)
 			errExit("chdir");
 	}

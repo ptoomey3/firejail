@@ -467,6 +467,8 @@ void mnt_overlayfs(void) {
 
 	// mount overlayfs:
 	//      mount -t overlayfs -o lowerdir=/,upperdir=$tmpdir/overlay overlayfs $tmpdir/root
+	if (arg_debug)
+		printf("Mounting OverlayFS\n");
 	char *option;
 	if (asprintf(&option, "lowerdir=/,upperdir=%s", overlay) == -1)
 		errExit("asprintf");
@@ -474,6 +476,8 @@ void mnt_overlayfs(void) {
 		errExit("mount overlayfs");
 
 	// mount-bind dev directory
+	if (arg_debug)
+		printf("Mounting /dev\n");
 	char *dev;
 	if (asprintf(&dev, "%s/dev", root) == -1)
 		errExit("asprintf");
@@ -491,4 +495,21 @@ void mnt_overlayfs(void) {
 	free(root);
 	free(overlay);
 	free(dev);
+}
+
+void mnt_chroot(const char *rootdir) {
+	assert(rootdir);
+	
+	// mount-bind a /dev in rootdir
+	if (arg_debug)
+		printf("Mounting /dev in chroot directory %s\n", rootdir);
+	char *newdev;
+	if (asprintf(&newdev, "%s/dev", rootdir) == -1)
+		errExit("asprintf");
+	if (mount("/dev", newdev, NULL, MS_BIND|MS_REC, NULL) < 0)
+		errExit("mount /dev");
+	
+	// chroot into the new directory
+	if (chroot(rootdir) < 0)
+		errExit("chroot");
 }

@@ -56,6 +56,7 @@ void mnt_proc_sys(void);
 void mnt_basic_fs(void);
 void mnt_home(const char *homedir);
 void mnt_overlayfs(void);
+void mnt_chroot(const char *rootdir);
 
 // profile.c
 void get_profile(const char *name, const char *dir);

@@ -158,9 +158,15 @@ int worker(void* worker_arg) {
 		
 		// configure lo and eth0
 		net_if_up("lo");
-		if (ipaddress)
-			net_if_ip("eth0", ipaddress, bridgemask);
 		net_if_up("eth0");
+		sleep(2);
+		if (!ipaddress)
+			ipaddress = arp(bridgeip, bridgemask);
+		if (ipaddress) {
+			if (arg_debug)
+				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(ipaddress));
+			net_if_ip("eth0", ipaddress, bridgemask);
+		}
 		sleep(1);
 		
 		// add a default route

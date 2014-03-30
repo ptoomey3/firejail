@@ -6,8 +6,13 @@
 #include <assert.h>
 
 #define errExit(msg)    do { perror(msg); exit(1);} while (0)
+
 #define PRINT_IP(A) \
 ((int) (((A) >> 24) & 0xFF)),  ((int) (((A) >> 16) & 0xFF)), ((int) (((A) >> 8) & 0xFF)), ((int) ( (A) & 0xFF))
+
+#define PRINT_MAC(A) \
+((unsigned) (*(A)) & 0xff), ((unsigned) (*((A) + 1) & 0xff)), ((unsigned) (*((A) + 2) & 0xff)), \
+((unsigned) (*((A) + 3)) & 0xff), ((unsigned) (*((A) + 4) & 0xff)), ((unsigned) (*((A) + 5)) & 0xff)
 
 static inline uint8_t mask2bits(uint32_t mask) {
 	uint32_t tmp = 0x80000000;
@@ -78,4 +83,6 @@ void join(pid_t pid);
 // restricted_shell.c
 void restricted_shell(const char *parent, const char *user);
 
+// arp.c
+uint32_t arp(uint32_t ifip, uint32_t ifmask);
 #endif

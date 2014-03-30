@@ -70,8 +70,8 @@ void read_profile(const char *fname);
 // main.c
 extern char **custom_profile;
 #define MAX_ARGS 128
-extern char *fullargs[MAX_ARGS];
-extern int fullargs = 0;
+extern char *fullargv[MAX_ARGS];
+extern int fullargc;
 
 // list.c
 void list(void);

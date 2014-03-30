@@ -62,10 +62,7 @@ printf("#%s#%s#%s#\n", prog, usr, args);
 		    			ptr++;
 		    			continue;
 		    		}
-		    		// run the program
-		    		fullargv[i + 1] = NULL;
 		    		return i;
-				execvp(firejail", arg);
 			}
 			fprintf(stderr, "Error: too many arguments in users.conf line %d\n", lineno);
 			exit(1);

@@ -218,6 +218,9 @@ int worker(void* worker_arg) {
 //*******************************************
 // Main program
 //*******************************************
+char *fullargv[MAX_ARGS];
+int fullargc = 0;
+
 int main(int argc, char **argv) {
 	int i;
 	int prog_index = -1;		// index in argv where the program command starts
@@ -225,7 +228,7 @@ int main(int argc, char **argv) {
 	extract_user_data();
 
 	// test for restricted shell
-	if (argc == 1) { // /etc/passwd does not accept arguments in the command line
+	{
 		pid_t ppid = getppid();	
 		char *pcmd = proc_cmdline(ppid);
 		if (pcmd) {

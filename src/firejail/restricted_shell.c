@@ -2,7 +2,6 @@
 #include <string.h>
 
 #define MAX_READ 4096	// maximum line length
-#define MAX_ARGS 32		// maximum firejail arguments
 
 void restricted_shell(const char *parent, const char *user) {
 	assert(parent);
@@ -11,7 +10,7 @@ void restricted_shell(const char *parent, const char *user) {
 	// open profile file:
 	FILE *fp = fopen("/etc/firejail/users.conf", "r");
 	if (fp == NULL)
-		return;
+		return 0;
 
 	int lineno = 0;
 	char buf[MAX_READ];
@@ -51,11 +50,11 @@ printf("#%s#%s#%s#\n", prog, usr, args);
 		    strcmp(user, usr) == 0) {
 		    	// extract program arguments
 		    	char *arg[MAX_ARGS + 1];
-		    	arg[0] = "firejail";
+		    	fullargv[0] = "firejail";
 		    	int i;
 		    	ptr = args;
 		    	for (i = 1; i < MAX_ARGS; i++) {
-		    		arg[i] = ptr;
+		    		fullargv[i] = ptr;
 		    		while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
 		    			ptr++;
 		    		if (*ptr != '\0') {
@@ -64,12 +63,14 @@ printf("#%s#%s#%s#\n", prog, usr, args);
 		    			continue;
 		    		}
 		    		// run the program
-		    		arg[i + 1] = NULL;
-				execvp("firejail", arg);
+		    		fullargv[i + 1] = NULL;
+		    		return i;
+				execvp(firejail", arg);
 			}
 			fprintf(stderr, "Error: too many arguments in users.conf line %d\n", lineno);
 			exit(1);
 		}
-	}		    
+	}		 
+	return 0;   
 }
 

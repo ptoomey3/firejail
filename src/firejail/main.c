@@ -105,10 +105,6 @@ int worker(void* worker_arg) {
 		if (sethostname(hostname, strlen(hostname)) < 0)
 			errExit("sethostname");
 	}
-//	else {
-//		if (sethostname("firejail", 8) < 0)
-//			errExit("sethostname");
-//	}
 
 	//****************************
 	// configure filesystem
@@ -226,19 +222,19 @@ int main(int argc, char **argv) {
 	int prog_index = -1;		// index in argv where the program command starts
 
 	extract_user_data();
-
-	// test for restricted shell
-	{
-		pid_t ppid = getppid();	
-		char *pcmd = proc_cmdline(ppid);
-		if (pcmd) {
-			printf("Parent %s, pid %u\n", pcmd, ppid);
 		
-			// sshd test
-			if (strncmp(pcmd, "sshd", 4) == 0)
-				restricted_shell("sshd", username);
-		}
+	// test for restricted shell
+	fullargc = restricted_shell(username);
+	if (fullargc) {
+		int j;
+		for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
+			fullargv[j] = argv[i];
+		argv = fullargv;
+		argc = fullargc;
+for (i = 0; i < argc; i++)
+printf("%s\n", argv[i]);
 	}
+			
 
 	// parse arguments
 	for (i = 1; i < argc; i++) {
@@ -289,7 +285,6 @@ int main(int argc, char **argv) {
 			
 			join(pid);
 		}
-			
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
 			// extract chroot dirname
 			chrootdir = argv[i] + 9;

@@ -84,7 +84,7 @@ void usage(void);
 void join(pid_t pid);
 
 // restricted_shell.c
-void restricted_shell(const char *parent, const char *user);
+int restricted_shell(const char *user);
 
 // arp.c
 uint32_t arp(uint32_t ifip, uint32_t ifmask);

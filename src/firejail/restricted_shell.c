@@ -3,8 +3,7 @@
 
 #define MAX_READ 4096	// maximum line length
 
-void restricted_shell(const char *parent, const char *user) {
-	assert(parent);
+int restricted_shell(const char *user) {
 	assert(user);
 
 	// open profile file:
@@ -26,14 +25,7 @@ void restricted_shell(const char *parent, const char *user) {
 			continue;
 		
 		// parse line	
-		char *prog = ptr;
-		char *usr = strchr(prog, ';');
-		if (usr == NULL) {
-			fprintf(stderr, "Error: users.conf line %d\n", lineno);
-			exit(1);
-		}
-		*usr = '\0';
-		usr++;
+		char *usr = ptr;
 		char *args = strchr(usr, ';');
 		if (args == NULL) {
 			fprintf(stderr, "Error: users.conf line %d\n", lineno);
@@ -45,9 +37,7 @@ void restricted_shell(const char *parent, const char *user) {
 		if (ptr)
 			*ptr = '\0';
 			
-printf("#%s#%s#%s#\n", prog, usr, args);
-		if (strcmp(parent, prog) == 0 &&
-		    strcmp(user, usr) == 0) {
+		if (strcmp(user, usr) == 0) {
 		    	// extract program arguments
 		    	char *arg[MAX_ARGS + 1];
 		    	fullargv[0] = "firejail";
@@ -60,9 +50,12 @@ printf("#%s#%s#%s#\n", prog, usr, args);
 		    		if (*ptr != '\0') {
 		    			*ptr ='\0';
 		    			ptr++;
-		    			continue;
+		    			while (*ptr == ' ' || *ptr == '\t')
+		    				ptr++;
+		    			if (*ptr != '\0')
+			    			continue;
 		    		}
-		    		return i;
+		    		return i + 1;
 			}
 			fprintf(stderr, "Error: too many arguments in users.conf line %d\n", lineno);
 			exit(1);

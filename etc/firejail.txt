@@ -1,0 +1,101 @@
+.TH man 1 "MONTH YEAR" "VERSION" "firejail man page"
+.SH NAME
+Firejail \- Linux namespaces sandbox program
+.SH SYNOPSIS
+firejail [options] [program and arguments]
+.SH DESCRIPTION
+Firejail is a sandbox program that reduces the risk of security breaches by
+restricting the running environment of untrusted applications using Linux
+namespaces. It currently implements hostname, filesystem, PID, IPC and
+networking stack isolation, and it runs on any recent Linux system. It includes
+a sandbox profile for Mozilla Firefox.
+.SH OPTIONS
+.TP
+\fB\-c
+Execute command and exit.
+.TP
+\fB\--chroot=dirname
+Chroot into dirname directory.
+.TP
+\fB\--debug\fR
+Print debug messages.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Print options end exit.
+.TP
+\fB\--ip=ipaddress
+Use this IP address in the new network namespace.
+.TP
+\fB\--join=pid
+Join the sandbox of the specified process.
+.TP
+\fB\--name=name
+Set sandbox hostname.
+.TP
+\fB\--net=bridgename
+Enable network namespaces and connect to this bridge device.
+.TP
+\fB\--net=none
+Enable a new, unconnected network namespace.
+.TP
+\fB\--private
+Mount a new /home/user directory.
+.TP
+\fB\--profile=filename
+Use a custom profile, see below.
+.TP
+\fB\--version
+Print program version and exit.
+.SH PROFILES
+The profile files define a chroot filesystem built on top of the existing
+filesystem. Each line describes a file element that is removed from
+the filesystem, for example:
+.TP
+# this is a comment
+.TP
+\f\blacklist /etc/password
+Remove /etc/password file.
+.TP
+\f\blacklist /usr/bin
+Remove /usr/bin directory.
+.TP
+\f\blacklist /usr/bin/gcc*
+Remove all gcc files in /usr/bin (file globbing).
+.TP
+\f\blacklist ${PATH}/ifconfig
+Remove ifconfig from the regular path directories.
+.TP
+\f\blacklist ${HOME}/.ssh
+Remove .ssh directory from user home directory.
+.PP
+Default Firejail profile files are placed in /etc/firejail directory, user
+profile files are placed in ~/.config/firejail directory.
+.SH EXAMPLES
+.TP
+\f\firejail
+Start a regular /bin/bash session in sandbox.
+.TP
+\f\firejail firefox
+Start Mozilla Firefox.
+.TP
+\f\firejail --debug firefox
+Debug Firefox sandbox.
+.TP
+\f\firejail --private
+Start a /bin/bash session with a new tmpfs home directory.
+.TP
+\f\firejail --net=br0 ip=10.10.20.10
+Start a /bin/bash session in a new network namespace. The session is
+connected to the main network using br0 bridge device. An IP address
+of 10.10.20.10 is assigned to the sandbox.
+.TP
+\f\firejail --list
+List all running sandboxes.
+.SH COPYRIGHT
+Copyright @ 2014 netblue30@yahoo.com.
+.PP
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+.PP
+Homepage: http://firejail.sourceforge.net
+
+

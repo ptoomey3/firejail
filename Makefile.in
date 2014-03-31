@@ -11,8 +11,8 @@ apps: $(APPS)
 $(APPS):
 	$(MAKE) -C $@
 
-firejail.1: man/firejail.txt
-	./mkman.sh $(VERSION) man/firejail.txt firejail.1
+firejail.1: etc/firejail.txt
+	./mkman.sh $(VERSION) etc/firejail.txt firejail.1
 
 clean:;
 	for dir in $(APPS); do \
@@ -38,15 +38,15 @@ install: all
 	install -c -m 0644 README $(PREFIX)/share/doc/firejail/.
 	install -c -m 0644 RELNOTES $(PREFIX)/share/doc/firejail/.
 	mkdir -p /etc/firejail
-	install -c -m 0644 profiles/firefox.profile /etc/firejail/.
-	install -c -m 0644 profiles/firefox.profile /etc/firejail/iceweasel.profile
+	install -c -m 0644 etc/firefox.profile /etc/firejail/.
+	install -c -m 0644 etc/firefox.profile /etc/firejail/iceweasel.profile
 	rm -f firejail.1.gz
 	gzip -9 firejail.1
 	mkdir -p $(PREFIX)/share/man/man1
 	install -c -m 0644 firejail.1.gz $(PREFIX)/share/man/man1/.	
 	rm -f firejail.1.gz
 	if [ ! -f /etc/firejail/sshd.users ]; \
-		then @install -c m 0644 profiles/sshd.users /etc/firejail/.; \
+		then @install -c m 0644 etc/sshd.users /etc/firejail/.; \
 	fi
 
 uninstall:;
@@ -59,7 +59,7 @@ dist:
 	make distclean
 	rm -fr $(NAME)-$(VERSION) $(NAME)-$(VERSION).tar.bz2
 	mkdir $(NAME)-$(VERSION)
-	cd $(NAME)-$(VERSION); cp -a ../src .; cp -a ../man .; cp -a ../profiles .; cd ..
+	cd $(NAME)-$(VERSION); cp -a ../src .; cp -a ../etc .; cd ..
 	cd $(NAME)-$(VERSION); cp -a ../configure .; cp -a ../configure.ac .; cp -a ../Makefile.in .; cp -a ../install.sh .; cp -a ../mkman.sh .; cd ..
 	cd $(NAME)-$(VERSION); cp -a ../COPYING .; cp -a ../README .; cp -a ../RELNOTES .; cp -a ../ .; cp -a ../ .; cd ..
 	cd $(NAME)-$(VERSION); rm -fr `find . -name .svn`; rm -fr $(NAME)-$(VERSION); cd ..

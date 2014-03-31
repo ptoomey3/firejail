@@ -2,6 +2,8 @@
 #include <string.h>
 
 #define MAX_READ 4096	// maximum line length
+char *restricted_user = NULL;
+
 
 int restricted_shell(const char *user) {
 	assert(user);
@@ -38,6 +40,7 @@ int restricted_shell(const char *user) {
 			*ptr = '\0';
 			
 		if (strcmp(user, usr) == 0) {
+			restricted_user = strdup(user);
 		    	// extract program arguments
 		    	char *arg[MAX_ARGS + 1];
 		    	fullargv[0] = "firejail";
@@ -49,15 +52,21 @@ int restricted_shell(const char *user) {
 		    			ptr++;
 		    		if (*ptr != '\0') {
 		    			*ptr ='\0';
+		    			fullargv[i] = strdup(fullargv[i]);
+		    			if (fullargv[i] == NULL) {
+		    				fprintf(stderr, "Error: cannot allocate memory\n");
+		    				exit(1);
+		    			}
 		    			ptr++;
 		    			while (*ptr == ' ' || *ptr == '\t')
 		    				ptr++;
 		    			if (*ptr != '\0')
 			    			continue;
 		    		}
+	    			fullargv[i] = strdup(fullargv[i]);
 		    		return i + 1;
 			}
-			fprintf(stderr, "Error: too many arguments in users.conf line %d\n", lineno);
+			fprintf(stderr, "Error: too many program arguments in users.conf line %d\n", lineno);
 			exit(1);
 		}
 	}		 

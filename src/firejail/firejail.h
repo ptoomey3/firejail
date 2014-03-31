@@ -51,6 +51,8 @@ void net_if_ip(const char *ifname, uint32_t ip, uint32_t mask);
 int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
 // add an IP route, return 1 if error
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
+// print IP addresses for all interfaces
+int net_ifprint(void);
 
 // fs.c
 void set_exit_parent(pid_t pid);
@@ -84,6 +86,7 @@ void usage(void);
 void join(pid_t pid);
 
 // restricted_shell.c
+extern char *restricted_user;
 int restricted_shell(const char *user);
 
 // arp.c

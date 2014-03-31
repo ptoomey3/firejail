@@ -172,7 +172,8 @@ int worker(void* worker_arg) {
 		if (arg_debug)
 			printf("Network namespace enabled\n");
 	}
-
+	net_ifprint();
+	
 	//****************************
 	// start executable
 	//****************************
@@ -204,7 +205,13 @@ int worker(void* worker_arg) {
 
 	if (!arg_command)
 		printf("Child process initialized\n");
-
+	if (arg_debug) {
+		FILE *fp = fopen("/tmp/firejail.log", "a");
+		if (fp) {			
+			fprintf(fp, "child pid %u, execvp into %s\n\n", getpid(), command_line);
+			fclose(fp);
+		}
+	}
 	execvp("/bin/bash", arg); 
 
 	perror("execvp");
@@ -223,30 +230,25 @@ int main(int argc, char **argv) {
 
 	extract_user_data();
 		
-	// test for restricted shell
-	if (argc == 1) { // /etc/passwd does not accept arguments in the command line
-		pid_t ppid = getppid();	
-		char *pcmd = proc_cmdline(ppid);
-		if (pcmd) {
-			printf("Parent %s, pid %u\n", pcmd, ppid);
-		
-			// sshd test
-			if (strncmp(pcmd, "sshd", 4) == 0) {
-				// test for restricted shell
-				fullargc = restricted_shell(username);
-				if (fullargc) {
-					int j;
-					for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
-						fullargv[j] = argv[i];
-					argv = fullargv;
-					argc = fullargc;
-for (i = 0; i < argc; i++)
-printf("%s\n", argv[i]);
-				}
+	// detect restricted shell calls from sshd
+	pid_t ppid = getppid();	
+	char *pcmd = proc_cmdline(ppid);
+
+	if (pcmd) {
+		printf("Parent %s, pid %u\n", pcmd, ppid);
+		// sshd test
+		if (strncmp(pcmd, "sshd", 4) == 0 /*&& strstr(pcmd, "notty") == NULL*/) {
+			// test for restricted shell
+			fullargc = restricted_shell(username);
+			if (fullargc) {
+				int j;
+				for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
+					fullargv[j] = argv[i];
+				argv = fullargv;
+				argc = j;
 			}
 		}
 	}
-			
 
 	// parse arguments
 	for (i = 1; i < argc; i++) {
@@ -270,8 +272,24 @@ printf("%s\n", argv[i]);
 			arg_overlay = 1;
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
-		else if (strcmp(argv[i], "--debug") == 0)
+		else if (strcmp(argv[i], "--debug") == 0) {
 			arg_debug = 1;
+			FILE *fp = fopen("/tmp/firejail.log", "a");
+			if (fp) {
+				fprintf(fp, "parent pid %u, command %s\n", ppid, (pcmd)? pcmd: "unknown");
+				if (restricted_user)
+					fprintf(fp, "user %s entering restricted shell\n", restricted_user);
+				fprintf(fp, "pid %u, extended argument list: ", getpid());
+				int j;
+				for (j = 0; j < argc; j++)
+					fprintf(fp, "%s ", argv[j]);
+				fprintf(fp, "\n");
+				fclose(fp);
+				chmod("/tmp/firejail.log", S_IRWXU|S_IRWXG|S_IRWXO);
+				int rv = chown("/tmp/firejail.log", 0, 0);
+				(void) rv;
+			}
+		}			
 		else if (strncmp(argv[i], "--profile=",10) == 0)
 			read_profile(argv[i] + 10);
 		else if (strncmp(argv[i], "--name=", 7) == 0) {

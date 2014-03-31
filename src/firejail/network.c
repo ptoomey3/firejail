@@ -10,6 +10,43 @@
 #include <net/route.h>
 #include "firejail.h"
 
+int net_ifprint(void) {
+	uint32_t ip;
+	uint32_t mask;
+	struct ifaddrs *ifaddr, *ifa;
+
+	if (getifaddrs(&ifaddr) == -1)
+		errExit("getifaddrs");
+
+	
+	printf("%-20.20s%-20.20s%-20.20s\n",
+		"Interface", "IP", "Mask");
+	// walk through the linked list
+	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr == NULL)
+			continue;
+
+		if (ifa->ifa_addr->sa_family == AF_INET) {
+			struct sockaddr_in *si = (struct sockaddr_in *) ifa->ifa_netmask;
+			mask = ntohl(si->sin_addr.s_addr);
+			si = (struct sockaddr_in *) ifa->ifa_addr;
+			ip = ntohl(si->sin_addr.s_addr);
+
+			char ipstr[30];
+			sprintf(ipstr, "%d.%d.%d.%d", PRINT_IP(ip));
+			char maskstr[30];
+			sprintf(maskstr, "%d.%d.%d.%d", PRINT_IP(mask));
+			printf("%-20.20s%-20.20s%-20.20s\n",
+				ifa->ifa_name, ipstr, maskstr);
+		}
+	}
+	printf("\n");
+	freeifaddrs(ifaddr);
+}
+
+
+
+
 // return 1 if the bridge was found
 int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 	assert(bridge);

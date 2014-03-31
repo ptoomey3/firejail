@@ -23,6 +23,7 @@ char *get_link(const char *fname) {
 	linkname = malloc(sb.st_size + 1);
 	if (linkname == NULL)
 		return NULL;
+	memset(linkname, 0, sb.st_size + 1);
 
 	r = readlink(fname, linkname, sb.st_size + 1);
 	if (r < 0)

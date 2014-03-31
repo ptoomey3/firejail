@@ -214,7 +214,7 @@ int worker(void* worker_arg) {
 //*******************************************
 // Main program
 //*******************************************
-char *fullargv[MAX_ARGS];
+char *fullargv[MAX_ARGS]; // expanded argv for restricted shell
 int fullargc = 0;
 
 int main(int argc, char **argv) {
@@ -224,15 +224,27 @@ int main(int argc, char **argv) {
 	extract_user_data();
 		
 	// test for restricted shell
-	fullargc = restricted_shell(username);
-	if (fullargc) {
-		int j;
-		for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
-			fullargv[j] = argv[i];
-		argv = fullargv;
-		argc = fullargc;
+	if (argc == 1) { // /etc/passwd does not accept arguments in the command line
+		pid_t ppid = getppid();	
+		char *pcmd = proc_cmdline(ppid);
+		if (pcmd) {
+			printf("Parent %s, pid %u\n", pcmd, ppid);
+		
+			// sshd test
+			if (strncmp(pcmd, "sshd", 4) == 0) {
+				// test for restricted shell
+				fullargc = restricted_shell(username);
+				if (fullargc) {
+					int j;
+					for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
+						fullargv[j] = argv[i];
+					argv = fullargv;
+					argc = fullargc;
 for (i = 0; i < argc; i++)
 printf("%s\n", argv[i]);
+				}
+			}
+		}
 	}
 			
 

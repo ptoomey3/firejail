@@ -45,6 +45,9 @@ install: all
 	mkdir -p $(PREFIX)/share/man/man1
 	install -c -m 0644 firejail.1.gz $(PREFIX)/share/man/man1/.	
 	rm -f firejail.1.gz
+	if [ ! -f /etc/firejail/sshd.users ]; \
+		then @install -c m 0644 profiles/sshd.users /etc/firejail/.; \
+	fi
 
 uninstall:;
 	rm -f $(PREFIX)/bin/firejail

@@ -27,7 +27,7 @@ distclean: clean
 	rm -fr Makefile autom4te.cache config.log config.status config.h
 
 install: all
-	./install.sh $(PREFIX)
+	install.sh $(PREFIX)
 
 uninstall:;
 	rm -f $(PREFIX)/bin/firejail

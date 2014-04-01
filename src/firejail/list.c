@@ -51,14 +51,14 @@ char *proc_cmdline(const pid_t pid) {
 void print_elem(unsigned index) {
 	int i;
 	for (i = 0; i < pids[index].level - 1; i++)
-		printf("    ");
+		printf("  ");
 	
 	char *cmd = proc_cmdline(index);
 	if (cmd) {
-		if (strlen(cmd) > 50)
-			printf("%u - %-50.50s...\n", index, cmd);
+		if (strlen(cmd) > 60)
+			printf("%u:%-60.60s...\n", index, cmd);
 		else
-			printf("%u - %-50.50s\n", index, cmd);
+			printf("%u:%-60.60s\n", index, cmd);
 		free(cmd);
 	}
 	else

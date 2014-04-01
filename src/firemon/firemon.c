@@ -15,7 +15,11 @@
 #define BUFLEN 4096
 #define MAX_PIDS 32769
 
-unsigned char pids[MAX_PIDS];
+typedef struct {
+	unsigned char level;
+	pid_t parent;
+} Task;
+Task pids[MAX_PIDS];
 
 static char *proc_cmdline(const pid_t pid) {
 	// open /proc/pid/cmdline file
@@ -51,7 +55,8 @@ static char *proc_cmdline(const pid_t pid) {
 }
 
 static void read_pids(pid_t mypid) {
-	pids[mypid] = 1;
+	if (mypid != 0)
+		pids[mypid].level = 1;
 
 	DIR *dir;
 	if (!(dir = opendir("/proc"))) {
@@ -84,7 +89,23 @@ static void read_pids(pid_t mypid) {
 		// look for firejail executable name
 		char buf[BUFLEN + 1];
 		while (fgets(buf, BUFLEN, fp)) {
-			if (strncmp(buf, "PPid:", 5) == 0) {
+			if (mypid == 0 && strncmp(buf, "Name:", 5) == 0) {
+				char *ptr = buf + 5;
+				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+					ptr++;
+				}
+				if (*ptr == '\0') {
+					fprintf(stderr, "Error: cannot read /proc file\n");
+					exit(1);
+				}
+
+				if (strncmp(ptr, "firejail", 8) == 0) {
+					pid %= MAX_PIDS;
+					pids[pid].level = 1;
+					break;
+				}
+			}
+			else if (strncmp(buf, "PPid:", 5) == 0) {
 				char *ptr = buf + 5;
 				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
 					ptr++;
@@ -95,8 +116,8 @@ static void read_pids(pid_t mypid) {
 				}
 				unsigned parent = atoi(ptr);
 				parent %= MAX_PIDS;
-				if (pids[parent])
-					pids[pid] = 1;
+				if (pids[parent].level)
+					pids[pid].level = pids[parent].level + 1;
 				break;
 			}
 		}
@@ -110,10 +131,16 @@ static void print_pids(void) {
 	int i;
 	printf("Monitored processes:\n");
 	for (i = 0; i < MAX_PIDS; i++) {
-		if (pids[i]) {
+		if (pids[i].level) {
+			int j;
+			for (j = 0; j < (pids[i].level -1); j++)
+				printf("  ");
 			char *cmd = proc_cmdline(i);
 			if (cmd) {
-				printf("%d - %-70.70s\n", i, cmd);
+				if (strlen(cmd) > 60)
+					printf("%u:%-60.60s...\n", i, cmd);
+				else
+					printf("%u:%-60.60s\n", i, cmd);
 				free(cmd);
 			}
 			else
@@ -230,10 +257,10 @@ static int monitor(const int sock, pid_t mypid) {
 					    	continue; // this is a thread, not a process
 
 					pid = proc_ev->event_data.fork.parent_tgid;
-					if (pids[pid]) {
+					if (pids[pid].level) {
 						child = proc_ev->event_data.fork.child_tgid;
 						child %= MAX_PIDS;
-						pids[child] = 1;
+						pids[child].level = pids[pid].level + 1;
 					}
 					sprintf(lineptr, " fork");
 					break;
@@ -271,7 +298,7 @@ static int monitor(const int sock, pid_t mypid) {
 					sprintf(lineptr, "\n");
 					continue;
 			}
-			if (pids[pid] == 0)
+			if (pids[pid].level == 0)
 				continue;
 				
 			lineptr += strlen(lineptr);
@@ -291,7 +318,7 @@ static int monitor(const int sock, pid_t mypid) {
 			
 			// unflag pid for exit events
 			if (remove_pid)
-				pids[pid] = 0;
+				pids[pid].level = 0;
 
 			// print forked child
 			if (child) {
@@ -316,8 +343,8 @@ static void usage(void) {
 }
 
 int main(int argc, char **argv) {
-	unsigned pid;
-	if (argc != 2) {
+	unsigned pid = 0;
+	if (argc != 1 && argc != 2) {
 		fprintf(stderr, "Error: pid argument missing\n");
 		usage();
 		return 1;
@@ -331,17 +358,19 @@ int main(int argc, char **argv) {
 			return 0;
 		}
 	}
-		
-	if (sscanf(argv[1], "%u", &pid) != 1) {
-		fprintf(stderr, "Error: invalid pid number\n");
-		return 1;
+
+	if (argc == 2) {		
+		if (sscanf(argv[1], "%u", &pid) != 1) {
+			fprintf(stderr, "Error: invalid pid number\n");
+			return 1;
+		}
 	}
 	if (pid > MAX_PIDS) {
 		fprintf(stderr, "Error: invalid pid number\n");
 		return 1;
 	}
 	memset(pids, 0, sizeof(pids));
-	read_pids(pid);
+	read_pids(pid); // pass a pid of 0 if the program was run without arguments
 
 	int sock = netlink_setup();
 	if (sock < 0) {

@@ -402,12 +402,12 @@ int main(int argc, char **argv) {
 			ptr += strlen(ptr);
 		}
 	}
-				
 	
-//if (setpgid(0, 0) == -1)
-//        errExit("setpgid");
-//        	if (setsid() == -1)
-//		errExit("setsid");
+	// if not a tty, create a new session
+	if (!isatty(fileno(stdin))) {
+		if (setsid() == -1)
+			errExit("setsid");
+	}
 	
 	// create the parrent-child communication pipe
 	if (pipe(fds) < 0)

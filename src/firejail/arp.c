@@ -27,7 +27,8 @@ typedef struct arp_hdr_t {
 
 static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 	if (arg_debug)
-		printf("Trying %d.%d.%d.%d ...\n", PRINT_IP(destaddr));
+		printf("Trying %d.%d.%d.%d, using %d.%d.%d.%d as source address ...\n",
+			PRINT_IP(destaddr), PRINT_IP(srcaddr));
 
 	// find eth0 interface address
 	int sock;
@@ -149,7 +150,7 @@ uint32_t arp(uint32_t ifip, uint32_t ifmask) {
 	// this software is not supported for networks /29 and up
 	if (range < 16)
 		return 0; // the user will have to set the IP address manually
-	range -= 2; // subtract the network address and the broadcast address
+	range -= 3; // subtract the network address, the broadcast address, and the temporary address
 
 	// we use the last address in the range as source address in our packets
 	uint32_t src = (ifip & ifmask) + ~ifmask - 1;

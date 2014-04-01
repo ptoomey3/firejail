@@ -27,27 +27,7 @@ distclean: clean
 	rm -fr Makefile autom4te.cache config.log config.status config.h
 
 install: all
-	strip src/firejail/firejail
-	mkdir -p $(PREFIX)/bin
-	install -c -m 0755 src/firejail/firejail $(PREFIX)/bin/.
-	chmod u+s $(PREFIX)/bin/firejail
-	strip src/firemon/firemon
-	install -c -m 0755 src/firemon/firemon $(PREFIX)/bin/.
-	mkdir -p $(PREFIX)/share/doc/firejail
-	install -c -m 0644 COPYING $(PREFIX)/share/doc/firejail/.
-	install -c -m 0644 README $(PREFIX)/share/doc/firejail/.
-	install -c -m 0644 RELNOTES $(PREFIX)/share/doc/firejail/.
-	mkdir -p /etc/firejail
-	install -c -m 0644 etc/firefox.profile /etc/firejail/.
-	install -c -m 0644 etc/firefox.profile /etc/firejail/iceweasel.profile
-	rm -f firejail.1.gz
-	gzip -9 firejail.1
-	mkdir -p $(PREFIX)/share/man/man1
-	install -c -m 0644 firejail.1.gz $(PREFIX)/share/man/man1/.	
-	rm -f firejail.1.gz
-	if [ ! -f /etc/firejail/sshd.users ]; \
-		then @install -c m 0644 etc/sshd.users /etc/firejail/.; \
-	fi
+	./install.sh $(PREFIX)
 
 uninstall:;
 	rm -f $(PREFIX)/bin/firejail

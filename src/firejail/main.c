@@ -227,6 +227,7 @@ int fullargc = 0;
 int main(int argc, char **argv) {
 	int i;
 	int prog_index = -1;		// index in argv where the program command starts
+	int set_exit = 0;
 
 	extract_user_data();
 		
@@ -235,7 +236,7 @@ int main(int argc, char **argv) {
 	char *pcmd = proc_cmdline(ppid);
 
 	if (pcmd) {
-		printf("Parent %s, pid %u\n", pcmd, ppid);
+//		printf("Parent %s, pid %u\n", pcmd, ppid);
 		// sshd test
 		if (strncmp(pcmd, "sshd", 4) == 0 /*&& strstr(pcmd, "notty") == NULL*/) {
 			// test for restricted shell
@@ -268,8 +269,10 @@ int main(int argc, char **argv) {
 			printf("firejail version %s\n", VERSION);
 			return 0;
 		}
-		else if (strcmp(argv[i], "--overlay") == 0)
+		else if (strcmp(argv[i], "--overlay") == 0) {
 			arg_overlay = 1;
+			set_exit = 1;
+		}
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
 		else if (strcmp(argv[i], "--debug") == 0) {
@@ -290,8 +293,10 @@ int main(int argc, char **argv) {
 				(void) rv;
 			}
 		}			
-		else if (strncmp(argv[i], "--profile=",10) == 0)
+		else if (strncmp(argv[i], "--profile=",10) == 0) {
 			read_profile(argv[i] + 10);
+			set_exit = 1;
+		}
 		else if (strncmp(argv[i], "--name=", 7) == 0) {
 			hostname = argv[i] + 7;
 			if (strlen(hostname) == 0) {
@@ -385,6 +390,8 @@ int main(int argc, char **argv) {
 		command_name = "bash";
 	}
 	else {
+		set_exit = 1;
+
 		// calculate the length of the command
 		int i;
 		int len = 0;
@@ -413,7 +420,8 @@ int main(int argc, char **argv) {
 	if (pipe(fds) < 0)
 		errExit("pipe");
 	
-	set_exit_parent(getpid());
+	if (set_exit)
+		set_exit_parent(getpid());
 
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;

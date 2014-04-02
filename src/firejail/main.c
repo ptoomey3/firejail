@@ -414,19 +414,6 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// if not a tty, create a new session
-	if (!isatty(STDIN_FILENO)) {
-		if (arg_debug) {
-			FILE *fp = fopen("/tmp/firejail.dbg", "a");
-			if (fp) {			
-				fprintf(fp, "setsid\n");
-				fclose(fp);
-			}
-		}
-		if (setsid() == -1)
-			errExit("setsid");
-	}
-	
 	// create the parrent-child communication pipe
 	if (pipe(fds) < 0)
 		errExit("pipe");

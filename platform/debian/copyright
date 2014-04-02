@@ -23,6 +23,8 @@ This is the Debian/Ubuntu prepackaged version of firejail.
     with this program; if not, write to the Free Software Foundation, Inc., 51
     Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
+The complete text of the GNU General Public License can be found
+in /usr/share/common-licenses/GPL-2.
 
 Homepage: http://firejail.sourceforge.net.
 

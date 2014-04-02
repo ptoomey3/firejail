@@ -33,9 +33,9 @@ rm $INSTALL_DIR/share/doc/firejail/COPYING
 cp platform/debian/copyright $INSTALL_DIR/share/doc/firejail/.
 mkdir -p $DEBIAN_CTRL_DIR
 sed "s/FIREJAILVER/$2/g"  platform/debian/control > $DEBIAN_CTRL_DIR/control
-mkdir -p $INSTALL_DIR/etc/firejail
-cp etc/*.profile $INSTALL_DIR/etc/firejail/.
-cp etc/sshd*.profile $INSTALL_DIR/etc/firejail.
+mkdir -p debian/etc/firejail
+cp etc/*.profile debian/etc/firejail/.
+cp etc/sshd* debian/etc/firejail/.
 find ./debian -type d | xargs chmod 755
 dpkg-deb --build debian
 lintian debian.deb

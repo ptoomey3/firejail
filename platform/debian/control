@@ -7,7 +7,7 @@ Depends: bridge-utils, libc6
 Section: net
 Priority: extra
 Homepage: http://firejail.sourceforge.net
-Description: Firejail is a sandbox program that reduces the risk of a security
+Description: Sandbox program that reduces the risk of a security
  breach by restricting the running environment of untrusted applications using
  Linux namespaces. It currently implements filesystem, PID, IPC, UTS and
  networking stack isolation, and it runs on any recent Linux system. It is a

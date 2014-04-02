@@ -34,7 +34,7 @@ cp platform/debian/copyright $INSTALL_DIR/share/doc/firejail/.
 mkdir -p $DEBIAN_CTRL_DIR
 sed "s/FIREJAILVER/$2/g"  platform/debian/control > $DEBIAN_CTRL_DIR/control
 mkdir -p debian/etc/firejail
-cp etc/*.profile debian/etc/firejail/.
+cp etc/firefox.profile debian/etc/firejail/.
 cp debian/etc/firejail/firefox.profile debian/etc/firejail/iceweasel.profile
 cp etc/sshd* debian/etc/firejail/.
 cp platform/debian/conffiles $DEBIAN_CTRL_DIR/.

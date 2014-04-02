@@ -10,11 +10,11 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <dirent.h>
- #include <sys/types.h>
-#include <sys/stat.h>
 #include <pwd.h>
 #include <errno.h>
 #include <limits.h>
+#include <linux/prctl.h>
+#include <signal.h>
 #include "firejail.h"
 
 #define STACK_SIZE (1024 * 1024)
@@ -75,6 +75,7 @@ int worker(void* worker_arg) {
 	if (arg_debug)
 		printf("Initializing child process\n");	
 	
+
 	//****************************
 	// wait for the parent to be initialized
 	//****************************
@@ -177,6 +178,7 @@ int worker(void* worker_arg) {
 	//****************************
 	// start executable
 	//****************************
+	prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0); // kill the child in case the parent died
 	if (chdir("/") < 0)
 		errExit("chdir");
 	struct stat s;
@@ -186,6 +188,8 @@ int worker(void* worker_arg) {
 	}
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
+		errExit("setenv");
+	if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
 		errExit("setenv");
 	// drop privileges
 	if (setuid(getuid()) < 0)
@@ -206,7 +210,7 @@ int worker(void* worker_arg) {
 	if (!arg_command)
 		printf("Child process initialized\n");
 	if (arg_debug) {
-		FILE *fp = fopen("/tmp/firejail.log", "a");
+		FILE *fp = fopen("/tmp/firejail.dbg", "a");
 		if (fp) {			
 			fprintf(fp, "child pid %u, execvp into %s\n\n", getpid(), command_line);
 			fclose(fp);
@@ -277,7 +281,7 @@ int main(int argc, char **argv) {
 			arg_private = 1;
 		else if (strcmp(argv[i], "--debug") == 0) {
 			arg_debug = 1;
-			FILE *fp = fopen("/tmp/firejail.log", "a");
+			FILE *fp = fopen("/tmp/firejail.dbg", "a");
 			if (fp) {
 				fprintf(fp, "parent pid %u, command %s\n", ppid, (pcmd)? pcmd: "unknown");
 				if (restricted_user)
@@ -288,8 +292,8 @@ int main(int argc, char **argv) {
 					fprintf(fp, "%s ", argv[j]);
 				fprintf(fp, "\n");
 				fclose(fp);
-				chmod("/tmp/firejail.log", S_IRWXU|S_IRWXG|S_IRWXO);
-				int rv = chown("/tmp/firejail.log", 0, 0);
+				chmod("/tmp/firejail.dbg", S_IRWXU|S_IRWXG|S_IRWXO);
+				int rv = chown("/tmp/firejail.dbg", 0, 0);
 				(void) rv;
 			}
 		}			
@@ -409,9 +413,16 @@ int main(int argc, char **argv) {
 			ptr += strlen(ptr);
 		}
 	}
-	
+
 	// if not a tty, create a new session
-	if (!isatty(fileno(stdin))) {
+	if (!isatty(STDIN_FILENO)) {
+		if (arg_debug) {
+			FILE *fp = fopen("/tmp/firejail.dbg", "a");
+			if (fp) {			
+				fprintf(fp, "setsid\n");
+				fclose(fp);
+			}
+		}
 		if (setsid() == -1)
 			errExit("setsid");
 	}
@@ -422,7 +433,7 @@ int main(int argc, char **argv) {
 	
 	if (set_exit)
 		set_exit_parent(getpid());
-
+	
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
 	if (bridgedev) {

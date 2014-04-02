@@ -1,0 +1,3 @@
+/etc/firejail/firefox.profile
+/etc/firejail/iceweasel.profile
+/etc/firejail/sshd.users

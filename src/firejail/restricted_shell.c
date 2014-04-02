@@ -28,7 +28,7 @@ int restricted_shell(const char *user) {
 		
 		// parse line	
 		char *usr = ptr;
-		char *args = strchr(usr, ';');
+		char *args = strchr(usr, ':');
 		if (args == NULL) {
 			fprintf(stderr, "Error: users.conf line %d\n", lineno);
 			exit(1);

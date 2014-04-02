@@ -35,12 +35,14 @@ mkdir -p $DEBIAN_CTRL_DIR
 sed "s/FIREJAILVER/$2/g"  platform/debian/control > $DEBIAN_CTRL_DIR/control
 mkdir -p debian/etc/firejail
 cp etc/*.profile debian/etc/firejail/.
+cp debian/etc/firejail/firefox.profile debian/etc/firejail/iceweasel.profile
 cp etc/sshd* debian/etc/firejail/.
+cp platform/debian/conffiles $DEBIAN_CTRL_DIR/.
 find ./debian -type d | xargs chmod 755
 dpkg-deb --build debian
 lintian debian.deb
 mv debian.deb firejail_$2_1_amd64.deb
-rm -fr debian
+#rm -fr debian
 rm -fr $CODE_DIR
 
 

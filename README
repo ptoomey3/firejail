@@ -13,5 +13,5 @@ in a specific sandbox.
 Download: http://sourceforge.net/projects/firejail/files/?source=navbar
 Install Debian/Ubuntu package: dpkg -i firejail_X.Y_1_amd64.deb
 Install from source code: ./configure && make && sudo make install
-Homepage and support: http://firejail.sourceforge.net
+Documentation and support: http://firejail.sourceforge.net
 

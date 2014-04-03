@@ -7,10 +7,7 @@ Depends: bridge-utils, libc6
 Section: net
 Priority: extra
 Homepage: http://firejail.sourceforge.net
-Description: Sandbox program that reduces the risk of a security
- breach by restricting the running environment of untrusted applications using
- Linux namespaces. It currently implements filesystem, PID, IPC, UTS and
- networking stack isolation, and it runs on any recent Linux system. It is a
- simple, clean, user-mode sandbox implementation for untrusted programs, web
- browser plugins and helper applications. It includes a sandbox profile for
- Mozilla Firefox/Iceweasel.
+Description: Sandbox program that reduces the risk of security
+ breaches by restricting the running environment of untrusted applications
+ using Linux namespaces. It includes a sandbox profile for Iceweasel/Mozilla
+ Firefox.

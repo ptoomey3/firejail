@@ -42,7 +42,7 @@ find ./debian -type d | xargs chmod 755
 dpkg-deb --build debian
 lintian debian.deb
 mv debian.deb firejail_$2_1_amd64.deb
-#rm -fr debian
+rm -fr debian
 rm -fr $CODE_DIR
 
 

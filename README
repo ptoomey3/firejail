@@ -5,7 +5,7 @@ run in web browsers. Most of the time these applications are to complex to be
 bug-free, or they can come from an adversary trying to get access to our
 computer.
 
-Firejail is a sandbox program that reduces the risk of a security breach by
+Firejail is a sandbox program that reduces the risk of security breaches by
 restricting the running environment of untrusted applications using Linux
 namespaces. It currently implements filesystem, PID, IPC, UTS and networking stack
 isolation, and it runs on any recent Linux system. It is a simple, clean,
@@ -14,8 +14,8 @@ and helper applications. It includes a sandbox profile for Mozilla Firefox.
 
 Firejail also expands the restricted shell facility found in bash or other shell programs,
 by adding Linux namespace support. It can be used to restrict the login on a server
-in a Linux namespace sandbox. For example, you can set up the login of a specific
-ssh user in a sandbox without network access. 
+in a Linux namespace sandbox. For example, you can set up each individual ssh user
+in a specific sandbox.
 
 Namespace join support in Linux kernel as supported by Firejail:
 	ipc, net, uts since 3.0

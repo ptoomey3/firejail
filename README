@@ -1,15 +1,8 @@
-In todays world, we often find ourselves running applications we received in
-binary format. This includes not only traditional binary software installed on
-our computers, but also unauthenticated programs received over the network and
-run in web browsers. Most of the time these applications are to complex to be
-bug-free, or they can come from an adversary trying to get access to our
-computer.
-
 Firejail is a sandbox program that reduces the risk of security breaches by
 restricting the running environment of untrusted applications using Linux
 namespaces. It currently implements filesystem, PID, IPC, UTS and networking stack
 isolation, and it runs on any recent Linux system. It is a simple, clean,
-user-mode sandbox implementation for untrusted programs, web browser plugins 
+user-mode/SUID sandbox implementation for untrusted programs, web browser plugins 
 and helper applications. It includes a sandbox profile for Mozilla Firefox.
 
 Firejail also expands the restricted shell facility found in bash or other shell programs,
@@ -17,6 +10,8 @@ by adding Linux namespace support. It can be used to restrict the login on a ser
 in a Linux namespace sandbox. For example, you can set up each individual ssh user
 in a specific sandbox.
 
-Namespace join support in Linux kernel as supported by Firejail:
-	ipc, net, uts since 3.0
-	pid since 3.8
+Download: http://sourceforge.net/projects/firejail/files/?source=navbar
+Install Debian/Ubuntu package: dpkg -i firejail_X.Y_1_amd64.deb
+Install from source code: ./configure && make && sudo make install
+Homepage and support: http://firejail.sourceforge.net
+

@@ -48,3 +48,7 @@ dist:
 	cd $(NAME)-$(VERSION); rm -fr `find . -name .svn`; rm -fr $(NAME)-$(VERSION); cd ..
 	tar -cjvf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
 	rm -fr $(NAME)-$(VERSION)
+
+deb: dist
+	./mkdeb.sh $(NAME) $(VERSION)
+

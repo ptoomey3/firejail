@@ -336,9 +336,19 @@ static int monitor(const int sock, pid_t mypid) {
 }
 
 static void usage(void) {
-	printf("Usage: firejail proces_id\n");
+	printf("firemon - version %s\n", VERSION);
+	printf("Firemon is a monitoring program for processes started in a Firejail sandbox.\n\n");
+	printf("Usage: firemon [OPTIONS] [PID]\n");
 	printf("where\n");
-	printf("\tproces_id - process id for the process being monitored\n");
+	printf("\tPID - ID of the process being monitored\n\n");
+	printf("Without a PID specified, all processes started by firejail are monitored.\n");
+	printf("Descendants of these processes are also being monitored\n\n");
+	printf("Options:\n");
+	printf("\t--help, -? - this help screen\n");
+	printf("\t--version - print program version and exit\n\n");
+	printf("Copyright @ 2014 netblue30@yahoo.com\n");
+	printf("License GPL version 2 or later\n");
+	printf("Homepage: http://firejail.sourceforge.net\n");
 	printf("\n");
 }
 
@@ -355,6 +365,10 @@ int main(int argc, char **argv) {
 		if (strcmp(argv[i], "--help") == 0 ||
 		    strcmp(argv[i], "-?") == 0) {
 			usage();
+			return 0;
+		}
+		if (strcmp(argv[i], "--version") == 0) {
+			printf("firejail - version %s\n\n", VERSION);
 			return 0;
 		}
 	}

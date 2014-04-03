@@ -15,9 +15,12 @@ install -c -m 0644 etc/firefox.profile /etc/firejail/.
 install -c -m 0644 etc/firefox.profile /etc/firejail/iceweasel.profile
 rm -f firejail.1.gz
 gzip -9 firejail.1
+rm -f firemon.1.gz
+gzip -9 firemon.1
 mkdir -p $1/share/man/man1
 install -c -m 0644 firejail.1.gz $1/share/man/man1/.	
-rm -f firejail.1.gz
+install -c -m 0644 firemon.1.gz $1/share/man/man1/.	
+rm -f firejail.1.gz firemon.1.gz
 if [ ! -f /etc/firejail/sshd.users ]
 then
 	install -c -m 0644 etc/sshd.users /etc/firejail/.

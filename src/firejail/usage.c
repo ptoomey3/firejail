@@ -4,10 +4,13 @@ void usage(void) {
 	printf("firejail - version %s\n\n", VERSION);
 	printf("Firejail is a sandbox program that reduces the risk of security breaches by\n");
 	printf("restricting the running environment of untrusted applications using Linux\n");
-	printf("namespaces. It currently implements hostname, filesystem, PID, IPC and\n");
-	printf("networking stack isolation, and it runs on any recent Linux system. It includes\n");
-	printf("a sandbox profile for Mozilla Firefox.\n\n");
-	printf("Usage: firejail [options] [program and arguments]\n\n");
+	printf("namespaces. It includes a sandbox profile for Mozilla Firefox.\n\n");
+	printf("Usage: firejail [options] [program and arguments]\n");
+	printf("Without any options, the sandbox consists of a filesystem chroot build from the\n");
+	printf("current system directories  mounted  read-only,  and  new PID and IPC\n");
+	printf("namespaces.\n\n");
+	printf("If no program is specified as an argument, /bin/bash is started by default in\n");
+	printf("the sandbox.\n\n");
 	printf("Options:\n");
 	printf("\t-c - execute command and exit\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
@@ -26,6 +29,7 @@ void usage(void) {
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\n");
+	printf("Profile files\n\n");
 	printf("The profile files define a chroot filesystem built on top of the existing\n");
 	printf("filesystem. Each line describes a file element that is removed from\n");
 	printf("the filesystem, for example:\n");
@@ -37,8 +41,16 @@ void usage(void) {
 	printf("blacklist ${PATH}/ifconfig # remove ifconfig from the regular path directories\n");
 	printf("blacklist ${HOME}/.ssh # remove .ssh directory from user home directory\n");
 	printf("\n");
-	printf("Default Firejail profile files are placed in /etc/firejail directory, user\n");
-	printf("profile files are placed in ~/.config/firejail directory. \n\n");
+	printf("Default Firejail profile files are stored in /etc/firejail directory, user\n");
+	printf("profile files are stored in ~/.config/firejail directory. See\n");
+	printf("/etc/firejail/firefox.profile for more examples. \n\n");
+	printf("Restricted shell\n\n");
+	printf("To  configure a restricted shell, replace /bin/bash with /usr/bin/firejail i\n");
+	printf("/etc/password file for each user that needs to  be  restricted.\n");
+	printf("Alternatively, you can specify /usr/bin/firejail  in adduser command:\n\n");
+	printf("   adduser --shell /usr/bin/firejail username\n\n");
+	printf("For   restricted   SSH   access,   users  are  declared  in\n");
+	printf("/etc/firejail/sshd.users file.\n\n");
 	printf("Examples:\n\n");
 	printf("   $ firejail\n");
 	printf("          start a regular /bin/bash session in sandbox\n");
@@ -55,9 +67,8 @@ void usage(void) {
 	printf("   $ firejail --list\n");
 	printf("          list all running sandboxes\n");
 	printf("\n");
-	printf("Copyright\n");
-	printf("   Copyright @ 2014 netblue30@yahoo.com\n");
-	printf("   License GPL version 2 or later\n");
-	printf("   Homepage: http://firejail.sourceforge.net\n");
+	printf("Copyright @ 2014 netblue30@yahoo.com\n");
+	printf("License GPL version 2 or later\n");
+	printf("Homepage: http://firejail.sourceforge.net\n");
 	printf("\n");
 }

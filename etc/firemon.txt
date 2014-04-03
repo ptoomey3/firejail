@@ -1,0 +1,26 @@
+.TH man 1 "MONTH YEAR" "VERSION" "firemon man page"
+.SH NAME
+Firemon \- Monitoring program for processes started in a Firejail sandbox.
+.SH SYNOPSIS
+firemon [options] [PID]
+.SH DESCRIPTION
+Firemon monitors programs started in a Firejail sandbox.
+Without a PID specified, all processes started by Firejail are monitored. Descendants of
+these processes are also being monitored.
+.SH OPTIONS
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Print options end exit.
+.TP
+\fB\--version
+Print program version and exit.
+.SH COPYRIGHT
+Copyright @ 2014 netblue30@yahoo.com.
+.PP
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+.PP
+Homepage: http://firejail.sourceforge.net
+.SH SEE ALSO
+\&\flfirejail\fR\|(1)
+
+

@@ -7,14 +7,14 @@ firejail [options] [program and arguments]
 Firejail is a sandbox program that reduces the risk of security breaches by
 restricting the running environment of untrusted applications using Linux
 namespaces. It includes a sandbox profile for Mozilla Firefox.
-.TP
-Firejail also expands the restricted shell facility found in bash by adding
-Linux namespace support. It also supports sandboxing each SSH user upon
+
+Firejail also expands the restricted shell facility found in bash by adding Linux
+namespace support. It also supports sandboxing SSH users upon
 login.
-.SHUSAGE
-If no program is specified as an argument, /bin/bash is started in the sandbox.
+.SH USAGE
 Without any options, the sandbox consists of a filesystem chroot build from the
 current system directories mounted read-only, and new PID and IPC namespaces.
+If no program is specified as an argument, /bin/bash is started by default in the sandbox.
 .SH OPTIONS
 .TP
 \fB\-c
@@ -43,6 +43,9 @@ Enable network namespaces and connect to this bridge device.
 .TP
 \fB\--net=none
 Enable a new, unconnected network namespace.
+.TP
+\fB\--overlay
+Mount a filesystem overlay on top of the current filesystem. OverlayFS support is required in Linux kernel for this option to work.
 .TP
 \fB\--private
 Mount a new /home/user directory.
@@ -74,15 +77,18 @@ Remove ifconfig from the regular path directories.
 \f\blacklist ${HOME}/.ssh
 Remove .ssh directory from user home directory.
 .PP
-Default Firejail profile files are placed in /etc/firejail directory, user
-profile files are placed in ~/.config/firejail directory.
-SH RESTRICTED SHELL
+Default Firejail profile files are stored in /etc/firejail directory, user
+profile files are stored in ~/.config/firejail directory. See /etc/firejail/firefox.profile
+for more examples.
+.SH RESTRICTED SHELL
 To configure a restricted shell, replace /bin/bash with /usr/bin/firejail in
 /etc/password file for each user that needs to be restricted. Alternatively,
-you can specifiy /usr/bin/firejail  in adduser command:
-.TP
+you can specify /usr/bin/firejail  in adduser command:
+
 adduser --shell /usr/bin/firejail username
-.TP
+
+For restricted SSH access, users are declared in /etc/firejail/sshd.users file.
+
 .SH EXAMPLES
 .TP
 \f\firejail
@@ -110,5 +116,8 @@ Copyright @ 2014 netblue30@yahoo.com.
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 .PP
 Homepage: http://firejail.sourceforge.net
+.SH SEE ALSO
+\&\flfiremon\fR\|(1)
+
 
 

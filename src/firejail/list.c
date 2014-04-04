@@ -23,6 +23,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <fcntl.h>
+#include <pwd.h>
 #include "firejail.h"
 #define BUFLEN 4096
 #define MAX_PIDS 32769
@@ -30,6 +31,7 @@
 typedef struct {
 	unsigned char level;
 	pid_t parent;
+	uid_t uid;
 } Task;
 Task pids[MAX_PIDS];
 
@@ -66,18 +68,28 @@ char *proc_cmdline(const pid_t pid) {
 	return rv;
 }
 
+static char *get_user_name(uid_t uid) {
+	struct passwd *pw = getpwuid(uid);
+	if (pw)
+		return strdup(pw->pw_name);
+	return NULL;
+}
+
 // recursivity!!!
-void print_elem(unsigned index) {
+void print_elem(unsigned index, uid_t uid) {
 	int i;
 	for (i = 0; i < pids[index].level - 1; i++)
 		printf("  ");
 	
 	char *cmd = proc_cmdline(index);
+	char *user = get_user_name(uid);
+	if (user ==NULL)
+		user = "";
 	if (cmd) {
-		if (strlen(cmd) > 60)
-			printf("%u:%-60.60s...\n", index, cmd);
+		if (strlen(cmd) > 55)
+			printf("%u:%s:%-55.55s...\n", index, user, cmd);
 		else
-			printf("%u:%-60.60s\n", index, cmd);
+			printf("%u:%s:%s\n", index, user, cmd);
 		free(cmd);
 	}
 	else
@@ -85,7 +97,7 @@ void print_elem(unsigned index) {
 }
 
 void print_tree(unsigned index, unsigned parent) {
-	print_elem(index);
+	print_elem(index, pids[index].uid);
 	
 	int i;
 	for (i = index + 1; i < MAX_PIDS; i++) {
@@ -159,6 +171,19 @@ void list(void) {
 					pid %= MAX_PIDS;
 					pids[pid].level = pids[parent].level + 1;
 					pids[pid].parent = parent;
+				}
+			}
+			else if (strncmp(buf, "Uid:", 4) == 0) {
+				if (pids[pid].level) {
+					char *ptr = buf + 5;
+					while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+						ptr++;
+					}
+					if (*ptr == '\0') {
+						fprintf(stderr, "Error: cannot read /proc file\n");
+						exit(1);
+					}
+					pids[pid].uid = atoi(ptr);
 				}
 				break; // break regardless!
 			}

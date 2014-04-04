@@ -136,20 +136,20 @@ void set_exit_parent(pid_t pid) {
 	// create tmp directory
 	char *name_template;
 	if (asprintf(&name_template, "/tmp/firejail-%u-XXXXXX", pid) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	tmpdir = mkdtemp(name_template);
 	if (tmpdir == NULL)
-		errExit("mkdtemp");
+		errExit("Error mkdtemp");
 	if (arg_debug)
 		printf("Creating %s directory\n", tmpdir);
 	mkdir(tmpdir, S_IRWXU);
 	uid_t u = getuid();
 	gid_t g = getgid();
 	if (chown(tmpdir, u, g) < 0)
-		errExit("chown");
+		errExit("Error chown");
 
 	if (atexit(bye_parent))
-		errExit("atexit");
+		errExit("Error atexit");
 }
 
 //***********************************************
@@ -159,10 +159,10 @@ static void mnt_tmp(void) {
 	if (arg_debug)
 		printf("Mounting new /tmp and /var/tmp directories\n");
 	if (mount("tmpfs", "/var/tmp", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("/var");
+		errExit("Error mounting /var/tmp");
 
 	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-		errExit("/tmp");
+		errExit("Error mounting /tmp");
 }
 
 static void disable_file(const char *fname, const char *emptydir, const char *emptyfile) {
@@ -174,11 +174,11 @@ static void disable_file(const char *fname, const char *emptydir, const char *em
 	if (stat(fname, &s) == 0) {
 		if (S_ISDIR(s.st_mode)) {
 			if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
-				errExit(fname);
+				errExit("Error disable file");
 		}
 		else {
 			if (mount(emptyfile, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
-				errExit(fname);
+				errExit("Error disable file");
 		}
 		if (arg_debug)
 			printf("Disabling %s\n", fname);
@@ -224,28 +224,28 @@ void mnt_blacklist(char **blacklist, const char *homedir) {
 
 	// create read-only root directory
 	if (asprintf(&emptydir, "%s/firejail.ro.dir", tmpdir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	mkdir(emptydir, S_IRWXU);
 	if (chown(emptydir, 0, 0) < 0)
-		errExit("chown");
+		errExit("Error chown");
 
 	// create read-only root file
 	if (asprintf(&emptyfile, "%s/firejail.ro.file", tmpdir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	FILE *fp = fopen(emptyfile, "w");
 	if (!fp)
-		errExit("fopen");
+		errExit("Error fopen");
 	fclose(fp);
 	if (chown(emptyfile, 0, 0) < 0)
-		errExit("chown");
+		errExit("Error chown");
 	if (chmod(emptyfile, S_IRUSR) < 0)
-		errExit("chown");
+		errExit("Error chown");
 
 	int i = 0;
 	while (blacklist[i]) {
 		// process newtmp macro
 		if (strncmp(blacklist[i], "newdir", 6) == 0) {
-			if (strcmp(blacklist[i], "newdir /tmp") == 0)
+			if (strcmp(blacklist[i], "Error newdir /tmp") == 0)
 				mnt_tmp();
 			else
 				fprintf(stderr, "Warning: %s not implemented yet\n", blacklist[i]);
@@ -265,7 +265,7 @@ void mnt_blacklist(char **blacklist, const char *homedir) {
 		char *new_name = NULL;
 		if (strncmp(ptr, "${HOME}", 7) == 0) {
 			if (asprintf(&new_name, "%s%s", homedir, ptr + 7) == -1)
-				errExit("asprintf");
+				errExit("Error asprintf");
 			ptr = new_name;
 		}
 
@@ -296,10 +296,10 @@ void mnt_rdonly(const char *dir) {
 	if (rv == 0) {
 		// mount --bind /bin /bin
 		if (mount(dir, dir, NULL, MS_BIND|MS_REC, NULL) < 0)
-			errExit(dir);
+			errExit("Error mount read-only");
 		// mount --bind -o remount,ro /bin
 		if (mount(NULL, dir, NULL, MS_BIND|MS_REMOUNT|MS_RDONLY|MS_REC, NULL) < 0)
-			errExit(dir);
+			errExit("Error mount read-only");
 	}
 }
 
@@ -308,13 +308,13 @@ void mnt_proc_sys(void) {
 	if (arg_debug)
 		printf("Remounting /proc and /proc/sys filesystems\n");
 	if (mount("proc", "/proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_REC, NULL) < 0)
-		errExit("/proc");
+		errExit("Error mounting /proc");
 
 	if (mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_REC, NULL) < 0)
-		errExit("/proc/sys");
+		errExit("Error mounting /proc/sys");
 
 	if (mount(NULL, "/proc/sys", NULL, MS_BIND | MS_REMOUNT | MS_RDONLY | MS_REC, NULL) < 0)
-		errExit("/proc/sys");
+		errExit("Error mounting /proc/sys");
 
 	//	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
 	//		errExit("/sys");
@@ -347,7 +347,7 @@ static void resolve_run_shm(void) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/run\n");
 		if (mount("tmpfs", "/var/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mount /var/tmp");
+			errExit("Error mounting /var/tmp");
 	}
 	else if (is_link("/var/run")) {
 		char *lnk = get_link("/var/run");
@@ -366,7 +366,7 @@ static void resolve_run_shm(void) {
 				if (arg_debug)
 					printf("Mounting tmpfs on %s directory\n", lnk2);
 				if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-					errExit("mount tmpfs");
+					errExit("Error mounting tmpfs");
 			}
 			free(lnk);
 		}
@@ -378,7 +378,7 @@ static void resolve_run_shm(void) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /dev/shm\n");
 		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mount /dev/shm");
+			errExit("Error mounting /dev/shm");
 	}
 	else {
 		char *lnk = get_link("/dev/shm");
@@ -396,16 +396,16 @@ static void resolve_run_shm(void) {
 			if (!is_dir(lnk2)) {
 				// create directory
 				if (mkdir(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
-					errExit("mkdir");
+					errExit("Error mkdir");
 				if (chown(lnk2, 0, 0))
-					errExit("chown");
+					errExit("Error chown");
 				if (chmod(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
-					errExit("chmod");
+					errExit("Error chmod");
 			}
 			if (arg_debug)
 				printf("Mounting tmpfs on %s\n", lnk2);
 			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-				errExit("mount /var/tmp");
+				errExit("Error mounting /var/tmp");
 			free(lnk);
 		}
 		else
@@ -428,28 +428,30 @@ void mnt_basic_fs(void) {
 }
 
 void mnt_home(const char *homedir) {
+	assert(homedir);
+	
 	if (arg_debug)
 		printf("Mounting a new /home directory\n");
-	if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("/home");
-	mkdir(homedir, S_IRWXU);
+	if (mount("tmpfs", homedir, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+		errExit("Error mounting home directory");
+//	mkdir(homedir, S_IRWXU);
 	uid_t u = getuid();
 	gid_t g = getgid();
-	if (chown(homedir, u, g) == -1)
-		errExit("chown");
+//	if (chown(homedir, u, g) == -1)
+//		errExit("chown");
 
 	// copy skel files
 	char *cmd;
 	if (asprintf(&cmd, "cp -r /etc/skel/.bashrc %s/.", homedir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	if (system(cmd) == -1)
-		errExit("system");
+		errExit("Error system");
 	free(cmd);
 
 	if (asprintf(&cmd, "%s/.bashrc", homedir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	if (chown(cmd, u, g) == -1)
-		errExit("chown");
+		errExit("Error chown");
 	free(cmd);
 }
 
@@ -459,24 +461,24 @@ void mnt_overlayfs(void) {
 	// build overlay directory
 	char *overlay;
 	if (asprintf(&overlay, "%s/overlay", tmpdir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	if (mkdir(overlay, S_IRWXU|S_IRWXG|S_IRWXO))
-		errExit("mkdir");
+		errExit("Error mkdir");
 	if (chown(overlay, 0, 0) == -1)
-		errExit("chown");
+		errExit("Error chown");
 	if (chmod(overlay, S_IRWXU|S_IRWXG|S_IRWXO))
-		errExit("chmod");
+		errExit("Error chmod");
 
 	// build new root directory
 	char *root;
 	if (asprintf(&root, "%s/root", tmpdir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	if (mkdir(root, S_IRWXU|S_IRWXG|S_IRWXO))
-		errExit("mkdir");
+		errExit("Error mkdir");
 	if (chown(root, 0, 0) == -1)
-		errExit("chown");
+		errExit("Error chown");
 	if (chmod(root, S_IRWXU|S_IRWXG|S_IRWXO))
-		errExit("chmod");
+		errExit("Error chmod");
 
 	// mount overlayfs:
 	//      mount -t overlayfs -o lowerdir=/,upperdir=$tmpdir/overlay overlayfs $tmpdir/root
@@ -484,24 +486,24 @@ void mnt_overlayfs(void) {
 		printf("Mounting OverlayFS\n");
 	char *option;
 	if (asprintf(&option, "lowerdir=/,upperdir=%s", overlay) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	if (mount("overlayfs", root, "overlayfs", MS_MGC_VAL, option) < 0)
-		errExit("mount overlayfs");
+		errExit("Error mounting overlayfs");
 
 	// mount-bind dev directory
 	if (arg_debug)
 		printf("Mounting /dev\n");
 	char *dev;
 	if (asprintf(&dev, "%s/dev", root) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	if (mount("/dev", dev, NULL, MS_BIND|MS_REC, NULL) < 0)
-		errExit("mount /dev");
+		errExit("Error mounting /dev");
 
 	resolve_run_shm();
 
 	// chroot in the new filesystem
 	if (chroot(root) == -1)
-		errExit("chroot");
+		errExit("Error chroot");
 
 	// cleanup and exit
 	free(option);
@@ -518,16 +520,16 @@ void mnt_chroot(const char *rootdir) {
 		printf("Mounting /dev in chroot directory %s\n", rootdir);
 	char *newdev;
 	if (asprintf(&newdev, "%s/dev", rootdir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	if (mount("/dev", newdev, NULL, MS_BIND|MS_REC, NULL) < 0)
-		errExit("mount /dev");
+		errExit("Error mounting /dev");
 	
 	// copy /etc/resolv.conf in chroot directory
 	if (arg_debug)
 		printf("Updating /etc/resolv.conf\n");
 	char *cmd;
 	if (asprintf(&cmd, "cp -a /etc/resolv.conf %s/etc/resolv.conf", rootdir) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 	int rv = system(cmd);
 	(void) rv;
 	
@@ -535,5 +537,5 @@ void mnt_chroot(const char *rootdir) {
 
 	// chroot into the new directory
 	if (chroot(rootdir) < 0)
-		errExit("chroot");
+		errExit("Error chroot");
 }

@@ -31,7 +31,7 @@ void get_profile(const char *name, const char *dir) {
 	DIR *dp;
 	char *pname;
 	if (asprintf(&pname, "%s.profile", name) == -1)
-		errExit("asprintf");
+		errExit("Error asprintf");
 
 	dp = opendir (dir);
 	if (dp != NULL) {
@@ -42,7 +42,7 @@ void get_profile(const char *name, const char *dir) {
 					printf("Found %s profile in %s directory\n", name, dir);
 				char *etcpname;
 				if (asprintf(&etcpname, "%s/%s", dir, pname) == -1)
-					errExit("asprintf");
+					errExit("Error asprintf");
 				read_profile(etcpname);
 				free(etcpname);
 				break;
@@ -97,7 +97,7 @@ static char *remove_spaces(const char *buf) {
 	// allocate memory for the new string
 	char *rv = malloc(strlen(buf) + 1);
 	if (rv == NULL)
-		errExit("malloc");
+		errExit("Error malloc");
 	
 	// remove space at start of line
 	const char *ptr1 = buf;
@@ -178,7 +178,7 @@ void read_profile(const char *fname) {
 		mptr->line = ptr;
 		mptr->next = malloc(sizeof(struct mylist));
 		if (mptr->next == NULL)
-			errExit("malloc");
+			errExit("Error malloc");
 		mptr = mptr->next;
 		mptr->line = NULL;
 		mptr->next = NULL;
@@ -188,7 +188,7 @@ void read_profile(const char *fname) {
 	// build blacklist array
 	custom_profile  = malloc(sizeof(char *) * mylist_cnt);
 	if (!custom_profile)
-		errExit("malloc");
+		errExit("Error malloc");
 	mptr = &m;
 	lineno = 0;
 	while (mptr->next != NULL) {

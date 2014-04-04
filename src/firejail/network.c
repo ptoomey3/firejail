@@ -35,7 +35,7 @@ int net_ifprint(void) {
 	struct ifaddrs *ifaddr, *ifa;
 
 	if (getifaddrs(&ifaddr) == -1)
-		errExit("getifaddrs");
+		errExit("Error getifaddrs");
 
 	
 	printf("%-20.20s%-20.20s%-20.20s\n",
@@ -66,7 +66,7 @@ int net_ifprint(void) {
 
 
 
-// return 1 if the bridge was found
+// return 1 if the bridge was not found
 int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 	assert(bridge);
 	assert(ip);
@@ -75,9 +75,9 @@ int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 	struct ifaddrs *ifaddr, *ifa;
 
 	if (getifaddrs(&ifaddr) == -1)
-		errExit("getifaddrs");
+		errExit("Error getifaddrs");
 
-	// walk through the linked list
+	// walk through the linked list; if the interface is found, extract IP address and mask
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
@@ -102,15 +102,17 @@ int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 void net_if_up(const char *ifname) {
 	int sock = socket(AF_INET,SOCK_DGRAM,0);
 	if (sock < 0)
-		errExit("socket");
+		errExit("Error socket");
 
 	// get the existing interface flags
 	struct ifreq ifr;
 	strcpy(ifr.ifr_name, ifname);
+	ifr.ifr_addr.sa_family = AF_INET;
+
 	// read the existing flags
 	if (ioctl(sock, SIOCGIFFLAGS, &ifr ) < 0) {
 		close(sock);
-		errExit("ioctl");
+		errExit("Error ioctl");
 	}
 
 	ifr.ifr_flags |= IFF_UP;
@@ -118,8 +120,38 @@ void net_if_up(const char *ifname) {
 	// set the new flags
 	if (ioctl( sock, SIOCSIFFLAGS, &ifr ) < 0) {
 		close(sock);
-		errExit("ioctl");
+		errExit("Error ioctl");
 	}
+	
+// checking	
+	// read the existing flags
+	if (ioctl(sock, SIOCGIFFLAGS, &ifr ) < 0) {
+		close(sock);
+		errExit("Error ioctl");
+	}
+	
+	// wait for not more than 50ms for the interface to come up
+	int cnt = 0;
+	while (cnt < 5) {
+		usleep(10000); // sleep 10ms
+		
+		// read the existing flags
+		if (ioctl(sock, SIOCGIFFLAGS, &ifr ) < 0) {
+			close(sock);
+			errExit("Error ioctl");
+		}
+		if (ifr.ifr_flags && IFF_RUNNING)
+			break;
+		cnt++;
+	}
+	if (cnt && arg_debug) {
+		FILE *fp = fopen("/tmp/firejail.dbg", "a");
+		if (fp) {			
+			fprintf(fp, "wait %dms for interface %s to come up\n", cnt * 10, ifname);
+			fclose(fp);
+		}
+	}
+
 	close(sock);
 }
 
@@ -127,7 +159,7 @@ void net_if_up(const char *ifname) {
 void net_if_ip( const char *ifname, uint32_t ip, uint32_t mask) {
 	int sock = socket(AF_INET,SOCK_DGRAM,0);
 	if (sock < 0)
-		errExit("socket");
+		errExit("Error socket");
 
 	struct ifreq ifr;
 	strcpy(ifr.ifr_name, ifname);
@@ -136,18 +168,19 @@ void net_if_ip( const char *ifname, uint32_t ip, uint32_t mask) {
 	((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr = htonl(ip);
 	if (ioctl( sock, SIOCSIFADDR, &ifr ) < 0) {
 		close(sock);
-		errExit("ioctl");
+		errExit("Error ioctl");
 	}
 
 	if (ip != 0) {
 		((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr =  htonl(mask);
 		if (ioctl( sock, SIOCSIFNETMASK, &ifr ) < 0) {
 			close(sock);
-			errExit("ioctl");
+			errExit("Error ioctl");
 		}
 	}
 
 	close(sock);
+	usleep(10000); // sleep 10ms
 }
 
 int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
@@ -158,7 +191,7 @@ int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
 
 	// create the socket
 	if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-		errExit("socket");
+		errExit("Error socket");
 
 	memset(&route, 0, sizeof(route));
 

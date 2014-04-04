@@ -69,17 +69,17 @@ static void extract_user_data(void) {
 
 	struct passwd *pw = getpwuid(getuid());
 	if (!pw)
-		errExit("getpwuid");
+		errExit("Error getpwuid");
 	username = strdup(pw->pw_name);
 	if (!username)
-		errExit("strdup");
+		errExit("Error strdup");
 
 	// build home directory name
 	homedir = NULL;
 	if (pw->pw_dir != NULL) {
 		homedir = strdup(pw->pw_dir);
 		if (!homedir)
-			errExit("strdup");
+			errExit("Error strdup");
 	}
 	else {
 		fprintf(stderr, "Error: user %s doesn't have a user directory assigned, aborting...\n", username);
@@ -109,11 +109,11 @@ int worker(void* worker_arg) {
 		while(*ptr !='\0' && *ptr != '\n')
 			ptr++;
 		if (*ptr == '\0')
-			errExit("fgets");
+			errExit("Error fgets");
 		*ptr = '\0';
 	}
 	else
-		errExit("fgets");
+		errExit("Error fgets");
 	close(fds[0]);
 	if (arg_debug && getpid() == 1)
 			printf("PID namespace installed\n");
@@ -123,14 +123,14 @@ int worker(void* worker_arg) {
 	//****************************
 	if (hostname) {
 		if (sethostname(hostname, strlen(hostname)) < 0)
-			errExit("sethostname");
+			errExit("Error sethostname");
 	}
 
 	//****************************
 	// configure filesystem
 	//****************************
 	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0)
-		errExit("mount slave");
+		errExit("Error mounting filesystem as slave");
 
 	if (chrootdir) {
 		mnt_chroot(chrootdir);
@@ -151,7 +151,7 @@ int worker(void* worker_arg) {
 		// look for a profile in ~/.config/firejail directory
 		char *usercfg;
 		if (asprintf(&usercfg, "%s/.config/firejail", homedir) == -1)
-			errExit("asprintf");
+			errExit("Error asprintf");
 		get_profile(command_name, usercfg);
 	}
 	if (!custom_profile)
@@ -166,16 +166,12 @@ int worker(void* worker_arg) {
 	// networking
 	//****************************
 	if (arg_nonetwork) {
-		sleep(1);
 		net_if_up("lo");
 	}
 	else if (bridgedev && bridgeip && bridgemask) {
-		sleep(1);
-		
 		// configure lo and eth0
 		net_if_up("lo");
 		net_if_up("eth0");
-		sleep(2);
 		if (!ipaddress)
 			ipaddress = arp(bridgeip, bridgemask);
 		if (ipaddress) {
@@ -183,7 +179,6 @@ int worker(void* worker_arg) {
 				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(ipaddress));
 			net_if_ip("eth0", ipaddress, bridgemask);
 		}
-		sleep(1);
 		
 		// add a default route
 		if (net_add_route(0, 0, bridgeip))
@@ -199,24 +194,24 @@ int worker(void* worker_arg) {
 	//****************************
 	prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0); // kill the child in case the parent died
 	if (chdir("/") < 0)
-		errExit("chdir");
+		errExit("Error chdir");
 	struct stat s;
 	if (stat(homedir, &s) == 0) {
 		if (chdir(homedir) < 0)
-			errExit("chdir");
+			errExit("Error chdir");
 	}
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
-		errExit("setenv");
+		errExit("Error setenv");
 	if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
-		errExit("setenv");
+		errExit("Error setenv");
 	// drop privileges
 	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
+		errExit("Error setuid/getuid");
 	// set prompt color to green
 	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
 	if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
-		errExit("setenv");
+		errExit("Error setenv");
 	char *arg[4];
 	arg[0] = "bash";
 	arg[1] = "-c";
@@ -253,7 +248,7 @@ int main(int argc, char **argv) {
 	int set_exit = 0;
 
 	extract_user_data();
-		
+
 	// detect restricted shell calls from sshd
 	pid_t ppid = getppid();	
 	char *pcmd = proc_cmdline(ppid);
@@ -401,7 +396,7 @@ int main(int argc, char **argv) {
 		else {
 			// we have a program name coming
 			if (asprintf(&command_name, "%s", argv[i]) == -1)
-				errExit("asprintf");
+				errExit("Error asprintf");
 			prog_index = i;
 			break;		
 		}
@@ -425,7 +420,7 @@ int main(int argc, char **argv) {
 		// build the string
 		command_line = malloc(len + 1); // + '\0'
 		if (!command_line)
-			errExit("malloc");
+			errExit("Error malloc");
 		char *ptr = command_line;
 		for (i = 0; i < argcnt; i++) {
 			sprintf(ptr, "%s ", argv[i + prog_index]);
@@ -435,7 +430,7 @@ int main(int argc, char **argv) {
 
 	// create the parrent-child communication pipe
 	if (pipe(fds) < 0)
-		errExit("pipe");
+		errExit("Error pipe");
 	
 	if (set_exit)
 		set_exit_parent(getpid());
@@ -461,14 +456,14 @@ int main(int argc, char **argv) {
 		char cmd[200];
 		sprintf(cmd, "/bin/ip link add veth%u type veth peer name eth0 netns %u", mypid, child);
 		if (system(cmd) < 0)
-			errExit("system");
+			errExit("Error system");
 		
 		sprintf(cmd, "veth%u", mypid);
 		net_if_up(cmd);
 
 		sprintf(cmd, "/sbin/brctl addif %s veth%u", bridgedev, mypid);
 		if (system(cmd) < 0)
-			errExit("system");
+			errExit("Error system");
 	}
 
 	// notify the child the initialization is done

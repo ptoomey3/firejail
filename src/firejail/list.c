@@ -30,6 +30,7 @@
 
 typedef struct {
 	unsigned char level;
+	unsigned char zombie;
 	pid_t parent;
 	uid_t uid;
 } Task;
@@ -93,8 +94,12 @@ void print_elem(unsigned index, uid_t uid) {
 			printf("%u:%s:%s\n", index, user, cmd);
 		free(cmd);
 	}
-	else
-		printf("%u", index);
+	else {
+		if (pids[index].zombie)
+			printf("%u: (zombie)\n", index);
+		else
+			printf("%u:\n", index);
+	}
 	if (allocated)
 		free(allocated);
 }
@@ -158,6 +163,10 @@ void list(void) {
 					pids[pid].level = 1;
 					break;
 				}
+			}
+			if (strncmp(buf, "State:", 6) == 0) {
+				if (strstr(buf, "(zombie)"))
+					pids[pid].zombie = 1;
 			}
 			else if (strncmp(buf, "PPid:", 5) == 0) {
 				char *ptr = buf + 5;

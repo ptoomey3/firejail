@@ -163,7 +163,7 @@ static void print_pids(void) {
 				free(cmd);
 			}
 			else
-				printf("%d\n", i);
+				printf("%d:\n", i);
 		}
 	}
 	printf("\n");

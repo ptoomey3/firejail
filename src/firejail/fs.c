@@ -25,11 +25,50 @@
 #include <linux/limits.h>
 #include <glob.h>
 #include <dirent.h>
+#include <fcntl.h>
 #include "firejail.h"
 
 //***********************************************
 // utils
 //***********************************************
+// return -1 if error, 0 if no error
+static int copy_file(const char *srcname, const char *destname) {
+	assert(srcname);
+	assert(destname);
+	
+	// open source
+	int src = open(srcname, O_RDONLY);
+	if (src < 0)
+		return -1;
+	
+	// open destination
+	int dst = open(destname, O_CREAT|O_WRONLY|O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (dst < 0)
+		return -1;
+	
+	// copy
+	ssize_t len;
+	static const int BUFLEN = 1024;
+	unsigned char buf[BUFLEN];
+	while ((len = read(src, buf, BUFLEN)) > 0) {
+		int done = 0;
+		while (done != len) {
+			int rv = write(dst, buf + done, len - done);
+			if (rv == -1) {
+				close(src);
+				close(dst);
+				return -1;
+			}
+			
+			done += rv;
+		}
+	}
+	
+	close(src);
+	close(dst);
+	return 0;
+}
+
 char *get_link(const char *fname) {
 	assert(fname);
 	struct stat sb;
@@ -427,6 +466,9 @@ void mnt_basic_fs(void) {
 	resolve_run_shm();
 }
 
+
+
+
 void mnt_home(const char *homedir) {
 	assert(homedir);
 	
@@ -434,25 +476,20 @@ void mnt_home(const char *homedir) {
 		printf("Mounting a new /home directory\n");
 	if (mount("tmpfs", homedir, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 		errExit("Error mounting home directory");
-//	mkdir(homedir, S_IRWXU);
+
 	uid_t u = getuid();
 	gid_t g = getgid();
-//	if (chown(homedir, u, g) == -1)
-//		errExit("chown");
 
 	// copy skel files
-	char *cmd;
-	if (asprintf(&cmd, "cp -r /etc/skel/.bashrc %s/.", homedir) == -1)
+	char *fname;
+	if (asprintf(&fname, "%s/.bashrc", homedir) == -1)
 		errExit("Error asprintf");
-	if (system(cmd) == -1)
-		errExit("Error system");
-	free(cmd);
 
-	if (asprintf(&cmd, "%s/.bashrc", homedir) == -1)
-		errExit("Error asprintf");
-	if (chown(cmd, u, g) == -1)
-		errExit("Error chown");
-	free(cmd);
+	if (copy_file("/etc/skel/.bashrc", fname) == 0) {
+		if (chown(fname, u, g) == -1)
+			errExit("Error chown");
+	}
+	free(fname);
 }
 
 void mnt_overlayfs(void) {
@@ -527,12 +564,12 @@ void mnt_chroot(const char *rootdir) {
 	// copy /etc/resolv.conf in chroot directory
 	if (arg_debug)
 		printf("Updating /etc/resolv.conf\n");
-	char *cmd;
-	if (asprintf(&cmd, "cp -a /etc/resolv.conf %s/etc/resolv.conf", rootdir) == -1)
+	char *fname;
+	if (asprintf(&fname, "%s/etc/resolv.conf", rootdir) == -1)
 		errExit("Error asprintf");
-	int rv = system(cmd);
-	(void) rv;
-	
+	if (copy_file("/etc/resolv.conf", fname) == -1)
+		fprintf(stderr, "Warning: /etc/resolv.conf not initialized\n");
+		
 	resolve_run_shm();
 
 	// chroot into the new directory

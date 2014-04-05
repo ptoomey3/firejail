@@ -83,6 +83,7 @@ void print_elem(unsigned index, uid_t uid) {
 	
 	char *cmd = proc_cmdline(index);
 	char *user = get_user_name(uid);
+	char *allocated = user;
 	if (user ==NULL)
 		user = "";
 	if (cmd) {
@@ -94,6 +95,8 @@ void print_elem(unsigned index, uid_t uid) {
 	}
 	else
 		printf("%u", index);
+	if (allocated)
+		free(allocated);
 }
 
 void print_tree(unsigned index, unsigned parent) {

@@ -116,6 +116,7 @@ int is_link(const char *fname) {
 // atexit
 //***********************************************
 static char *tmpdir = NULL;
+static int no_cleanup;
 
 static void unlink_walker(void) {
 	struct dirent *dir;
@@ -154,6 +155,8 @@ void bye_parent(void) {
 	// the child is just inheriting it
 	if (getpid() == 1)
 		return;
+	if (no_cleanup)
+		return;
 	if (!tmpdir)
 		return;
 
@@ -171,7 +174,8 @@ void bye_parent(void) {
 	}
 }
 
-void set_exit_parent(pid_t pid) {
+void set_exit_parent(pid_t pid, int nocleanup) {
+	no_cleanup = nocleanup;
 	// create tmp directory
 	char *name_template;
 	if (asprintf(&name_template, "/tmp/firejail-%u-XXXXXX", pid) == -1)

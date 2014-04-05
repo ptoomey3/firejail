@@ -433,7 +433,7 @@ int main(int argc, char **argv) {
 		errExit("Error pipe");
 	
 	if (set_exit)
-		set_exit_parent(getpid());
+		set_exit_parent(getpid(), arg_overlay);
 	
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;

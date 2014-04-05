@@ -74,7 +74,7 @@ int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
 int net_ifprint(void);
 
 // fs.c
-void set_exit_parent(pid_t pid);
+void set_exit_parent(pid_t pid, int nocleanup);
 void bye_parent(void);
 void mnt_blacklist(char **blacklist, const char *homedir);
 void mnt_rdonly(const char *dir);

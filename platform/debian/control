@@ -4,10 +4,16 @@ Architecture: amd64
 Maintainer: netblue30 <netblue30@yahoo.com>
 Installed-Size: 116
 Depends: bridge-utils, iproute, libc6
-Section: net
+Section: admin
 Priority: extra
 Homepage: http://firejail.sourceforge.net
-Description: Sandbox program that reduces the risk of security
+Description: Linux namepaces sandbox program.
+ Firejail  is  a  SUID sandbox program that reduces the risk of security
  breaches by restricting the running environment of untrusted applications
  using Linux namespaces. It includes a sandbox profile for Iceweasel/Mozilla
  Firefox.
+ .
+ Firejail also expands the restricted shell facility found in bash by
+ adding Linux namespace support. It also supports sandboxing SSH users
+ upon login.
+

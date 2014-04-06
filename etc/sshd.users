@@ -3,7 +3,7 @@
 # Each user entry consists of a user name, semicolon, firejail
 # program arguments, for example:
 #
-#netblue;--private --net=none
+#netblue:--debug --net=none
 #
 # The extra arguments are inserted into program command line if firejail
 # was started by SSH server.

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +27,7 @@
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <net/route.h>
+#include <linux/if_bridge.h>
 #include "firejail.h"
 
 int net_ifprint(void) {
@@ -37,7 +38,6 @@ int net_ifprint(void) {
 	if (getifaddrs(&ifaddr) == -1)
 		errExit("getifaddrs");
 
-	
 	printf("%-20.20s%-20.20s%-20.20s\n",
 		"Interface", "IP", "Mask");
 	// walk through the linked list
@@ -62,8 +62,6 @@ int net_ifprint(void) {
 	printf("\n");
 	freeifaddrs(ifaddr);
 }
-
-
 
 
 // return 1 if the bridge was not found
@@ -122,19 +120,19 @@ void net_if_up(const char *ifname) {
 		close(sock);
 		errExit("ioctl");
 	}
-	
-// checking	
+
+	// checking
 	// read the existing flags
 	if (ioctl(sock, SIOCGIFFLAGS, &ifr ) < 0) {
 		close(sock);
 		errExit("ioctl");
 	}
-	
+
 	// wait for not more than 50ms for the interface to come up
 	int cnt = 0;
 	while (cnt < 5) {
-		usleep(10000); // sleep 10ms
-		
+		usleep(10000);			  // sleep 10ms
+
 		// read the existing flags
 		if (ioctl(sock, SIOCGIFFLAGS, &ifr ) < 0) {
 			close(sock);
@@ -146,7 +144,7 @@ void net_if_up(const char *ifname) {
 	}
 	if (cnt && arg_debug) {
 		FILE *fp = fopen("/tmp/firejail.dbg", "a");
-		if (fp) {			
+		if (fp) {
 			fprintf(fp, "wait %dms for interface %s to come up\n", cnt * 10, ifname);
 			fclose(fp);
 		}
@@ -180,8 +178,9 @@ void net_if_ip( const char *ifname, uint32_t ip, uint32_t mask) {
 	}
 
 	close(sock);
-	usleep(10000); // sleep 10ms
+	usleep(10000);				  // sleep 10ms
 }
+
 
 int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
 	int sock;
@@ -197,7 +196,7 @@ int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
 
 	addr = (struct sockaddr_in*) &route.rt_gateway;
 	addr->sin_family = AF_INET;
-	addr->sin_addr.s_addr = htonl(gw); //inet_addr("192.168.2.1");
+	addr->sin_addr.s_addr = htonl(gw);	  //inet_addr("192.168.2.1");
 
 	addr = (struct sockaddr_in*) &route.rt_dst;
 	addr->sin_family = AF_INET;
@@ -213,7 +212,34 @@ int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
 		close(sock);
 		return 1;
 	}
-	
+
 	return 0;
 
+}
+
+
+void br_add_interface(const char *bridge, const char *dev) {
+	struct ifreq ifr;
+	int err;
+	int ifindex = if_nametoindex(dev);
+
+	if (ifindex <= 0)
+		errExit("if_nametoindex");
+
+	int sock;
+	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+              	errExit("socket");
+
+	strncpy(ifr.ifr_name, bridge, IFNAMSIZ);
+#ifdef SIOCBRADDIF
+	ifr.ifr_ifindex = ifindex;
+	err = ioctl(sock, SIOCBRADDIF, &ifr);
+	if (err < 0)
+#endif
+	{
+		unsigned long args[4] = { BRCTL_ADD_IF, ifindex, 0, 0 };
+
+		ifr.ifr_data = (char *) args;
+		err = ioctl(sock, SIOCDEVPRIVATE, &ifr);
+	}
 }

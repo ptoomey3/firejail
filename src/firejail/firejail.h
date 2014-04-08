@@ -72,6 +72,8 @@ int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
 // print IP addresses for all interfaces
 int net_ifprint(void);
+// add a veth device to a bridge
+void br_add_interface(const char *bridge, const char *dev);
 
 // fs.c
 void set_exit_parent(pid_t pid, int nocleanup);

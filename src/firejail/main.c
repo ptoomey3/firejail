@@ -462,11 +462,11 @@ int main(int argc, char **argv) {
 		
 		sprintf(cmd, "veth%u", mypid);
 		net_if_up(cmd);
-
-//		rtnl_set_bridge(bridgedev, cmd);
-		sprintf(cmd, "/sbin/brctl addif %s veth%u", bridgedev, mypid);
-		if (system(cmd) < 0)
-			errExit("system");
+ 
+br_add_interface(bridgedev, cmd);
+//		sprintf(cmd, "/sbin/brctl addif %s veth%u", bridgedev, mypid);
+//		if (system(cmd) < 0)
+//			errExit("system");
 	}
 
 	// notify the child the initialization is done

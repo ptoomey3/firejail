@@ -112,8 +112,10 @@ int worker(void* worker_arg) {
 			errExit("Error fgets");
 		*ptr = '\0';
 	}
-	else
-		errExit("Error fgets");
+	else {
+		fprintf(stderr, "Error: cannot establish communication with the parent, exiting...\n");
+		exit(1);
+	}
 	close(fds[0]);
 	if (arg_debug && getpid() == 1)
 			printf("PID namespace installed\n");

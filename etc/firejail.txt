@@ -39,7 +39,8 @@ Join the sandbox of the specified process.
 Set sandbox hostname.
 .TP
 \fB\--net=bridgename
-Enable network namespaces and connect to this bridge device.
+Enable a new network namespace and connect it to this bridge device.
+Unless specified with option --ip, an IP address is assigned automatically to the sandbox.
 .TP
 \fB\--net=none
 Enable a new, unconnected network namespace.

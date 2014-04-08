@@ -138,7 +138,7 @@ void list(void) {
 		// open stat file
 		char *file;
 		if (asprintf(&file, "/proc/%u/status", pid) == -1)
-			errExit("Error asprintf");
+			errExit("asprintf");
 		FILE *fp = fopen(file, "r");
 		if (!fp) {
 			free(file);

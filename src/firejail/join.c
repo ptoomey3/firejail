@@ -28,7 +28,7 @@
 void join_namespace(pid_t pid, char *type) {
 	char *path;
 	if (asprintf(&path, "/proc/%u/ns/%s", pid, type) == -1)
-		errExit("Error asprintf");
+		errExit("asprintf");
 	
 	int fd = open(path, O_RDONLY);
 	if (fd < 0) {
@@ -53,9 +53,9 @@ void join(pid_t pid) {
 		struct stat s;
 		char *dir;
 		if (asprintf(&dir, "/proc/%u/ns", pid) == -1)
-			errExit("Error asprintf");
+			errExit("asprintf");
 		if (stat(dir, &s) < 0)
-			errExit("Error stat");
+			errExit("stat");
 		if (s.st_uid != uid) {
 			fprintf(stderr, "Error: permission is denied to join a sandbox created by a different user.\n");
 			exit(1);
@@ -70,18 +70,18 @@ void join(pid_t pid) {
 	join_namespace(pid, "mnt");
 	
 	if (chdir("/") < 0)
-		errExit("Error chdir");
+		errExit("chdir");
 	// drop privileges
 	if (setuid(getuid()) < 0)
-		errExit("Error setuid/getuid");
+		errExit("setuid/getuid");
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
-		errExit("Error setenv");
+		errExit("setenv");
 	// set prompt for non-debian/ubuntu/mint systems
 	if (setenv("PS1", "\\e[01;31m\\u@\\h::\\w \\$ \\e[00m", 1) < 0)
-		errExit("Error setenv");
+		errExit("setenv");
 	if (setenv("color_prompt", "yes", 1) < 0)
-		errExit("Error setenv");
+		errExit("setenv");
 
 	// replace the process with a regular bash session
 	execlp("/bin/bash", "/bin/bash", NULL);

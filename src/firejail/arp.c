@@ -52,7 +52,7 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 	// find eth0 interface address
 	int sock;
 	if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0)
-		errExit("Error socket");
+		errExit("socket");
 
 	srcaddr = htonl(srcaddr);
 	destaddr = htonl(destaddr);
@@ -62,14 +62,14 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 	memset(&ifr, 0, sizeof (ifr));
 	snprintf(ifr.ifr_name, sizeof (ifr.ifr_name), "%s", "eth0");
 	if (ioctl(sock, SIOCGIFHWADDR, &ifr) < 0)
-		errExit("Error ioctl");
+		errExit("ioctl");
 	close(sock);
 	
 	// configure layer2 socket address information
 	struct sockaddr_ll addr;
 	memset(&addr, 0, sizeof(addr));
 	if ((addr.sll_ifindex = if_nametoindex("eth0")) == 0)
-		errExit("Error if_nametoindex");
+		errExit("if_nametoindex");
 	addr.sll_family = AF_PACKET;
 	memcpy (addr.sll_addr, ifr.ifr_hwaddr.sa_data, 6);
 	addr.sll_halen = htons(6);
@@ -97,11 +97,11 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 
 	// open layer2 socket
 	if ((sock = socket(PF_PACKET, SOCK_RAW, htons (ETH_P_ALL))) < 0)
-		errExit("Error socket");
+		errExit("socket");
 
 	int len;
 	if ((len = sendto (sock, frame, 14 + sizeof(ArpHdr), 0, (struct sockaddr *) &addr, sizeof (addr))) <= 0)
-		errExit("Error send");
+		errExit("send");
 	fflush(0);
 		
 	// wait not more than one second for an answer
@@ -115,7 +115,7 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 	while (1) {
 		int nready = select(maxfd + 1,  &fds, (fd_set *) 0, (fd_set *) 0, &ts);
 		if (nready < 0)
-			errExit("Error select");
+			errExit("select");
 		else if (nready == 0) { // timeout
 			close(sock);
 			return ntohl(destaddr);

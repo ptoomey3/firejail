@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#define errExit(msg)    do { char msgout[200]; sprintf(msgout, "%s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
+#define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
 #define PRINT_IP(A) \
 ((int) (((A) >> 24) & 0xFF)),  ((int) (((A) >> 16) & 0xFF)), ((int) (((A) >> 8) & 0xFF)), ((int) ( (A) & 0xFF))
@@ -110,4 +110,8 @@ int restricted_shell(const char *user);
 
 // arp.c
 uint32_t arp(uint32_t ifip, uint32_t ifmask);
+
+// rtnl.c
+void rtnl_set_bridge(const char *bridge, const char *veth);
+
 #endif

@@ -68,8 +68,8 @@ void usage(void) {
 	printf("/etc/password file for each user that needs to  be  restricted.\n");
 	printf("Alternatively, you can specify /usr/bin/firejail  in adduser command:\n\n");
 	printf("   adduser --shell /usr/bin/firejail username\n\n");
-	printf("For   restricted   SSH   access,   users  are  declared  in\n");
-	printf("/etc/firejail/sshd.users file.\n\n");
+	printf("Arguments to be passed to firejail executable upon login are  declared  in\n");
+	printf("/etc/firejail/login.users file.\n\n");
 	printf("Examples:\n\n");
 	printf("   $ firejail\n");
 	printf("          start a regular /bin/bash session in sandbox\n");

@@ -28,7 +28,7 @@ int restricted_shell(const char *user) {
 	assert(user);
 
 	// open profile file:
-	FILE *fp = fopen("/etc/firejail/sshd.users", "r");
+	FILE *fp = fopen("/etc/firejail/login.users", "r");
 	if (fp == NULL)
 		return 0;
 

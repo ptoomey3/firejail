@@ -251,14 +251,13 @@ int main(int argc, char **argv) {
 
 	extract_user_data();
 
-	// detect restricted shell calls from sshd
+	// detect restricted shell calls
 	pid_t ppid = getppid();	
 	char *pcmd = proc_cmdline(ppid);
 
 	if (pcmd) {
 //		printf("Parent %s, pid %u\n", pcmd, ppid);
-		// sshd test
-		if (strncmp(pcmd, "sshd", 4) == 0 /*&& strstr(pcmd, "notty") == NULL*/) {
+		if (strncmp(pcmd, "sshd", 4) == 0) {
 			// test for restricted shell
 			fullargc = restricted_shell(username);
 			if (fullargc) {

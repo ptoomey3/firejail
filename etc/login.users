@@ -1,14 +1,14 @@
-# /etc/firejail/sshd.users - restricted user shell configuration
+# /etc/firejail/login.users - restricted user shell configuration
 #
 # Each user entry consists of a user name and firejail
 # program arguments:
 #
-#       user name: program arguments
+#       user name: arguments
 #
 # For example:
 #
 #       netblue:--debug --net=none
 #
 # The extra arguments are inserted into program command line if firejail
-# was started by SSH server.
+# was started as a login shell.
 

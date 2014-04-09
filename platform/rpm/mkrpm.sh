@@ -24,7 +24,7 @@ install -m 644 /usr/share/doc/firejail/RELNOTES firejail-0.9/usr/share/doc/packa
 
 mkdir -p firejail-0.9/etc/firejail
 install -m 644 /etc/firejail/firefox.profile firejail-0.9/etc/firejail/firefox.profile
-install -m 644 /etc/firejail/sshd.users firejail-0.9/etc/firejail/sshd.users
+install -m 644 /etc/firejail/login.users firejail-0.9/etc/firejail/login.users
 
 tar -czvf firejail-0.9.tar.gz firejail-0.9
 
@@ -70,7 +70,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/%{name}/firefox.profile
-%config(noreplace) %{_sysconfdir}/%{name}/sshd.users
+%config(noreplace) %{_sysconfdir}/%{name}/login.users
 %{_bindir}/*
 %{_docdir}/*
 %{_mandir}/*

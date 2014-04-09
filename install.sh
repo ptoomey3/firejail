@@ -21,7 +21,7 @@ mkdir -p $1/share/man/man1
 install -c -m 0644 firejail.1.gz $1/share/man/man1/.	
 install -c -m 0644 firemon.1.gz $1/share/man/man1/.	
 rm -f firejail.1.gz firemon.1.gz
-if [ ! -f /etc/firejail/sshd.users ]
+if [ ! -f /etc/firejail/login.users ]
 then
-	install -c -m 0644 etc/sshd.users /etc/firejail/.
+	install -c -m 0644 etc/login.users /etc/firejail/.
 fi

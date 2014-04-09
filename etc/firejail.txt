@@ -88,7 +88,7 @@ you can specify /usr/bin/firejail  in adduser command:
 
 adduser --shell /usr/bin/firejail username
 
-For restricted SSH access, users are declared in /etc/firejail/sshd.users file.
+Additional arguments passed to firejail executable upon login are declared in /etc/firejail/login.users file.
 
 .SH EXAMPLES
 .TP

@@ -113,7 +113,7 @@ int restricted_shell(const char *user);
 // arp.c
 uint32_t arp(uint32_t ifip, uint32_t ifmask);
 
-// rtnl.c
-void rtnl_set_bridge(const char *bridge, const char *veth);
+// veth.c
+int net_create_veth(const char *dev, const char *nsdev, unsigned pid);
 
 #endif

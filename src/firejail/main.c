@@ -455,18 +455,24 @@ int main(int argc, char **argv) {
 	
 	// create veth pair
 	if (bridgedev && !arg_nonetwork) {
-		char cmd[200];
-		sprintf(cmd, "/bin/ip link add veth%u type veth peer name eth0 netns %u", mypid, child);
+#if 0
+		char cmd[500];
+//		sprintf(cmd, "/home/netblue/Downloads/tmp/iproute2-3.12.0/ip/ip link add veth%u type veth peer name eth0 netns %u", mypid, child);
+		sprintf(cmd, "/home/netblue/work/firejail/trunk/tmp/ip link add veth%u type veth peer name eth0 netns %u", mypid, child);
 		if (system(cmd) < 0)
 			errExit("system");
-		
-		sprintf(cmd, "veth%u", mypid);
-		net_if_up(cmd);
- 
-br_add_interface(bridgedev, cmd);
-//		sprintf(cmd, "/sbin/brctl addif %s veth%u", bridgedev, mypid);
-//		if (system(cmd) < 0)
-//			errExit("system");
+#endif
+		// create a veth pair
+		char *dev;
+		if (asprintf(&dev, "veth%u", mypid) < 0)
+			errExit("asprintf");
+		net_create_veth(dev, "eth0", child);
+
+		// bring up the interface
+		net_if_up(dev);
+ 		
+ 		// add interface to the bridge
+		br_add_interface(bridgedev, dev);
 	}
 
 	// notify the child the initialization is done

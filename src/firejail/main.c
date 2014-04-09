@@ -256,8 +256,9 @@ int main(int argc, char **argv) {
 	char *pcmd = proc_cmdline(ppid);
 
 	if (pcmd) {
-//		printf("Parent %s, pid %u\n", pcmd, ppid);
-		if (strncmp(pcmd, "sshd", 4) == 0) {
+		printf("Parent %s, pid %u\n", pcmd, ppid);
+		if (strncmp(pcmd, "sshd", 4) == 0 ||
+		    strncmp(pcmd, "login", 5) == 0) {
 			// test for restricted shell
 			fullargc = restricted_shell(username);
 			if (fullargc) {

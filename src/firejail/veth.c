@@ -25,7 +25,7 @@
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *
  */
-#include "libnetlink.h"
+#include "../include/libnetlink.h"
 #include <stdlib.h>
 #include <linux/veth.h>
 #include "firejail.h"

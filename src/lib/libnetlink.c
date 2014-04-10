@@ -39,7 +39,7 @@
 #include <time.h>
 #include <sys/uio.h>
 
-#include "libnetlink.h"
+#include "../include/libnetlink.h"
 
 int rcvbuf = 1024 * 1024;
 

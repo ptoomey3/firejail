@@ -141,7 +141,7 @@ static int monitor(const int sock, pid_t mypid) {
 					    proc_ev->event_data.fork.child_tgid)
 					    	continue; // this is a thread, not a process
 					pid = proc_ev->event_data.fork.parent_tgid;
-					if (pids[pid].level) {
+					if (pids[pid].level > 0) {
 						child = proc_ev->event_data.fork.child_tgid;
 						child %= MAX_PIDS;
 						pids[child].level = pids[pid].level + 1;
@@ -183,8 +183,14 @@ static int monitor(const int sock, pid_t mypid) {
 					sprintf(lineptr, "\n");
 					continue;
 			}
-			if (pids[pid].level == 0)
+			if (pids[pid].level < 0)	// not a firejail process
 				continue;
+			else if (pids[pid].level == 0) { // new porcess, do we have track it?
+				if (pids_is_firejail(pid))
+					pids[pid].level = 1;
+				else
+					pids[pid].level = -1;
+			}
 				
 			lineptr += strlen(lineptr);
 			sprintf(lineptr, " %u", pid);
@@ -199,7 +205,9 @@ static int monitor(const int sock, pid_t mypid) {
 				lineptr += strlen(lineptr);
 			}
 			
-			char *cmd = pids_proc_cmdline(pid);
+			char *cmd = pids[pid].cmd;
+			if (!cmd)
+				cmd = pids_proc_cmdline(pid);
 			if (cmd == NULL)
 				sprintf(lineptr, "\n");
 			else {
@@ -207,6 +215,8 @@ static int monitor(const int sock, pid_t mypid) {
 				free(cmd);
 			}
 			lineptr += strlen(lineptr);
+			
+			// print the event
 			printf("%s", line);			
 			fflush(0);
 			
@@ -214,6 +224,8 @@ static int monitor(const int sock, pid_t mypid) {
 			if (remove_pid) {
 				if (pids[pid].user)
 					free(pids[pid].user);
+				if (pids[pid].cmd)
+					free(pids[pid].cmd);
 				memset(&pids[pid], 0, sizeof(Process));
 			}
 

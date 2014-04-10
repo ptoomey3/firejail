@@ -89,16 +89,14 @@ uid_t pids_get_uid(pid_t pid) {
 	char buf[PIDS_BUFLEN];
 	while (fgets(buf, PIDS_BUFLEN - 1, fp)) {
 		if (strncmp(buf, "Uid:", 4) == 0) {
-			if (pids[pid].level) {
-				char *ptr = buf + 5;
-				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
-					ptr++;
-				}
-				if (*ptr == '\0')
-					goto doexit;
-					
-				rv = atoi(ptr);
+			char *ptr = buf + 5;
+			while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+				ptr++;
 			}
+			if (*ptr == '\0')
+				goto doexit;
+				
+			rv = atoi(ptr);
 			break; // break regardless!
 		}
 	}
@@ -108,7 +106,45 @@ doexit:
 	return rv;
 }
 
-static void pids_print_elem(unsigned index, uid_t uid) {
+int pids_is_firejail(pid_t pid) {
+	uid_t rv = 0;
+	
+	// open stat file
+	char *file;
+	if (asprintf(&file, "/proc/%u/status", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		free(file);
+		return 0;
+	}
+
+	// look for firejail executable name
+	char buf[PIDS_BUFLEN];
+	while (fgets(buf, PIDS_BUFLEN - 1, fp)) {
+		if (strncmp(buf, "Name:", 5) == 0) {
+			char *ptr = buf + 5;
+			while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+				ptr++;
+			}
+			if (*ptr == '\0')
+				goto doexit;
+			if (strncmp(ptr, "firejail", 8) == 0)
+				rv = 1;
+			break;
+		}
+	}
+doexit:	
+	fclose(fp);
+	free(file);
+	return rv;
+}
+
+
+static void pids_print_elem(unsigned index) {
+	uid_t uid = pids[index].uid;
 	int i;
 	for (i = 0; i < pids[index].level - 1; i++)
 		printf("  ");
@@ -137,7 +173,7 @@ static void pids_print_elem(unsigned index, uid_t uid) {
 
 // recursivity!!!
 void pids_print_tree(unsigned index, unsigned parent) {
-	pids_print_elem(index, pids[index].uid);
+	pids_print_elem(index);
 	
 	int i;
 	for (i = index + 1; i < MAX_PIDS; i++) {
@@ -162,6 +198,7 @@ void pids_read(void) {
 	char *end;
 	while (child < 0 && (entry = readdir(dir))) {
 		pid_t pid = strtol(entry->d_name, &end, 10);
+		pid %= MAX_PIDS;
 		if (end == entry->d_name || *end)
 			continue;
 		if (pid == mypid)
@@ -193,10 +230,11 @@ void pids_read(void) {
 				}
 
 				if (strncmp(ptr, "firejail", 8) == 0) {
-					pid %= MAX_PIDS;
 					pids[pid].level = 1;
 					break;
 				}
+				else
+					pids[pid].level = -1;
 			}
 			if (strncmp(buf, "State:", 6) == 0) {
 				if (strstr(buf, "(zombie)"))
@@ -213,14 +251,13 @@ void pids_read(void) {
 				}
 				unsigned parent = atoi(ptr);
 				parent %= MAX_PIDS;
-				if (pids[parent].level) {
-					pid %= MAX_PIDS;
+				if (pids[parent].level > 0) {
 					pids[pid].level = pids[parent].level + 1;
 					pids[pid].parent = parent;
 				}
 			}
 			else if (strncmp(buf, "Uid:", 4) == 0) {
-				if (pids[pid].level) {
+				if (pids[pid].level > 0) {
 					char *ptr = buf + 5;
 					while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
 						ptr++;

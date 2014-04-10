@@ -24,17 +24,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 typedef struct {
-	unsigned char level;
+	short level;  // -1 not a firejail process, 0 not investigated yet, 1 firejail process, > 1 firejail child
 	unsigned char zombie;
 	pid_t parent;
 	uid_t uid;
 	char *user;
+	char *cmd;
 } Process;
 extern Process pids[MAX_PIDS];
 
+uid_t pids_get_uid(pid_t pid);
 char *pids_proc_cmdline(const pid_t pid);
 char *pids_get_user_name(uid_t uid);
-uid_t pids_get_uid(pid_t pid);
+int pids_is_firejail(pid_t pid);
 void pids_print_tree(unsigned index, unsigned parent);
 void pids_read(void);
 

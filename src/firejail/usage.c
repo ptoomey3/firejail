@@ -24,7 +24,7 @@ void usage(void) {
 	printf("Firejail is a SUID sandbox program that reduces the risk of security breaches by\n");
 	printf("restricting the running environment of untrusted applications using Linux\n");
 	printf("namespaces. It includes a sandbox profile for Mozilla Firefox.\n\n");
-	printf("Usage: firejail [options] [program and arguments]\n");
+	printf("Usage: firejail [options] [program and arguments]\n\n");
 	printf("Without any options, the sandbox consists of a filesystem chroot build from the\n");
 	printf("current system directories  mounted  read-only,  and  new PID and IPC\n");
 	printf("namespaces.\n\n");

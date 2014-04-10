@@ -70,6 +70,44 @@ char *pids_get_user_name(uid_t uid) {
 	return NULL;
 }
 
+uid_t pids_get_uid(pid_t pid) {
+	uid_t rv = 0;
+	
+	// open stat file
+	char *file;
+	if (asprintf(&file, "/proc/%u/status", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		free(file);
+		return 0;
+	}
+
+	// look for firejail executable name
+	char buf[PIDS_BUFLEN];
+	while (fgets(buf, PIDS_BUFLEN - 1, fp)) {
+		if (strncmp(buf, "Uid:", 4) == 0) {
+			if (pids[pid].level) {
+				char *ptr = buf + 5;
+				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+					ptr++;
+				}
+				if (*ptr == '\0')
+					goto doexit;
+					
+				rv = atoi(ptr);
+			}
+			break; // break regardless!
+		}
+	}
+doexit:	
+	fclose(fp);
+	free(file);
+	return rv;
+}
+
 static void pids_print_elem(unsigned index, uid_t uid) {
 	int i;
 	for (i = 0; i < pids[index].level - 1; i++)

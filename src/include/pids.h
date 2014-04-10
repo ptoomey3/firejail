@@ -28,11 +28,13 @@ typedef struct {
 	unsigned char zombie;
 	pid_t parent;
 	uid_t uid;
+	char *user;
 } Process;
 extern Process pids[MAX_PIDS];
 
 char *pids_proc_cmdline(const pid_t pid);
 char *pids_get_user_name(uid_t uid);
+uid_t pids_get_uid(pid_t pid);
 void pids_print_tree(unsigned index, unsigned parent);
 void pids_read(void);
 

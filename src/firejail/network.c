@@ -38,8 +38,8 @@ int net_ifprint(void) {
 	if (getifaddrs(&ifaddr) == -1)
 		errExit("getifaddrs");
 
-	printf("%-20.20s%-20.20s%-20.20s\n",
-		"Interface", "IP", "Mask");
+	printf("%-20.20s%-20.20s%-20.20s%-20.20s\n",
+		"Interface", "IP", "Mask", "Status");
 	// walk through the linked list
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
@@ -51,12 +51,18 @@ int net_ifprint(void) {
 			si = (struct sockaddr_in *) ifa->ifa_addr;
 			ip = ntohl(si->sin_addr.s_addr);
 
+			char *status;
+			if (ifa->ifa_flags & IFF_RUNNING && ifa->ifa_flags & IFF_UP)
+				status = "UP";
+			else
+				status = "DOWN";
+
 			char ipstr[30];
 			sprintf(ipstr, "%d.%d.%d.%d", PRINT_IP(ip));
 			char maskstr[30];
 			sprintf(maskstr, "%d.%d.%d.%d", PRINT_IP(mask));
-			printf("%-20.20s%-20.20s%-20.20s\n",
-				ifa->ifa_name, ipstr, maskstr);
+			printf("%-20.20s%-20.20s%-20.20s%-20.20s\n",
+				ifa->ifa_name, ipstr, maskstr, status);
 		}
 	}
 	printf("\n");

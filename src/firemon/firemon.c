@@ -37,7 +37,7 @@
 
 static int netlink_setup(void)
 {
-	// open socket
+	// open socket for process event connector
 	int sock;
 	if ((sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR)) < 0) {
 		fprintf(stderr, "Error: cannot open netlink socket\n");
@@ -140,12 +140,12 @@ static int monitor(const int sock, pid_t mypid) {
 					if (proc_ev->event_data.fork.child_pid !=
 					    proc_ev->event_data.fork.child_tgid)
 					    	continue; // this is a thread, not a process
-
 					pid = proc_ev->event_data.fork.parent_tgid;
 					if (pids[pid].level) {
 						child = proc_ev->event_data.fork.child_tgid;
 						child %= MAX_PIDS;
 						pids[child].level = pids[pid].level + 1;
+						pids[child].uid = pids_get_uid(child);
 					}
 					sprintf(lineptr, " fork");
 					break;
@@ -190,11 +190,20 @@ static int monitor(const int sock, pid_t mypid) {
 			sprintf(lineptr, " %u", pid);
 			lineptr += strlen(lineptr);
 			
+			char *user = pids[pid].user;
+			if (!user)
+				user = pids_get_user_name(pids[pid].uid);
+			if (user) {
+				pids[pid].user = user;
+				sprintf(lineptr, " (%s)", user);
+				lineptr += strlen(lineptr);
+			}
+			
 			char *cmd = pids_proc_cmdline(pid);
 			if (cmd == NULL)
 				sprintf(lineptr, "\n");
 			else {
-				sprintf(lineptr, "\t%s\n", cmd);
+				sprintf(lineptr, " %s\n", cmd);
 				free(cmd);
 			}
 			lineptr += strlen(lineptr);
@@ -202,14 +211,17 @@ static int monitor(const int sock, pid_t mypid) {
 			fflush(0);
 			
 			// unflag pid for exit events
-			if (remove_pid)
-				pids[pid].level = 0;
+			if (remove_pid) {
+				if (pids[pid].user)
+					free(pids[pid].user);
+				memset(&pids[pid], 0, sizeof(Process));
+			}
 
 			// print forked child
 			if (child) {
 				cmd = pids_proc_cmdline(child);
 				if (cmd) {
-					printf("\tchild %u\t%s\n", child, cmd);
+					printf("\tchild %u %s\n", child, cmd);
 					free(cmd);
 				}
 				else

@@ -30,5 +30,6 @@ fi
 echo "Found $BRCTL"
 
 AC_OUTPUT(Makefile)
+AC_OUTPUT(src/lib/Makefile)
 AC_OUTPUT(src/firejail/Makefile)
 AC_OUTPUT(src/firemon/Makefile)

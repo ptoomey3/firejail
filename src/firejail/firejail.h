@@ -98,7 +98,6 @@ extern int fullargc;
 
 // list.c
 void list(void);
-char *proc_cmdline(const pid_t pid);
 
 // usage.c
 void usage(void);

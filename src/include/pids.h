@@ -17,16 +17,23 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#include "firejail.h"
-#include "../include/pids.h"
+#ifndef PIDS_H
+#define PIDS_H
+#define MAX_PIDS 32769
 
-void list(void) {
-	pids_read();
-	
-	// print files
-	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
-		if (pids[i].level == 1)
-			pids_print_tree(i, 0);
-	}
-}
+#include <sys/types.h>
+#include <unistd.h>
+typedef struct {
+	unsigned char level;
+	unsigned char zombie;
+	pid_t parent;
+	uid_t uid;
+} Process;
+extern Process pids[MAX_PIDS];
+
+char *pids_proc_cmdline(const pid_t pid);
+char *pids_get_user_name(uid_t uid);
+void pids_print_tree(unsigned index, unsigned parent);
+void pids_read(void);
+
+#endif

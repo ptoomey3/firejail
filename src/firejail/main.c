@@ -60,6 +60,39 @@ int fds[2];
 
 #define BUFLEN 500 // generic read buffer
 
+static char *proc_cmdline(const pid_t pid) {
+	// open /proc/pid/cmdline file
+	char *fname;
+	int fd;
+	if (asprintf(&fname, "/proc/%d/cmdline", pid) == -1)
+		return NULL;
+	if ((fd = open(fname, O_RDONLY)) < 0) {
+		free(fname);
+		return NULL;
+	}
+	free(fname);
+
+	// read file
+	char buffer[BUFLEN];
+	ssize_t len;
+	if ((len = read(fd, buffer, sizeof(buffer) - 1)) <= 0) {
+		close(fd);
+		return NULL;
+	}
+	buffer[len] = '\0';
+	close(fd);
+
+	// clean data
+	int i;
+	for (i = 0; i < len; i++)
+		if (buffer[i] == '\0')
+			buffer[i] = ' ';
+
+	// return a malloc copy of the command line
+	char *rv = strdup(buffer);
+	return rv;
+}
+
 static void extract_user_data(void) {
 	// check suid
 	if (geteuid()) {

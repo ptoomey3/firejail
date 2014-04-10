@@ -1,5 +1,3 @@
-all: firemon
-
 PREFIX=@prefix@
 VERSION=@PACKAGE_VERSION@
 NAME=@PACKAGE_NAME@
@@ -11,14 +9,12 @@ BINOBJS =  $(foreach file, $(OBJS), $file)
 CFLAGS += -ggdb -O2 -DVERSION='"$(VERSION)"' -fstack-protector-all -D_FORTIFY_SOURCE=2 -fPIE -pie -Wformat -Wformat-security
 LDFLAGS:=-Wl,-z,relro -Wl,-z,now 
 
+all: $(OBJS)
+
 %.o : %.c $(H_FILE_LIST)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-firemon: $(OBJS) ../lib/pids.o
-	$(CXX)  $(LDFLAGS) -o $@ $(OBJS) ../lib/pids.o $(LIBS)
-
-clean:; rm -f *.o firemon
+clean:; rm -f $(OBJS)
 
 distclean: clean
 	rm -fr Makefile
-	

@@ -183,13 +183,19 @@ static int monitor(const int sock, pid_t mypid) {
 					sprintf(lineptr, "\n");
 					continue;
 			}
+
+			int add_new = 0;
 			if (pids[pid].level < 0)	// not a firejail process
 				continue;
 			else if (pids[pid].level == 0) { // new porcess, do we have track it?
-				if (pids_is_firejail(pid))
+				if (pids_is_firejail(pid)) {
 					pids[pid].level = 1;
-				else
+					add_new = 1;
+				}
+				else {
 					pids[pid].level = -1;
+					continue;
+				}
 			}
 				
 			lineptr += strlen(lineptr);
@@ -205,16 +211,27 @@ static int monitor(const int sock, pid_t mypid) {
 				lineptr += strlen(lineptr);
 			}
 			
+
 			char *cmd = pids[pid].cmd;
-			if (!cmd)
-				cmd = pids_proc_cmdline(pid);
-			if (cmd == NULL)
-				sprintf(lineptr, "\n");
-			else {
-				sprintf(lineptr, " %s\n", cmd);
-				free(cmd);
+			if (add_new) {
+				sprintf(lineptr, " NEW SANDBOX\n");
+				lineptr += strlen(lineptr);
 			}
-			lineptr += strlen(lineptr);
+			else if (proc_ev->what == PROC_EVENT_EXIT && pids[pid].level == 1) {
+				sprintf(lineptr, " EXIT SANDBOX\n");
+				lineptr += strlen(lineptr);
+			}
+			else {
+				if (!cmd)
+					cmd = pids_proc_cmdline(pid);
+				if (cmd == NULL)
+					sprintf(lineptr, "\n");
+				else {
+					sprintf(lineptr, " %s\n", cmd);
+					free(cmd);
+				}
+				lineptr += strlen(lineptr);
+			}
 			
 			// print the event
 			printf("%s", line);			
@@ -238,6 +255,14 @@ static int monitor(const int sock, pid_t mypid) {
 				}
 				else
 					printf("\tchild %u\n", child);
+			}
+			
+			// on uid events the uid is changing
+			if (proc_ev->what == PROC_EVENT_UID) {
+				if (pids[pid].user)
+					free(pids[pid].user);
+				pids[pid].user = 0;
+				pids[pid].uid = pids_get_uid(pid); 
 			}
 		}
 	}

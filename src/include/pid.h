@@ -17,8 +17,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#ifndef PIDS_H
-#define PIDS_H
+#ifndef PID_H
+#define PID_H
 #define MAX_PIDS 32769
 
 #include <sys/types.h>
@@ -33,11 +33,11 @@ typedef struct {
 } Process;
 extern Process pids[MAX_PIDS];
 
-uid_t pids_get_uid(pid_t pid);
-char *pids_proc_cmdline(const pid_t pid);
-char *pids_get_user_name(uid_t uid);
-int pids_is_firejail(pid_t pid);
-void pids_print_tree(unsigned index, unsigned parent);
-void pids_read(void);
+uid_t pid_get_uid(pid_t pid);
+char *pid_proc_cmdline(const pid_t pid);
+char *pid_get_user_name(uid_t uid);
+int pid_is_firejail(pid_t pid);
+void pid_print_tree(unsigned index, unsigned parent);
+void pid_read(void);
 
 #endif

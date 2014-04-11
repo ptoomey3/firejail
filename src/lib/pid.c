@@ -25,12 +25,12 @@
 #include <string.h>
 #include <dirent.h>
 #include <pwd.h>
-#include "../include/pids.h"
+#include "../include/pid.h"
 
 #define PIDS_BUFLEN 4096
 Process pids[MAX_PIDS];
 
-char *pids_proc_cmdline(const pid_t pid) {
+char *pid_proc_cmdline(const pid_t pid) {
 	// open /proc/pid/cmdline file
 	char *fname;
 	int fd;
@@ -63,14 +63,14 @@ char *pids_proc_cmdline(const pid_t pid) {
 	return rv;
 }
 
-char *pids_get_user_name(uid_t uid) {
+char *pid_get_user_name(uid_t uid) {
 	struct passwd *pw = getpwuid(uid);
 	if (pw)
 		return strdup(pw->pw_name);
 	return NULL;
 }
 
-uid_t pids_get_uid(pid_t pid) {
+uid_t pid_get_uid(pid_t pid) {
 	uid_t rv = 0;
 	
 	// open stat file
@@ -106,7 +106,7 @@ doexit:
 	return rv;
 }
 
-int pids_is_firejail(pid_t pid) {
+int pid_is_firejail(pid_t pid) {
 	uid_t rv = 0;
 	
 	// open stat file
@@ -143,14 +143,14 @@ doexit:
 }
 
 
-static void pids_print_elem(unsigned index) {
+static void print_elem(unsigned index) {
 	uid_t uid = pids[index].uid;
 	int i;
 	for (i = 0; i < pids[index].level - 1; i++)
 		printf("  ");
 	
-	char *cmd = pids_proc_cmdline(index);
-	char *user = pids_get_user_name(uid);
+	char *cmd = pid_proc_cmdline(index);
+	char *user = pid_get_user_name(uid);
 	char *allocated = user;
 	if (user ==NULL)
 		user = "";
@@ -172,18 +172,18 @@ static void pids_print_elem(unsigned index) {
 }
 
 // recursivity!!!
-void pids_print_tree(unsigned index, unsigned parent) {
-	pids_print_elem(index);
+void pid_print_tree(unsigned index, unsigned parent) {
+	print_elem(index);
 	
 	int i;
 	for (i = index + 1; i < MAX_PIDS; i++) {
 		if (pids[i].parent == index)
-			pids_print_tree(i, index);
+			pid_print_tree(i, index);
 	}
 }
 
 
-void pids_read(void) {
+void pid_read(void) {
 	memset(pids, 0, sizeof(pids));
 	pid_t mypid = getpid();
 

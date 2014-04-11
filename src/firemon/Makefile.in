@@ -14,8 +14,8 @@ LDFLAGS:=-Wl,-z,relro -Wl,-z,now
 %.o : %.c $(H_FILE_LIST)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-firemon: $(OBJS) ../lib/pids.o
-	$(CXX)  $(LDFLAGS) -o $@ $(OBJS) ../lib/pids.o $(LIBS)
+firemon: $(OBJS) ../lib/pid.o
+	$(CXX)  $(LDFLAGS) -o $@ $(OBJS) ../lib/pid.o $(LIBS)
 
 clean:; rm -f *.o firemon
 

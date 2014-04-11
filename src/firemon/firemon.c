@@ -31,7 +31,7 @@
 #include <linux/connector.h>
 #include <linux/netlink.h>
 #include <linux/cn_proc.h>
-#include "../include/pids.h"
+#include "../include/pid.h"
 
 #define BUFLEN 4096
 
@@ -145,7 +145,7 @@ static int monitor(const int sock, pid_t mypid) {
 						child = proc_ev->event_data.fork.child_tgid;
 						child %= MAX_PIDS;
 						pids[child].level = pids[pid].level + 1;
-						pids[child].uid = pids_get_uid(child);
+						pids[child].uid = pid_get_uid(child);
 					}
 					sprintf(lineptr, " fork");
 					break;
@@ -188,7 +188,7 @@ static int monitor(const int sock, pid_t mypid) {
 			if (pids[pid].level < 0)	// not a firejail process
 				continue;
 			else if (pids[pid].level == 0) { // new porcess, do we have track it?
-				if (pids_is_firejail(pid)) {
+				if (pid_is_firejail(pid)) {
 					pids[pid].level = 1;
 					add_new = 1;
 				}
@@ -204,7 +204,7 @@ static int monitor(const int sock, pid_t mypid) {
 			
 			char *user = pids[pid].user;
 			if (!user)
-				user = pids_get_user_name(pids[pid].uid);
+				user = pid_get_user_name(pids[pid].uid);
 			if (user) {
 				pids[pid].user = user;
 				sprintf(lineptr, " (%s)", user);
@@ -223,7 +223,7 @@ static int monitor(const int sock, pid_t mypid) {
 			}
 			else {
 				if (!cmd)
-					cmd = pids_proc_cmdline(pid);
+					cmd = pid_proc_cmdline(pid);
 				if (cmd == NULL)
 					sprintf(lineptr, "\n");
 				else {
@@ -248,7 +248,7 @@ static int monitor(const int sock, pid_t mypid) {
 
 			// print forked child
 			if (child) {
-				cmd = pids_proc_cmdline(child);
+				cmd = pid_proc_cmdline(child);
 				if (cmd) {
 					printf("\tchild %u %s\n", child, cmd);
 					free(cmd);
@@ -262,7 +262,7 @@ static int monitor(const int sock, pid_t mypid) {
 				if (pids[pid].user)
 					free(pids[pid].user);
 				pids[pid].user = 0;
-				pids[pid].uid = pids_get_uid(pid); 
+				pids[pid].uid = pid_get_uid(pid); 
 			}
 		}
 	}
@@ -275,7 +275,7 @@ static void print_pids(void) {
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i].level == 1)
-			pids_print_tree(i, 0);
+			pid_print_tree(i, 0);
 	}
 	printf("\n");
 }
@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	pids_read(); // pass a pid of 0 if the program was run without arguments
+	pid_read(); // pass a pid of 0 if the program was run without arguments
 
 	int sock = netlink_setup();
 	if (sock < 0) {

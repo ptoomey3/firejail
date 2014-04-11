@@ -18,15 +18,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firejail.h"
-#include "../include/pids.h"
+#include "../include/pid.h"
 
 void list(void) {
-	pids_read();
+	pid_read();
 	
 	// print files
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i].level == 1)
-			pids_print_tree(i, 0);
+			pid_print_tree(i, 0);
 	}
 }

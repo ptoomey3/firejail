@@ -3780,42 +3780,6 @@ fi
 
 
 
-# testing ip
-IP=`which ip`
-if test "$IP" == ""
-then
-        as_fn_error $? "ip command is missing, please install iproute2 package." "$LINENO" 5
-fi
-echo "Found $IP"
-
-# testing brctl
-BRCTL=`which brctl`
-if test "$BRCTL" == ""
-then
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /sbin/brctl" >&5
-$as_echo_n "checking for /sbin/brctl... " >&6; }
-if ${ac_cv_file__sbin_brctl+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "/sbin/brctl"; then
-  ac_cv_file__sbin_brctl=yes
-else
-  ac_cv_file__sbin_brctl=no
-fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__sbin_brctl" >&5
-$as_echo "$ac_cv_file__sbin_brctl" >&6; }
-if test "x$ac_cv_file__sbin_brctl" = xyes; then :
-  BRCTL="/sbin/brctl"
-else
-  as_fn_error $? "brctl commnad is missing, please install bridge-utils package." "$LINENO" 5
-fi
-
-fi
-echo "Found $BRCTL"
-
 ac_config_files="$ac_config_files Makefile"
 
 cat >confcache <<\_ACEOF

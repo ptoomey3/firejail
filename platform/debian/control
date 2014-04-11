@@ -3,7 +3,7 @@ Version: FIREJAILVER-1
 Architecture: amd64
 Maintainer: netblue30 <netblue30@yahoo.com>
 Installed-Size: 124
-Depends: bridge-utils, iproute, libc6
+Depends: libc6
 Section: admin
 Priority: extra
 Homepage: http://firejail.sourceforge.net

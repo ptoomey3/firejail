@@ -9,3 +9,20 @@
 		fprintf(stderr, "mount of /sys failed: %s\n",strerror(errno));
 		return -1;
 	}
+
+* Investigate bash startup
+
+.profile and .bash_profile are files that are sourced by bash when running as a login 
+shell such as when logging in from the Linux Text console or using SSH. They are not 
+sourced when loading a new shell from an existing login such as when opening a new 
+terminal window inside Unity or other graphical environment. .bashrc on the other 
+hand is only sourced for non-login shells, though sometimes distros will source .bashrc 
+manually from within the default .bash_profile. 
+
+ 4 down vote accepted
+	
+
+Normally bash knows that it's a login shell because when the login program invokes it, 
+it tells bash that its name is -bash. That name is in argv[0], the zeroth command line 
+argument, which is conventionally the way the user invoked the program. The initial 
+hyphen is a convention to tell a shell that it's a login shell. 

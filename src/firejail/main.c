@@ -250,24 +250,17 @@ int main(int argc, char **argv) {
 	int set_exit = 0;
 
 	extract_user_data();
-
-	// detect restricted shell calls
 	pid_t ppid = getppid();	
-	char *pcmd = pids_proc_cmdline(ppid);
 
-	if (pcmd) {
-//		printf("Parent %s, pid %u\n", pcmd, ppid);
-		if (strncmp(pcmd, "sshd", 4) == 0 ||
-		    strncmp(pcmd, "login", 5) == 0) {
-			// test for restricted shell
-			fullargc = restricted_shell(username);
-			if (fullargc) {
-				int j;
-				for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
-					fullargv[j] = argv[i];
-				argv = fullargv;
-				argc = j;
-			}
+	// is this a login shell?
+	if (*argv[0] == '-') {
+		fullargc = restricted_shell(username);
+		if (fullargc) {
+			int j;
+			for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
+				fullargv[j] = argv[i];
+			argv = fullargv;
+			argc = j;
 		}
 	}
 
@@ -299,7 +292,7 @@ int main(int argc, char **argv) {
 			arg_debug = 1;
 			FILE *fp = fopen("/tmp/firejail.dbg", "a");
 			if (fp) {
-				fprintf(fp, "parent pid %u, command %s\n", ppid, (pcmd)? pcmd: "unknown");
+				fprintf(fp, "parent pid %u\n", ppid);
 				if (restricted_user)
 					fprintf(fp, "user %s entering restricted shell\n", restricted_user);
 				fprintf(fp, "pid %u, extended argument list: ", getpid());
@@ -370,7 +363,6 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: bridge device %s not configured, aborting\n", bridgedev);
 				return 1;
 			}
-			
 			if (arg_debug)
 				printf("Bridge device %s at %d.%d.%d.%d/%d\n",
 					bridgedev, PRINT_IP(bridgeip), mask2bits(bridgemask));

@@ -459,7 +459,7 @@ static void resolve_run_shm(void) {
 // build a basic read-only filesystem
 void mnt_basic_fs(void) {
 	if (arg_debug)
-		printf("Mounting read-only /bin, /sbin, /lib, /lib64, /usr, /boot, /etc\n");
+		printf("Mounting read-only /bin, /sbin, /lib, /lib64, /usr, /boot, /etc, /var\n");
 	mnt_rdonly("/bin");
 	mnt_rdonly("/sbin");
 	mnt_rdonly("/lib");
@@ -467,6 +467,7 @@ void mnt_basic_fs(void) {
 	mnt_rdonly("/usr");
 	mnt_rdonly("/boot");
 	mnt_rdonly("/etc");
+	mnt_rdonly("/var");
 	resolve_run_shm();
 }
 

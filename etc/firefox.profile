@@ -25,8 +25,3 @@ blacklist ${HOME}/.adobe
 blacklist ${HOME}/.macromedia
 blacklist ${HOME}/.local/share/recently-used.xbel
 	
-# var
-blacklist /var/backups
-blacklist /var/spool
-blacklist /var/mail
-blacklist /var/log

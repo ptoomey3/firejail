@@ -197,10 +197,12 @@ int worker(void* worker_arg) {
 	prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0); // kill the child in case the parent died
 	if (chdir("/") < 0)
 		errExit("chdir");
-	struct stat s;
-	if (stat(homedir, &s) == 0) {
-		if (chdir(homedir) < 0)
-			errExit("chdir");
+	if (homedir) {
+		struct stat s;
+		if (stat(homedir, &s) == 0) {
+			if (chdir(homedir) < 0)
+				errExit("chdir");
+		}
 	}
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
@@ -331,7 +333,7 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			
-			join(pid);
+			join(pid, homedir);
 		}
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
 			// extract chroot dirname
@@ -447,13 +449,6 @@ int main(int argc, char **argv) {
 	
 	// create veth pair
 	if (bridgedev && !arg_nonetwork) {
-#if 0
-		char cmd[500];
-//		sprintf(cmd, "/home/netblue/Downloads/tmp/iproute2-3.12.0/ip/ip link add veth%u type veth peer name eth0 netns %u", mypid, child);
-		sprintf(cmd, "/home/netblue/work/firejail/trunk/tmp/ip link add veth%u type veth peer name eth0 netns %u", mypid, child);
-		if (system(cmd) < 0)
-			errExit("system");
-#endif
 		// create a veth pair
 		char *dev;
 		if (asprintf(&dev, "veth%u", mypid) < 0)

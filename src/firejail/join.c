@@ -23,6 +23,8 @@
 #include <sys/syscall.h>
 #include <errno.h>
 #include <unistd.h>
+#include <linux/prctl.h>
+#include <signal.h>
 #include "firejail.h"
 
 void join_namespace(pid_t pid, char *type) {
@@ -46,7 +48,7 @@ void join_namespace(pid_t pid, char *type) {
 }
 
 
-void join(pid_t pid) {
+void join(pid_t pid, const char *homedir) {
 	// check privileges for non-root users
 	uid_t uid = getuid();
 	if (uid != 0) {
@@ -69,22 +71,43 @@ void join(pid_t pid) {
 	join_namespace(pid, "uts");
 	join_namespace(pid, "mnt");
 	
-	if (chdir("/") < 0)
-		errExit("chdir");
-	// drop privileges
-	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
-	// fix qt 4.8
-	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
-		errExit("setenv");
-	// set prompt for non-debian/ubuntu/mint systems
-	if (setenv("PS1", "\\e[01;31m\\u@\\h::\\w \\$ \\e[00m", 1) < 0)
-		errExit("setenv");
-	if (setenv("color_prompt", "yes", 1) < 0)
-		errExit("setenv");
 
-	// replace the process with a regular bash session
-	execlp("/bin/bash", "/bin/bash", NULL);
+	pid_t child = fork();
+	if (child < 0)
+		errExit("fork");
+	if (child == 0) {
+		prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0); // kill the child in case the parent died
+		if (chdir("/") < 0)
+			errExit("chdir");
+		if (homedir) {
+			struct stat s;
+			if (stat(homedir, &s) == 0) {
+				if (chdir(homedir) < 0)
+					errExit("chdir");
+			}
+		}
+		
+		// fix qt 4.8
+		if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
+			errExit("setenv");
+		if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
+			errExit("setenv");
+		// drop privileges
+		if (setuid(getuid()) < 0)
+			errExit("setuid/getuid");
+		// set prompt color to green
+		//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
+		if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
+			errExit("setenv");
+
+		// replace the process with a regular bash session
+		execlp("/bin/bash", "/bin/bash", NULL);
+		// it will never get here!!!
+	}
+
+	// wait for the child to finish
+	waitpid(child, NULL, 0);
+	exit(0);
 }
 
 

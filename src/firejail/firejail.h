@@ -102,8 +102,8 @@ void list(void);
 // usage.c
 void usage(void);
 
-// join.
-void join(pid_t pid);
+// join.c
+void join(pid_t pid, const char *homedir);
 
 // restricted_shell.c
 extern char *restricted_user;

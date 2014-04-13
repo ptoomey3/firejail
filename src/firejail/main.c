@@ -180,6 +180,7 @@ int worker(void* worker_arg) {
 			if (arg_debug)
 				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(ipaddress));
 			net_if_ip("eth0", ipaddress, bridgemask);
+			net_if_up("eth0");
 		}
 		
 		// add a default route

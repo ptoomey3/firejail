@@ -134,9 +134,9 @@ void net_if_up(const char *ifname) {
 		errExit("ioctl");
 	}
 
-	// wait for not more than 50ms for the interface to come up
+	// wait not more than 500ms for the interface to come up
 	int cnt = 0;
-	while (cnt < 5) {
+	while (cnt < 50) {
 		usleep(10000);			  // sleep 10ms
 
 		// read the existing flags
@@ -144,7 +144,7 @@ void net_if_up(const char *ifname) {
 			close(sock);
 			errExit("ioctl");
 		}
-		if (ifr.ifr_flags && IFF_RUNNING)
+		if (ifr.ifr_flags & IFF_RUNNING)
 			break;
 		cnt++;
 	}

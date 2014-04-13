@@ -79,7 +79,7 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
-* Wed Apr 02 2014  netblue30 <netblue30@yahoo.com> 0.9-1
+* Sat Apr 12 2014  netblue30 <netblue30@yahoo.com> 0.9-1
 - First Build
 
 EOF

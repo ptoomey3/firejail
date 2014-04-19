@@ -44,10 +44,10 @@ typedef struct arp_hdr_t {
 	uint8_t target_ip[4];
 } ArpHdr;
 
-static int try_address(uint32_t destaddr, uint32_t srcaddr) {
+// returns 0 if the address is not in use, -1 otherwise
+int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
 	if (arg_debug)
-		printf("Trying %d.%d.%d.%d, using %d.%d.%d.%d as source address ...\n",
-			PRINT_IP(destaddr), PRINT_IP(srcaddr));
+		printf("Trying %d.%d.%d.%d ...\n", PRINT_IP(destaddr));
 
 	// find eth0 interface address
 	int sock;
@@ -60,7 +60,7 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 	// FInd eth0 interface MAC address
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof (ifr));
-	snprintf(ifr.ifr_name, sizeof (ifr.ifr_name), "%s", "eth0");
+	snprintf(ifr.ifr_name, sizeof (ifr.ifr_name), "%s", dev);
 	if (ioctl(sock, SIOCGIFHWADDR, &ifr) < 0)
 		errExit("ioctl");
 	close(sock);
@@ -68,7 +68,7 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 	// configure layer2 socket address information
 	struct sockaddr_ll addr;
 	memset(&addr, 0, sizeof(addr));
-	if ((addr.sll_ifindex = if_nametoindex("eth0")) == 0)
+	if ((addr.sll_ifindex = if_nametoindex(dev)) == 0)
 		errExit("if_nametoindex");
 	addr.sll_family = AF_PACKET;
 	memcpy (addr.sll_addr, ifr.ifr_hwaddr.sa_data, 6);
@@ -110,15 +110,15 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 	FD_SET(sock, &fds);
 	int maxfd = sock;
 	struct timeval ts;
-	ts.tv_sec = 1; // 0.5 secondd
-	ts.tv_usec = 0;//500000;
+	ts.tv_sec = 1; // 1 second wait time
+	ts.tv_usec = 0;
 	while (1) {
 		int nready = select(maxfd + 1,  &fds, (fd_set *) 0, (fd_set *) 0, &ts);
 		if (nready < 0)
 			errExit("select");
 		else if (nready == 0) { // timeout
 			close(sock);
-			return ntohl(destaddr);
+			return 0;
 		}
 		else {
 			// read the incoming packet
@@ -126,7 +126,7 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 			if (len < 0) {
 				perror("recvfrom");
 				close(sock);
-				return 0;
+				return -1;
 			}
 			
 			// parse the incomming packet
@@ -147,55 +147,113 @@ static int try_address(uint32_t destaddr, uint32_t srcaddr) {
 					continue;
 				}					
 				close(sock);
-				return 0;
+				return -1;
 			}
 		}
 	}
 
-	// it will never get here
+	// it will never get here!
 	close(sock);
-	return 0;
+	return -1;
 }
 
 
-uint32_t arp(uint32_t ifip, uint32_t ifmask) {
+uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	assert(ifip);
 	assert(ifmask);
-
-	if (arg_debug)
-		printf("Looking for an unused IP address\n");
+	assert(dev);
 
 	uint32_t range = ~ifmask + 1; // the number of potential addresses
-	// this software is not supported for networks /29 and up
-	if (range < 16)
+	// this software is not supported for /31 networks
+	if (range < 4)
 		return 0; // the user will have to set the IP address manually
-	range -= 3; // subtract the network address, the broadcast address, and the temporary address
+	range -= 2; // subtract the network address and the broadcast address
+	if (arg_debug)
+		printf("IP address range from %d.%d.%d.%d to %d.%d.%d.%d\n",
+			PRINT_IP((ifip & ifmask) + 1), PRINT_IP((ifip & ifmask) + range));
 
-	// we use the last address in the range as source address in our packets
-	uint32_t src = (ifip & ifmask) + ~ifmask - 1;
-	
 	// try a random address
-	time_t t = time(NULL);
-	srand(t);
 	uint32_t dest = (ifip & ifmask) + 1 + ((uint32_t) rand()) % range;
 	while (dest == ifip)
 		dest = (ifip & ifmask) + 1 + ((uint32_t) rand()) % range;
-	uint32_t rv = try_address(dest, src);
-	if (rv)
-		return rv;
+	uint32_t rv = arp_check(dev, dest, ifip);
+	if (!rv)
+		return dest;
+	return 0;
+}
+
+uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask) {
+	assert(ifip);
+	assert(ifmask);
+	assert(dev);
+
+	uint32_t range = ~ifmask + 1; // the number of potential addresses
+	// this software is not supported for /31 networks
+	if (range < 4)
+		return 0; // the user will have to set the IP address manually
+	range -= 2; // subtract the network address and the broadcast address
 
 	// try all possible ip addresses in ascending order
-	dest = ifip & ifmask + 1;
-	while (dest < src) {
+	uint32_t dest = (ifip & ifmask) + 1;
+	uint32_t last = dest + range - 1;
+	if (arg_debug)
+		printf("Trying IP address range from %d.%d.%d.%d to %d.%d.%d.%d\n",
+			PRINT_IP(dest), PRINT_IP(last));
+	while (dest <= last) {
 		if (dest == ifip) {
 			dest++;
 			continue;
 		}
-		uint32_t rv = try_address(dest, src);
-		if (rv)
-			return rv;
+		uint32_t rv = arp_check(dev, dest, ifip);
+		if (!rv)
+			return dest;
 		dest++;
 	}
 
 	return 0;
+}
+
+
+uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask, uint32_t ip) {
+	// check IP addresses
+	if (dev && ifip && ifmask && ip) {
+		// check IP address is in network range
+		if ((ip & ifmask) != (ifip & ifmask)) {
+			fprintf(stderr, "Error: the IP address is not in the interface range\n");
+			exit(1);
+		}
+		else if ((ip & ifmask) == ip) {
+			fprintf(stderr, "Error: the IP address is a network address\n");
+			exit(1);
+		}
+		else if ((ip | ~ifmask) == ip) {
+			fprintf(stderr, "Error: the IP address is a network address\n");
+			exit(1);
+		}
+		
+		int rv = arp_check(dev, ip, ifip);
+		if (rv) {
+			fprintf(stderr, "Error: IP address %d.%d.%d.%d is already in use\n", PRINT_IP(ip));
+			exit(1);
+		}
+	}
+	// assign random IP addresses
+	else if (dev && ifip && ifmask && !ip) {
+		// try two random IP addresses
+		ip = arp_random(dev, ifip, ifmask);
+		if (!ip)
+			ip = arp_random(dev, ifip, ifmask);
+		// try all possible IP addresses one by one
+		if (!ip)
+			ip = arp_sequential(dev, ifip, ifmask);
+		if (!ip) {
+			fprintf(stderr, "Error: cannot assign an IP address; looks like all of them are in use\n");
+			exit(1);
+		}
+		printf("%d.%d.%d.%d IP address assigned to the sandbox\n", PRINT_IP(ip));
+	}
+	else
+		ip = 0;
+	
+	return ip;
 }

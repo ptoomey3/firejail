@@ -24,6 +24,8 @@
 #include <stdint.h>
 #include <assert.h>
 
+#define USELOCK
+
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
 #define PRINT_IP(A) \
@@ -110,7 +112,10 @@ extern char *restricted_user;
 int restricted_shell(const char *user);
 
 // arp.c
-uint32_t arp(uint32_t ifip, uint32_t ifmask);
+int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr);
+uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask);
+uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask);
+uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask, uint32_t ip);
 
 // veth.c
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);

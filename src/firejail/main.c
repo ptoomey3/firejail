@@ -33,7 +33,11 @@
 #include <errno.h>
 #include <limits.h>
 #include <linux/prctl.h>
-#include <signal.h>
+#ifdef USELOCK
+#include <sys/file.h>
+#endif
+
+
 #include "firejail.h"
 
 #define STACK_SIZE (1024 * 1024)
@@ -171,11 +175,11 @@ int worker(void* worker_arg) {
 		net_if_up("lo");
 	}
 	else if (bridgedev && bridgeip && bridgemask) {
+		assert(ipaddress);
+		
 		// configure lo and eth0
 		net_if_up("lo");
 		net_if_up("eth0");
-		if (!ipaddress)
-			ipaddress = arp(bridgeip, bridgemask);
 		if (ipaddress) {
 			if (arg_debug)
 				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(ipaddress));
@@ -251,9 +255,13 @@ int main(int argc, char **argv) {
 	int i;
 	int prog_index = -1;		// index in argv where the program command starts
 	int set_exit = 0;
+#ifdef USELOCK
+	int lockfd = -1;
+#endif		
 
 	extract_user_data();
-	pid_t ppid = getppid();	
+	const pid_t ppid = getppid();	
+	const pid_t mypid = getpid();
 
 	// is this a login shell?
 	if (*argv[0] == '-') {
@@ -369,6 +377,13 @@ int main(int argc, char **argv) {
 			if (arg_debug)
 				printf("Bridge device %s at %d.%d.%d.%d/%d\n",
 					bridgedev, PRINT_IP(bridgeip), mask2bits(bridgemask));
+			
+			uint32_t range = ~bridgemask + 1; // the number of potential addresses
+			// this software is not supported for /31 networks
+			if (range < 4) {
+				fprintf(stderr, "Error: the software is not supported for /31 networks\n");
+				return 1;
+			}
 		}
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			if (atoip(argv[i] + 5, &ipaddress)) {
@@ -425,6 +440,23 @@ int main(int argc, char **argv) {
 		}
 	}
 
+
+
+	// check and assign an IP address
+	if (bridgedev && bridgeip && bridgemask) {
+#ifdef USELOCK
+		lockfd = open("/var/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+		if (lockfd != -1)
+			flock(lockfd, LOCK_EX);	
+#endif
+		// initialize random number generator
+		time_t t = time(NULL);
+//		srand(t);
+		srand(t ^ mypid);
+	
+		ipaddress = arp_assign(bridgedev, bridgeip, bridgemask, ipaddress);
+	}
+
 	// create the parrent-child communication pipe
 	if (pipe(fds) < 0)
 		errExit("pipe");
@@ -444,7 +476,6 @@ int main(int argc, char **argv) {
 	if (child == -1)
 		errExit("clone");
 
-	const pid_t mypid = getpid();
 	if (!arg_command)
 		printf("Parent pid %u, child pid %u\n", mypid, child);
 	
@@ -471,6 +502,23 @@ int main(int argc, char **argv) {
 	fflush(stream);
 	close(fds[1]);
 	
+#ifdef USELOCK
+	if (lockfd != -1) {
+		assert(bridgedev);
+		assert(bridgeip);
+		assert(bridgemask);
+		assert(ipaddress);
+		
+		// wait for the ip address to come up
+		int cnt = 0;
+		while (cnt < 5) {
+			if (arp_check(bridgedev, ipaddress, bridgeip) == 0)
+				break;
+			cnt++;
+		}
+		flock(lockfd, LOCK_UN);	
+	}
+#endif
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
 	bye_parent();

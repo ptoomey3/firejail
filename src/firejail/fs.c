@@ -28,172 +28,6 @@
 #include <fcntl.h>
 #include "firejail.h"
 
-//***********************************************
-// utils
-//***********************************************
-// return -1 if error, 0 if no error
-static int copy_file(const char *srcname, const char *destname) {
-	assert(srcname);
-	assert(destname);
-	
-	// open source
-	int src = open(srcname, O_RDONLY);
-	if (src < 0)
-		return -1;
-	
-	// open destination
-	int dst = open(destname, O_CREAT|O_WRONLY|O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	if (dst < 0)
-		return -1;
-	
-	// copy
-	ssize_t len;
-	static const int BUFLEN = 1024;
-	unsigned char buf[BUFLEN];
-	while ((len = read(src, buf, BUFLEN)) > 0) {
-		int done = 0;
-		while (done != len) {
-			int rv = write(dst, buf + done, len - done);
-			if (rv == -1) {
-				close(src);
-				close(dst);
-				return -1;
-			}
-			
-			done += rv;
-		}
-	}
-	
-	close(src);
-	close(dst);
-	return 0;
-}
-
-char *get_link(const char *fname) {
-	assert(fname);
-	struct stat sb;
-	char *linkname;
-	ssize_t r;
-	
-	if (lstat(fname, &sb) == -1)
-		return NULL;
-
-	linkname = malloc(sb.st_size + 1);
-	if (linkname == NULL)
-		return NULL;
-	memset(linkname, 0, sb.st_size + 1);
-
-	r = readlink(fname, linkname, sb.st_size + 1);
-	if (r < 0)
-		return NULL;
-	return linkname;
-}
-
-int is_dir(const char *fname) {
-	assert(fname);
-	struct stat s;
-	if (lstat(fname, &s) == 0) {
-		if (S_ISDIR(s.st_mode))
-			return 1;
-	}
-
-	return 0;
-}
-
-int is_link(const char *fname) {
-	assert(fname);
-	struct stat s;
-	if (lstat(fname, &s) == 0) {
-		if (S_ISLNK(s.st_mode))
-			return 1;
-	}
-
-	return 0;
-}
-
-
-//***********************************************
-// atexit
-//***********************************************
-static char *tmpdir = NULL;
-static int no_cleanup;
-
-static void unlink_walker(void) {
-	struct dirent *dir;
-	DIR *d = opendir( "." );
-	if (d == NULL)
-		return;
-
-	while ((dir = readdir(d))) {
-		if(strcmp( dir->d_name, "." ) == 0 || strcmp( dir->d_name, ".." ) == 0 )
-			continue;
-
-		if (dir->d_type == DT_DIR ) {
-			if (chdir(dir->d_name) == 0)
-				unlink_walker();
-			else
-				return;
-			if (chdir( ".." ) != 0)
-				return;
-			if (rmdir(dir->d_name) != 0)
-				return;
-		}
-		else {
-			if (dir->d_type == DT_UNKNOWN) {
-				fprintf(stderr, "Error: cannot remove temporary directory %s - unknown filesystem type\n", tmpdir);
-				return;
-			}
-			if (unlink(dir->d_name) != 0)
-				return;
-		}
-	}
-
-	closedir(d);
-}
-
-void bye_parent(void) {
-	// the child is just inheriting it
-	if (getpid() == 1)
-		return;
-	if (no_cleanup)
-		return;
-	if (!tmpdir)
-		return;
-
-	char *storage = tmpdir;
-	tmpdir = NULL;
-	
-	if (chdir(storage) == 0) {
-		if (!arg_command)
-			printf("\nparent is shutting down, bye...\n");
-		if (!arg_command && arg_debug)
-			printf("Removing %s directory\n", storage);
-		unlink_walker();
-		if (chdir("..") == 0)
-			rmdir(storage);
-	}
-}
-
-void set_exit_parent(pid_t pid, int nocleanup) {
-	no_cleanup = nocleanup;
-	// create tmp directory
-	char *name_template;
-	if (asprintf(&name_template, "/tmp/firejail-%u-XXXXXX", pid) == -1)
-		errExit("asprintf");
-	tmpdir = mkdtemp(name_template);
-	if (tmpdir == NULL)
-		errExit("mkdtemp");
-	if (arg_debug)
-		printf("Creating %s directory\n", tmpdir);
-	mkdir(tmpdir, S_IRWXU);
-	uid_t u = getuid();
-	gid_t g = getgid();
-	if (chown(tmpdir, u, g) < 0)
-		errExit("chown");
-
-	if (atexit(bye_parent))
-		errExit("atexit");
-}
 
 //***********************************************
 // chroot filesystem
@@ -474,7 +308,7 @@ void mnt_basic_fs(void) {
 
 
 
-void mnt_home(const char *homedir) {
+void mnt_private(const char *homedir) {
 	assert(homedir);
 	
 	if (arg_debug)
@@ -495,6 +329,12 @@ void mnt_home(const char *homedir) {
 			errExit("chown");
 	}
 	free(fname);
+
+	if (arg_debug)
+		printf("Mounting a new /tmp directory\n");
+	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+		errExit("mounting tmp directory");
+
 }
 
 void mnt_overlayfs(void) {

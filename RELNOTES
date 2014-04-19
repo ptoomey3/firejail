@@ -1,7 +1,9 @@
 firejail (0.9.2) baseline; urgency=low
 
-  * Checking IP address using ARP and exit if the address ia already present
-
+  * Checking IP address passed with --ip option using ARP; exit if the address ia already present
+  * Using a lock file during ARP address assignment in order to removed a race condition.
+  * --private option also mounts a tmpfs filesystem on top of /tmp
+  
  -- netblue30 <netblue30@yahoo.com>  Fri, 18 Apr 2014 08:00:00 -0500
 
 firejail (0.9) baseline; urgency=low

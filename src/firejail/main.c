@@ -147,7 +147,7 @@ int worker(void* worker_arg) {
 		mnt_basic_fs();
 	
 	if (arg_private)
-		mnt_home(homedir);
+		mnt_private(homedir);
 		
 	//****************************
 	// apply the profile file
@@ -491,7 +491,7 @@ int main(int argc, char **argv) {
 		net_if_up(dev);
  		
  		// add interface to the bridge
-		br_add_interface(bridgedev, dev);
+		net_bridge_add_interface(bridgedev, dev);
 	}
 
 	// notify the child the initialization is done

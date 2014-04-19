@@ -35,6 +35,7 @@
 ((unsigned) (*(A)) & 0xff), ((unsigned) (*((A) + 1) & 0xff)), ((unsigned) (*((A) + 2) & 0xff)), \
 ((unsigned) (*((A) + 3)) & 0xff), ((unsigned) (*((A) + 4) & 0xff)), ((unsigned) (*((A) + 5)) & 0xff)
 
+// the number of bits set in the mask
 static inline uint8_t mask2bits(uint32_t mask) {
 	uint32_t tmp = 0x80000000;
 	int i;
@@ -49,6 +50,7 @@ static inline uint8_t mask2bits(uint32_t mask) {
 	return rv;
 }
 
+// read an IPv4 address and convert it to uint32_t
 static inline int atoip(const char *str, uint32_t *ip) {
 	unsigned a, b, c, d;
 
@@ -60,43 +62,40 @@ static inline int atoip(const char *str, uint32_t *ip) {
 }
 
 // main.c
-extern int arg_debug;
-extern int arg_command;
+extern int arg_debug;		// --debug argument
+extern int arg_command;		// -c argument
+extern char **custom_profile;
+#define MAX_ARGS 128		// maximum number of command arguments (argc)
+extern char *fullargv[MAX_ARGS];
+extern int fullargc;
+
 
 // network.c
 // bring interface up
 void net_if_up(const char *ifname);
 // configure interface
 void net_if_ip(const char *ifname, uint32_t ip, uint32_t mask);
-// find bridge address and mask, return 1 if error
+// return -1 if the bridge was not found; if the bridge was found retrun 0 and fill in IP address and mask
 int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
-// add an IP route, return 1 if error
+// add an IP route, return -1 if error, 0 if OK
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
 // print IP addresses for all interfaces
-int net_ifprint(void);
+void net_ifprint(void);
 // add a veth device to a bridge
-void br_add_interface(const char *bridge, const char *dev);
+void net_bridge_add_interface(const char *bridge, const char *dev);
 
 // fs.c
-void set_exit_parent(pid_t pid, int nocleanup);
-void bye_parent(void);
 void mnt_blacklist(char **blacklist, const char *homedir);
 void mnt_rdonly(const char *dir);
 void mnt_proc_sys(void);
 void mnt_basic_fs(void);
-void mnt_home(const char *homedir);
+void mnt_private(const char *homedir);
 void mnt_overlayfs(void);
 void mnt_chroot(const char *rootdir);
 
 // profile.c
 void get_profile(const char *name, const char *dir);
 void read_profile(const char *fname);
-
-// main.c
-extern char **custom_profile;
-#define MAX_ARGS 128
-extern char *fullargv[MAX_ARGS];
-extern int fullargc;
 
 // list.c
 void list(void);
@@ -119,5 +118,16 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask, uint32_t ip
 
 // veth.c
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);
+
+// util.c
+int copy_file(const char *srcname, const char *destname);
+char *get_link(const char *fname);
+int is_dir(const char *fname);
+int is_link(const char *fname);
+
+// atexit.c
+extern char *tmpdir; // temporary directory
+void set_exit_parent(pid_t pid, int nocleanup);
+void bye_parent(void);
 
 #endif

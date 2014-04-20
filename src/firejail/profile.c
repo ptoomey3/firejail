@@ -24,7 +24,8 @@
 
 #define MAX_READ 1024				  // line buffer for profile files
 
-void get_profile(const char *name, const char *dir) {
+// find and read the profile specified by name from dir directory
+void profile_find(const char *name, const char *dir) {
 	assert(name);
 	assert(dir);
 	
@@ -43,7 +44,7 @@ void get_profile(const char *name, const char *dir) {
 				char *etcpname;
 				if (asprintf(&etcpname, "%s/%s", dir, pname) == -1)
 					errExit("asprintf");
-				read_profile(etcpname);
+				profile_read(etcpname);
 				free(etcpname);
 				break;
 			}
@@ -131,8 +132,8 @@ static char *remove_spaces(const char *buf) {
 	return rv;
 }
 
-
-void read_profile(const char *fname) {
+// read a profile file
+void profile_read(const char *fname) {
 	if (strlen(fname) == 0) {
 		fprintf(stderr, "Error: invalid profile file\n");
 		exit(1);

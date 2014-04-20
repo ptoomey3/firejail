@@ -28,7 +28,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <linux/if_packet.h>
-//#include <linux/if_arp.h>
 
 #include "firejail.h"
 
@@ -157,7 +156,7 @@ int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
 	return -1;
 }
 
-
+// assign a random IP address and check it
 uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	assert(ifip);
 	assert(ifmask);
@@ -182,6 +181,7 @@ uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	return 0;
 }
 
+// go sequentially trough all IP addresses and assign the first one not in use
 uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	assert(ifip);
 	assert(ifmask);
@@ -213,7 +213,7 @@ uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	return 0;
 }
 
-
+// assign an IP address using the specified IP address or the ARP mechanism
 uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask, uint32_t ip) {
 	// check IP addresses
 	if (dev && ifip && ifmask && ip) {

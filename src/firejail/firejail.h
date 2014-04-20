@@ -85,17 +85,26 @@ void net_ifprint(void);
 void net_bridge_add_interface(const char *bridge, const char *dev);
 
 // fs.c
-void mnt_blacklist(char **blacklist, const char *homedir);
-void mnt_rdonly(const char *dir);
-void mnt_proc_sys(void);
-void mnt_basic_fs(void);
-void mnt_private(const char *homedir);
-void mnt_overlayfs(void);
-void mnt_chroot(const char *rootdir);
+// blacklist files or directoies by mounting empty files on top of them
+void fs_blacklist(char **blacklist, const char *homedir);
+// remount a directory read-only
+void fs_rdonly(const char *dir);
+// mount /proc and /sys directories
+void fs_proc_sys(void);
+// build a basic read-only filesystem
+void fs_basic_fs(void);
+// private mode: mount tmpfs over /home and /tmp
+void fs_private(const char *homedir);
+// mount overlayfs on top of / directory
+void fs_overlayfs(void);
+// chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf
+void fs_chroot(const char *rootdir);
 
 // profile.c
-void get_profile(const char *name, const char *dir);
-void read_profile(const char *fname);
+// find and read the profile specified by name from dir directory
+void profile_find(const char *name, const char *dir);
+// read a profile file
+void profile_read(const char *fname);
 
 // list.c
 void list(void);
@@ -111,9 +120,13 @@ extern char *restricted_user;
 int restricted_shell(const char *user);
 
 // arp.c
+// returns 0 if the address is not in use, -1 otherwise
 int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr);
+// assign a random IP address and check it
 uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask);
+// go sequentially trough all IP addresses and assign the first one not in use
 uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask);
+// assign an IP address using the specified IP address or the ARP mechanism
 uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask, uint32_t ip);
 
 // veth.c

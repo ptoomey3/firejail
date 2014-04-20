@@ -139,15 +139,15 @@ int worker(void* worker_arg) {
 		errExit("mounting filesystem as slave");
 
 	if (chrootdir) {
-		mnt_chroot(chrootdir);
+		fs_chroot(chrootdir);
 	}
 	else if (arg_overlay)
-		mnt_overlayfs();
+		fs_overlayfs();
 	else
-		mnt_basic_fs();
+		fs_basic_fs();
 	
 	if (arg_private)
-		mnt_private(homedir);
+		fs_private(homedir);
 		
 	//****************************
 	// apply the profile file
@@ -158,15 +158,15 @@ int worker(void* worker_arg) {
 		char *usercfg;
 		if (asprintf(&usercfg, "%s/.config/firejail", homedir) == -1)
 			errExit("asprintf");
-		get_profile(command_name, usercfg);
+		profile_find(command_name, usercfg);
 	}
 	if (!custom_profile)
 		// look for a user profile in /etc/firejail directory
-		get_profile(command_name, "/etc/firejail");
+		profile_find(command_name, "/etc/firejail");
 	if (custom_profile)
-		mnt_blacklist(custom_profile, homedir);
+		fs_blacklist(custom_profile, homedir);
 
-	mnt_proc_sys();
+	fs_proc_sys();
 	
 	//****************************
 	// networking
@@ -318,7 +318,12 @@ int main(int argc, char **argv) {
 			}
 		}			
 		else if (strncmp(argv[i], "--profile=",10) == 0) {
-			read_profile(argv[i] + 10);
+			// check file access as user, not as root (suid)
+			if (access(argv[i] + 10, R_OK)) {
+				fprintf(stderr, "Error: cannot access profile file\n");
+				return 1;
+			}
+			profile_read(argv[i] + 10);
 			set_exit = 1;
 		}
 		else if (strncmp(argv[i], "--name=", 7) == 0) {

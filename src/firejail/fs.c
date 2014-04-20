@@ -94,7 +94,7 @@ static void expand_path(const char *path, const char *fname, const char *emptydi
 }
 
 // blacklist files or directoies by mounting empty files on top of them
-void mnt_blacklist(char **blacklist, const char *homedir) {
+void fs_blacklist(char **blacklist, const char *homedir) {
 	char *emptydir;
 	char *emptyfile;
 	assert(tmpdir);
@@ -165,7 +165,7 @@ void mnt_blacklist(char **blacklist, const char *homedir) {
 }
 
 // remount a directory read-only
-void mnt_rdonly(const char *dir) {
+void fs_rdonly(const char *dir) {
 	assert(dir);
 	// check directory exists
 	struct stat s;
@@ -181,7 +181,7 @@ void mnt_rdonly(const char *dir) {
 }
 
 // mount /proc and /sys directories
-void mnt_proc_sys(void) {
+void fs_proc_sys(void) {
 	if (arg_debug)
 		printf("Remounting /proc and /proc/sys filesystems\n");
 	if (mount("proc", "/proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_REC, NULL) < 0)
@@ -291,24 +291,24 @@ static void resolve_run_shm(void) {
 }
 
 // build a basic read-only filesystem
-void mnt_basic_fs(void) {
+void fs_basic_fs(void) {
 	if (arg_debug)
 		printf("Mounting read-only /bin, /sbin, /lib, /lib64, /usr, /boot, /etc, /var\n");
-	mnt_rdonly("/bin");
-	mnt_rdonly("/sbin");
-	mnt_rdonly("/lib");
-	mnt_rdonly("/lib64");
-	mnt_rdonly("/usr");
-	mnt_rdonly("/boot");
-	mnt_rdonly("/etc");
-	mnt_rdonly("/var");
+	fs_rdonly("/bin");
+	fs_rdonly("/sbin");
+	fs_rdonly("/lib");
+	fs_rdonly("/lib64");
+	fs_rdonly("/usr");
+	fs_rdonly("/boot");
+	fs_rdonly("/etc");
+	fs_rdonly("/var");
 	resolve_run_shm();
 }
 
 
 
-
-void mnt_private(const char *homedir) {
+// private mode: mount tmpfs over /home and /tmp
+void fs_private(const char *homedir) {
 	assert(homedir);
 	
 	if (arg_debug)
@@ -337,7 +337,8 @@ void mnt_private(const char *homedir) {
 
 }
 
-void mnt_overlayfs(void) {
+// mount overlayfs on top of / directory
+void fs_overlayfs(void) {
 	assert(tmpdir);
 
 	// build overlay directory
@@ -394,7 +395,8 @@ void mnt_overlayfs(void) {
 	free(dev);
 }
 
-void mnt_chroot(const char *rootdir) {
+// chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf
+void fs_chroot(const char *rootdir) {
 	assert(rootdir);
 	
 	// mount-bind a /dev in rootdir

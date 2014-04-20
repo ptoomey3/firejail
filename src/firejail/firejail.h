@@ -62,9 +62,26 @@ static inline int atoip(const char *str, uint32_t *ip) {
 }
 
 // main.c
-extern int arg_debug;		// --debug argument
-extern int arg_command;		// -c argument
-extern char **custom_profile;
+typedef struct config_t {
+	char *username;
+	char *chrootdir;
+	char *homedir;
+	char *bridgedev;
+	char *hostname;
+	char *command_line;
+	char *command_name;
+	uint32_t ipaddress;
+	uint32_t bridgeip;
+	uint32_t bridgemask;
+	char **custom_profile;
+} Config;
+extern Config cfg;
+int arg_private;		// mount private /home directoryu
+int arg_debug;		// print debug messages
+int arg_nonetwork;	// --net=none
+int arg_command;	// -c
+int arg_overlay;		// --overlay
+
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
 extern char *fullargv[MAX_ARGS];
 extern int fullargc;

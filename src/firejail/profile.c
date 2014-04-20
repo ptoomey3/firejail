@@ -187,18 +187,18 @@ void profile_read(const char *fname) {
 	}
 
 	// build blacklist array
-	custom_profile  = malloc(sizeof(char *) * mylist_cnt);
-	if (!custom_profile)
+	cfg.custom_profile  = malloc(sizeof(char *) * mylist_cnt);
+	if (!cfg.custom_profile)
 		errExit("malloc");
 	mptr = &m;
 	lineno = 0;
 	while (mptr->next != NULL) {
 		assert(mptr->line);
-		custom_profile[lineno] = mptr->line;
+		cfg.custom_profile[lineno] = mptr->line;
 		mptr = mptr->next;
 		lineno++;
 	}
-	custom_profile[lineno] = NULL;
+	cfg.custom_profile[lineno] = NULL;
 	
 	// free the list
 	mptr = &m;

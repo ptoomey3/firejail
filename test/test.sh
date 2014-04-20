@@ -13,7 +13,10 @@ echo "TESTING: no network"
 ./net_none.exp
 
 echo "TESTING: network IP"
-./net_none.exp
+./net_ip.exp
+
+echo "TESTING: network default gateway"
+./net_defaultgw.exp
 
 echo "TESTING: ARP"
 ./net_arp.exp

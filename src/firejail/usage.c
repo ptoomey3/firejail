@@ -34,6 +34,8 @@ void usage(void) {
 	printf("\t-c - execute command and exit\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
 	printf("\t--debug - print sandbox debug messages\n");
+	printf("\t--defaultgw=ipaddress - use this address as default gateway in the new\n");
+	printf("\t\tnetwork namespace\n");
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--ip=ipaddress - use this IP address in the new network namespace\n");
 	printf("\t--join=pid - join the sandbox of the specified process\n");
@@ -42,8 +44,8 @@ void usage(void) {
 	printf("\t\tdevice\n");
 	printf("\t--net=none - enable a new, unconnected network namespace\n");
 	printf("\t--overlay - mount a filesystem overlay on top of the current filesystem\n");
-	printf("\t            (OverlayFS support is required in Linux kernel for this\n");
-	printf("\t            option to work)\n");    
+	printf("\t\t(OverlayFS support is required in Linux kernel for this option\n");
+	printf("\t\tto work)\n");    
 	printf("\t--private - mount a new /home/user directory\n");
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--version - print program version and exit\n");

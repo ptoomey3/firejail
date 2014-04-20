@@ -61,30 +61,52 @@ static inline int atoip(const char *str, uint32_t *ip) {
 	return 0;
 }
 
+static inline char *in_netrange(uint32_t ip, uint32_t ifip, uint32_t ifmask) {
+	if ((ip & ifmask) != (ifip & ifmask))
+		return "Error: the IP address is not in the interface range\n";
+	else if ((ip & ifmask) == ip)
+		return "Error: the IP address is a network address\n";
+	else if ((ip | ~ifmask) == ip)
+		return "Error: the IP address is a network address\n";
+	return NULL;
+}
+
 // main.c
 typedef struct config_t {
+	// user data
 	char *username;
-	char *chrootdir;
 	char *homedir;
-	char *bridgedev;
+	
+	// filesystem
+	char **custom_profile;	// loaded profile
+	char *chrootdir;		// chroot directory
+
+	// networking
 	char *hostname;
+	char *bridgedev;
+	uint32_t ipaddress;	// sandbox ip address
+	uint32_t defaultgw;	// default gateway
+	uint32_t bridgeip;		// bridge device ip address
+	uint32_t bridgemask;	// bridge device mask
+
+	// command line, profile, hostname, chroot dir
 	char *command_line;
 	char *command_name;
-	uint32_t ipaddress;
-	uint32_t bridgeip;
-	uint32_t bridgemask;
-	char **custom_profile;
 } Config;
 extern Config cfg;
-int arg_private;		// mount private /home directoryu
-int arg_debug;		// print debug messages
-int arg_nonetwork;	// --net=none
-int arg_command;	// -c
-int arg_overlay;		// --overlay
+extern int arg_private;		// mount private /home directoryu
+extern int arg_debug;		// print debug messages
+extern int arg_nonetwork;	// --net=none
+extern int arg_command;	// -c
+extern int arg_overlay;		// --overlay
+extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
 extern char *fullargv[MAX_ARGS];
 extern int fullargc;
+
+// sandbox.c
+int sandbox(void* sandbox_arg);
 
 
 // network.c
@@ -144,7 +166,7 @@ uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask);
 // go sequentially trough all IP addresses and assign the first one not in use
 uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask);
 // assign an IP address using the specified IP address or the ARP mechanism
-uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask, uint32_t ip);
+uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask);
 
 // veth.c
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);

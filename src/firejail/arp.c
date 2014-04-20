@@ -214,46 +214,21 @@ uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask) {
 }
 
 // assign an IP address using the specified IP address or the ARP mechanism
-uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask, uint32_t ip) {
-	// check IP addresses
-	if (dev && ifip && ifmask && ip) {
-		// check IP address is in network range
-		if ((ip & ifmask) != (ifip & ifmask)) {
-			fprintf(stderr, "Error: the IP address is not in the interface range\n");
-			exit(1);
-		}
-		else if ((ip & ifmask) == ip) {
-			fprintf(stderr, "Error: the IP address is a network address\n");
-			exit(1);
-		}
-		else if ((ip | ~ifmask) == ip) {
-			fprintf(stderr, "Error: the IP address is a network address\n");
-			exit(1);
-		}
-		
-		int rv = arp_check(dev, ip, ifip);
-		if (rv) {
-			fprintf(stderr, "Error: IP address %d.%d.%d.%d is already in use\n", PRINT_IP(ip));
-			exit(1);
-		}
-	}
-	// assign random IP addresses
-	else if (dev && ifip && ifmask && !ip) {
-		// try two random IP addresses
+uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask) {
+	uint32_t ip = 0;
+
+	// try two random IP addresses
+	ip = arp_random(dev, ifip, ifmask);
+	if (!ip)
 		ip = arp_random(dev, ifip, ifmask);
-		if (!ip)
-			ip = arp_random(dev, ifip, ifmask);
-		// try all possible IP addresses one by one
-		if (!ip)
-			ip = arp_sequential(dev, ifip, ifmask);
-		if (!ip) {
-			fprintf(stderr, "Error: cannot assign an IP address; looks like all of them are in use\n");
-			exit(1);
-		}
-		printf("%d.%d.%d.%d IP address assigned to the sandbox\n", PRINT_IP(ip));
+	// try all possible IP addresses one by one
+	if (!ip)
+		ip = arp_sequential(dev, ifip, ifmask);
+	if (!ip) {
+		fprintf(stderr, "Error: cannot assign an IP address; looks like all of them are in use\n");
+		exit(1);
 	}
-	else
-		ip = 0;
+	printf("%d.%d.%d.%d IP address assigned to the sandbox\n", PRINT_IP(ip));
 	
 	return ip;
 }

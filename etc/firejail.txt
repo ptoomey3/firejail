@@ -26,6 +26,9 @@ Chroot into dirname directory.
 \fB\--debug\fR
 Print debug messages.
 .TP
+\fB\--defaultgw=ipaddress
+Use this address as default gateway in the new network namespace.
+.TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP

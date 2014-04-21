@@ -94,10 +94,11 @@ typedef struct config_t {
 	char *command_name;
 } Config;
 extern Config cfg;
-extern int arg_private;		// mount private /home directoryu
+extern int arg_private;		// mount private /home and /tmp directory
 extern int arg_debug;		// print debug messages
-extern int arg_nonetwork;	// --net=none
-extern int arg_command;	// -c
+extern int arg_nonetwork;		// --net=none
+extern int arg_noip;		// --ip=none
+extern int arg_command;		// -c
 extern int arg_overlay;		// --overlay
 extern int fds[2];
 

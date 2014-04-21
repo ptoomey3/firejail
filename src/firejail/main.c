@@ -43,9 +43,10 @@
 #define STACK_SIZE (1024 * 1024)
 static char child_stack[STACK_SIZE];	// space for child's stack
 Config cfg;			// configuration
-int arg_private = 0;		// mount private /home directoryu
+int arg_private = 0;		// mount private /home and /tmp directoryu
 int arg_debug = 0;		// print debug messages
 int arg_nonetwork = 0;		// --net=none
+int arg_noip = 0;			// --ip=none
 int arg_command = 0;		// -c
 int arg_overlay = 0;		// --overlay
 int fds[2];			// parent-child communication pipe
@@ -225,7 +226,9 @@ int main(int argc, char **argv) {
 			}
 		}
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
-			if (atoip(argv[i] + 5, &cfg.ipaddress)) {
+			if (strcmp(argv[i] + 5, "none") == 0)
+				arg_noip = 1;
+			else if (atoip(argv[i] + 5, &cfg.ipaddress)) {
 				fprintf(stderr, "Error: invalid IP address, aborting\n");
 				return 1;
 			}
@@ -310,9 +313,11 @@ int main(int argc, char **argv) {
 	// check and assign an IP address
 	if (cfg.bridgedev && cfg.bridgeip && cfg.bridgemask) {
 #ifdef USELOCK
-		lockfd = open("/var/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-		if (lockfd != -1)
-			flock(lockfd, LOCK_EX);	
+		if (!arg_noip) {
+			lockfd = open("/var/lock/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+			if (lockfd != -1)
+				flock(lockfd, LOCK_EX);
+		}
 #endif
 		// initialize random number generator
 		time_t t = time(NULL);
@@ -328,14 +333,15 @@ int main(int argc, char **argv) {
 			}
 		}
 
-		if (cfg.ipaddress) {
+		if (arg_noip);
+		else if (cfg.ipaddress) {
 			// check network range
 			char *rv = in_netrange(cfg.ipaddress, cfg.bridgeip, cfg.bridgemask);
 			if (rv) {
 				fprintf(stderr, "%s", rv);
 				exit(1);
 			}
-		
+			// send an ARP request and check if there is anybody on this IP address
 			if (arp_check(cfg.bridgedev, cfg.ipaddress, cfg.bridgeip)) {
 				fprintf(stderr, "Error: IP address %d.%d.%d.%d is already in use\n", PRINT_IP(cfg.ipaddress));
 				exit(1);
@@ -407,7 +413,7 @@ int main(int argc, char **argv) {
 		
 		// wait for the ip address to come up
 		int cnt = 0;
-		while (cnt < 5) {
+		while (cnt < 5) { // arp_check has a 1s wait
 			if (arp_check(cfg.bridgedev, cfg.ipaddress, cfg.bridgeip) == 0)
 				break;
 			cnt++;

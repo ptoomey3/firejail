@@ -34,10 +34,13 @@ void usage(void) {
 	printf("\t-c - execute command and exit\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
 	printf("\t--debug - print sandbox debug messages\n");
-	printf("\t--defaultgw=ipaddress - use this address as default gateway in the new\n");
+	printf("\t--defaultgw=address - use this address as default gateway in the new\n");
 	printf("\t\tnetwork namespace\n");
 	printf("\t--help, -? - this help screen\n");
-	printf("\t--ip=ipaddress - use this IP address in the new network namespace\n");
+	printf("\t--ip=address - use this IP address in the new network namespace\n");
+	printf("\t--ip=none - no IP address and no default gateway address are configured\n");
+	printf("\t\tin the new network namespace. Use this option in case you intend\n");
+	printf("\t\tto start a DHCP client in the sandbox.\n");
 	printf("\t--join=pid - join the sandbox of the specified process\n");
 	printf("\t--name=name - set sandbox hostname\n");
 	printf("\t--net=bridgename - enable network namespaces and connect to this bridge\n");

@@ -26,14 +26,18 @@ Chroot into dirname directory.
 \fB\--debug\fR
 Print debug messages.
 .TP
-\fB\--defaultgw=ipaddress
+\fB\--defaultgw=address
 Use this address as default gateway in the new network namespace.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
-\fB\--ip=ipaddress
+\fB\--ip=address
 Use this IP address in the new network namespace.
+.TP
+\fB\--ip=none
+No IP address and no default gateway are configured in the new network namespace. Use this option
+in case you intend to start a DHCP client in the sandbox.
 .TP
 \fB\--join=pid
 Join the sandbox of the specified process.
@@ -43,13 +47,16 @@ Set sandbox hostname.
 .TP
 \fB\--net=bridgename
 Enable a new network namespace and connect it to this bridge device.
-Unless specified with option --ip, an IP address is assigned automatically to the sandbox.
+Unless specified with option --ip and --defaultgw, an IP address and a default gateway will be assigned
+automatically to the sandbox. The IP address is checked using ARP before assignment. The IP address
+assigned as default gateway is the bridge device IP address.
 .TP
 \fB\--net=none
 Enable a new, unconnected network namespace.
 .TP
 \fB\--overlay
-Mount a filesystem overlay on top of the current filesystem. OverlayFS support is required in Linux kernel for this option to work.
+Mount a filesystem overlay on top of the current filesystem. OverlayFS support is required in Linux kernel
+for this option to work.
 .TP
 \fB\--private
 Mount a new /home/user directory.

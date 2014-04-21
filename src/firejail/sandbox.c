@@ -109,6 +109,11 @@ int sandbox(void* sandbox_arg) {
 	if (arg_nonetwork) {
 		net_if_up("lo");
 	}
+	else if (arg_noip) {
+		assert(cfg.ipaddress == 0);
+		net_if_up("lo");
+		net_if_up("eth0");
+	}
 	else if (cfg.bridgedev && cfg.bridgeip && cfg.bridgemask) {
 		assert(cfg.ipaddress);
 		

@@ -18,5 +18,8 @@ echo "TESTING: network IP"
 echo "TESTING: network default gateway"
 ./net_defaultgw.exp
 
+echo "TESTING: login SSH"
+./login_ssh.exp
+
 echo "TESTING: ARP"
 ./net_arp.exp

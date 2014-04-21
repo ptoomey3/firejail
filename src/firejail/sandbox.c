@@ -173,11 +173,11 @@ int sandbox(void* sandbox_arg) {
 	if (!arg_command)
 		printf("Child process initialized\n");
 	if (arg_debug) {
-		FILE *fp = fopen("/tmp/firejail.dbg", "a");
-		if (fp) {			
-			fprintf(fp, "child pid %u, execvp into %s\n\n", getpid(), cfg.command_line);
-			fclose(fp);
-		}
+		char *msg;
+		if (asprintf(&msg, "child pid %s, execvp into %s", childstr, cfg.command_line) == -1)
+			errExit("asprintf");
+		logmsg(msg);
+		free(msg);
 	}
 	execvp("/bin/bash", arg); 
 

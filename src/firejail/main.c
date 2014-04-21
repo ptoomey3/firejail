@@ -38,6 +38,7 @@
 
 
 #include "firejail.h"
+#include "../include/pid.h"
 
 #define STACK_SIZE (1024 * 1024)
 static char child_stack[STACK_SIZE];	// space for child's stack
@@ -123,25 +124,8 @@ int main(int argc, char **argv) {
 			printf("firejail version %s\n", VERSION);
 			exit(0);
 		}
-		else if (strcmp(argv[i], "--debug") == 0) {
+		else if (strcmp(argv[i], "--debug") == 0)
 			arg_debug = 1;
-			FILE *fp = fopen("/tmp/firejail.dbg", "a");
-			if (fp) {
-				fprintf(fp, "parent pid %u\n", getppid());
-				if (fullargc)
-					fprintf(fp, "user %s entering restricted shell\n", cfg.username);
-				fprintf(fp, "pid %u, extended argument list: ", getpid());
-				int j;
-				for (j = 0; j < argc; j++)
-					fprintf(fp, "%s ", argv[j]);
-				fprintf(fp, "\n");
-				fclose(fp);
-				chmod("/tmp/firejail.dbg", S_IRWXU|S_IRWXG|S_IRWXO);
-				int rv = chown("/tmp/firejail.dbg", 0, 0);
-				(void) rv;
-			}
-			*argv[i] = '\0';
-		}
 
 		//*************************************
 		// independent commands - the program will exit!
@@ -150,7 +134,7 @@ int main(int argc, char **argv) {
 			list();
 			exit(0);
 		}
-		if (strncmp(argv[i], "--join=", 7) == 0) {
+		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			char *endptr;
 			errno = 0;
 			pid_t pid = strtol(argv[i] + 7, &endptr, 10);
@@ -164,6 +148,7 @@ int main(int argc, char **argv) {
 				exit(1);
 			}
 			
+			logmsg(pid_proc_cmdline(mypid));
 			join(pid, cfg.homedir);
 			// it will never get here!!!
 			exit(0);
@@ -270,7 +255,30 @@ int main(int argc, char **argv) {
 			break;		
 		}
 	}
-	
+
+	// log command
+	logmsg(pid_proc_cmdline(mypid));
+	if (fullargc) {
+		int i;
+		int len = 0;
+		for (i = 1; i < fullargc; i++)
+			len += strlen(fullargv[i]) + 1; // + ' '
+		char cmd[len + 50];
+		strcpy(cmd, "expanded args: ");
+		char *ptr = cmd + strlen(cmd);
+		for (i = 1; i < fullargc; i++) {
+			sprintf(ptr, "%s ", fullargv[i]);
+			ptr += strlen(ptr);
+		} 
+		logmsg(cmd);
+		
+		char *msg;
+		if (asprintf(&msg, "user %s entering restricted shell", cfg.username) == -1)
+			errExit("asprintf");
+		logmsg(msg);
+		free(msg);
+	}
+
 	// build the sandbox command
 	if (prog_index == -1) {
 		cfg.command_line = "/bin/bash";
@@ -373,6 +381,13 @@ int main(int argc, char **argv) {
  		
  		// add interface to the bridge
 		net_bridge_add_interface(cfg.bridgedev, dev);
+		
+		char *msg;
+		if (asprintf(&msg, "%d.%d.%d.%d address assigned to sandbox", PRINT_IP(cfg.ipaddress)) == -1)
+			errExit("asprintf");
+		logmsg(msg);
+		fflush(0);
+		free(msg);
 	}
 
 	// notify the child the initialization is done
@@ -400,8 +415,17 @@ int main(int argc, char **argv) {
 		flock(lockfd, LOCK_UN);	
 	}
 #endif
+
+	{
+		char *msg;
+		if (asprintf(&msg, "child %u started", child) == -1)
+			errExit("asprintf");
+		logmsg(msg);
+		free(msg);
+	}
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
+	logmsg("exiting...");
 	bye_parent();
 	return 0;
 }

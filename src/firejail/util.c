@@ -22,7 +22,20 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <syslog.h>
 #include "firejail.h"
+
+void logmsg(const char *msg) {
+	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_DAEMON);
+	syslog(LOG_INFO, "%s\n", msg);
+	closelog();
+}
+
+void logerr(const char *msg) {
+	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_DAEMON);
+	syslog(LOG_ERR, "%s\n", msg);
+	closelog();
+}
 
 // return -1 if error, 0 if no error
 int copy_file(const char *srcname, const char *destname) {

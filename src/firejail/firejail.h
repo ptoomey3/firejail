@@ -172,6 +172,8 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask);
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);
 
 // util.c
+void logmsg(const char *msg);
+void logerr(const char *msg);
 int copy_file(const char *srcname, const char *destname);
 char *get_link(const char *fname);
 int is_dir(const char *fname);

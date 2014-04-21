@@ -149,13 +149,6 @@ void net_if_up(const char *ifname) {
 			break;
 		cnt++;
 	}
-	if (cnt && arg_debug) {
-		FILE *fp = fopen("/tmp/firejail.dbg", "a");
-		if (fp) {
-			fprintf(fp, "wait %dms for interface %s to come up\n", cnt * 10, ifname);
-			fclose(fp);
-		}
-	}
 
 	close(sock);
 }

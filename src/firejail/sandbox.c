@@ -81,9 +81,6 @@ int sandbox(void* sandbox_arg) {
 	else
 		fs_basic_fs();
 	
-	if (arg_private)
-		fs_private(cfg.homedir);
-		
 	//****************************
 	// apply the profile file
 	//****************************
@@ -101,6 +98,9 @@ int sandbox(void* sandbox_arg) {
 	if (cfg.custom_profile)
 		fs_blacklist(cfg.custom_profile, cfg.homedir);
 
+	if (arg_private)
+		fs_private(cfg.homedir);
+		
 	fs_proc_sys();
 	
 	//****************************

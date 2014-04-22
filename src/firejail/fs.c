@@ -318,6 +318,8 @@ void fs_private(const char *homedir) {
 
 	uid_t u = getuid();
 	gid_t g = getgid();
+	if (chown(homedir, u, g) == -1)
+		errExit("chown");
 
 	// copy skel files
 	char *fname;

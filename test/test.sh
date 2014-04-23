@@ -9,6 +9,15 @@ echo "TESTING: profile no permissions"
 echo "TESTING: profile syntax"
 ./profile_syntax.exp
 
+echo "TESTING: profile read-only"
+./profile_readonly.exp
+
+echo "TESTING: profile tmpfs"
+./profile_tmpfs.exp
+
+echo "TESTING: private"
+./private.exp
+
 echo "TESTING: no network"
 ./net_none.exp
 

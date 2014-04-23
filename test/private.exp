@@ -1,0 +1,58 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+# testing profiel and private
+send -- "firejail --private --profile=/etc/firejail/firefox.profile\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 1
+send -- "exit\r"
+sleep 1
+
+send -- "firejail --private\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+
+# testing private only
+send -- "bash\r"
+sleep 1
+# owner /home/netblue
+send -- "ls -l /home;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"netblue"
+}
+expect {
+	timeout {puts "TESTING ERROR 1.1\n";exit}
+	"netblue"
+}
+expect {
+	timeout {puts "TESTING ERROR 1.2\n";exit}
+	"netblue"
+}
+expect {
+	timeout {puts "TESTING ERROR 1.3\n";exit}
+	"home"
+}
+sleep 1
+
+# owner /tmp
+send -- "stat -c %U%a /tmp;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"root777"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.1\n";exit}
+	"home"
+}
+sleep 1
+
+puts "\n"

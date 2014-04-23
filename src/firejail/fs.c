@@ -30,39 +30,56 @@
 
 
 //***********************************************
-// chroot filesystem
+// process profile file
 //***********************************************
-static void mnt_tmp(void) {
-	if (arg_debug)
-		printf("Mounting new /tmp and /var/tmp directories\n");
-	if (mount("tmpfs", "/var/tmp", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("mounting /var/tmp");
+typedef enum {
+	BLACKLIST_FILE,
+	MOUNT_READONLY,
+	MOUNT_TMPFS,
+	OPERATION_MAX
+} OPERATION;
 
-	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-		errExit("mounting /tmp");
-}
-
-static void disable_file(const char *fname, const char *emptydir, const char *emptyfile) {
+static void disable_file(OPERATION op, const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(fname);
 	assert(emptydir);
 	assert(emptyfile);
+	assert(op <OPERATION_MAX);
 
 	struct stat s;
 	if (stat(fname, &s) == 0) {
-		if (S_ISDIR(s.st_mode)) {
-			if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
-				errExit("disable file");
+		if (op == BLACKLIST_FILE) {
+			if (arg_debug)
+				printf("Disabling %s\n", fname);
+			if (S_ISDIR(s.st_mode)) {
+				if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
+					errExit("disable file");
+			}
+			else {
+				if (mount(emptyfile, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
+					errExit("disable file");
+			}
 		}
-		else {
-			if (mount(emptyfile, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
-				errExit("disable file");
+		else if (op == MOUNT_READONLY) {
+			if (arg_debug)
+				printf("Mounting read-only %s\n", fname);
+			fs_rdonly(fname);
 		}
-		if (arg_debug)
-			printf("Disabling %s\n", fname);
+		else if (op == MOUNT_TMPFS) {
+			if (S_ISDIR(s.st_mode)) {
+				if (arg_debug)
+					printf("Mounting tmpfs on %s\n", fname);
+				if (mount("tmpfs", fname, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755") < 0)
+					errExit("mounting tmpfs");
+			}
+			else
+				printf("Warning: %s is not a directory; cannot mount a tmpfs on top of it.\n", fname);
+		}
+		else
+			ASSERT(0);
 	}
 }
 
-static void globbing(const char *fname, const char *emptydir, const char *emptyfile) {
+static void globbing(OPERATION op, const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(fname);
 	assert(emptydir);
 	assert(emptyfile);
@@ -75,14 +92,14 @@ static void globbing(const char *fname, const char *emptydir, const char *emptyf
 		int i;
 		for (i = 0; i < globbuf.gl_pathc; i++) {
 			assert(globbuf.gl_pathv[i]);
-			disable_file(globbuf.gl_pathv[i], emptydir, emptyfile);
+			disable_file(op, globbuf.gl_pathv[i], emptydir, emptyfile);
 		}
 	}
 	else
-		disable_file(fname, emptydir, emptyfile);
+		disable_file(op, fname, emptydir, emptyfile);
 }
 
-static void expand_path(const char *path, const char *fname, const char *emptydir, const char *emptyfile) {
+static void expand_path(OPERATION op, const char *path, const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(path);
 	assert(fname);
 	assert(emptydir);
@@ -90,7 +107,7 @@ static void expand_path(const char *path, const char *fname, const char *emptydi
 	char newname[strlen(path) + strlen(fname) + 1];
 	sprintf(newname, "%s%s", path, fname);
 
-	globbing(newname, emptydir, emptyfile);
+	globbing(op, newname, emptydir, emptyfile);
 }
 
 // blacklist files or directoies by mounting empty files on top of them
@@ -120,14 +137,28 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 
 	int i = 0;
 	while (blacklist[i]) {
+		OPERATION op = OPERATION_MAX;
+		char *ptr;
+		
 		// process blacklist command
-		if (strncmp(blacklist[i], "blacklist", 9) != 0) {
+		if (strncmp(blacklist[i], "blacklist", 9) == 0)  {
+			ptr = blacklist[i] + 10;
+			op = BLACKLIST_FILE;
+		}
+		else if (strncmp(blacklist[i], "read-only", 9) == 0) {
+			ptr = blacklist[i] + 10;
+			op = MOUNT_READONLY;
+		}			
+		else if (strncmp(blacklist[i], "tmpfs", 5) == 0) {
+			ptr = blacklist[i] + 6;
+			op = MOUNT_TMPFS;
+		}			
+		else {
 			fprintf(stderr, "Error: invalid profile line %s\n", blacklist[i]);
 			i++;
 			continue;
 		}
 
-		char *ptr = blacklist[i] + 10;
 		// replace home macro in blacklist array
 		char *new_name = NULL;
 		if (strncmp(ptr, "${HOME}", 7) == 0) {
@@ -138,13 +169,13 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 
 		// expand path macro - look for the file in /bin, /usr/bin, /sbin and  /usr/sbin directories
 		if (strncmp(ptr, "${PATH}", 7) == 0) {
-			expand_path("/bin", ptr + 7, emptydir, emptyfile);
-			expand_path("/sbin", ptr + 7, emptydir, emptyfile);
-			expand_path("/usr/bin", ptr + 7, emptydir, emptyfile);
-			expand_path("/usr/sbin", ptr + 7, emptydir, emptyfile);
+			expand_path(op, "/bin", ptr + 7, emptydir, emptyfile);
+			expand_path(op, "/sbin", ptr + 7, emptydir, emptyfile);
+			expand_path(op, "/usr/bin", ptr + 7, emptydir, emptyfile);
+			expand_path(op, "/usr/sbin", ptr + 7, emptydir, emptyfile);
 		}
 		else
-			globbing(ptr, emptydir, emptyfile);
+			globbing(op, ptr, emptydir, emptyfile);
 		if (new_name)
 			free(new_name);
 		i++;
@@ -153,6 +184,10 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 	free(emptydir);
 	free(emptyfile);
 }
+
+//***********************************************
+// mount namespace
+//***********************************************
 
 // remount a directory read-only
 void fs_rdonly(const char *dir) {

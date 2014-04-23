@@ -61,6 +61,7 @@ void profile_find(const char *name, const char *dir) {
 //***************************************************
 static void check_file_name(char *ptr, int lineno) {
 	int len = strlen(ptr);
+	// file globbing ('*') is allowed
 	if (strcspn(ptr, "\\&!?\"'<>%^(){}[];, ") != len) {
 		fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
 		exit(1);
@@ -69,12 +70,12 @@ static void check_file_name(char *ptr, int lineno) {
 
 
 static void check_line(char *ptr, int lineno) {
-/*	if (strncmp(ptr, "newdir ", 7) == 0)
-		ptr += 7;
-	else */if (strncmp(ptr, "blacklist ", 10) == 0)
+	if (strncmp(ptr, "blacklist ", 10) == 0)
 		ptr += 10;
-//	else if (strncmp(ptr, "preserve ", 9) == 0)
-//		ptr += 9;
+	else if (strncmp(ptr, "read-only ", 10) == 0)
+		ptr += 10;
+	else if (strncmp(ptr, "tmpfs ", 6) == 0)
+		ptr += 6;
 	else {
 		fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
 		exit(1);

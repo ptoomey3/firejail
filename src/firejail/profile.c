@@ -69,12 +69,12 @@ static void check_file_name(char *ptr, int lineno) {
 
 
 static void check_line(char *ptr, int lineno) {
-	if (strncmp(ptr, "newdir ", 7) == 0)
+/*	if (strncmp(ptr, "newdir ", 7) == 0)
 		ptr += 7;
-	else if (strncmp(ptr, "blacklist ", 10) == 0)
+	else */if (strncmp(ptr, "blacklist ", 10) == 0)
 		ptr += 10;
-	else if (strncmp(ptr, "preserve ", 9) == 0)
-		ptr += 9;
+//	else if (strncmp(ptr, "preserve ", 9) == 0)
+//		ptr += 9;
 	else {
 		fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
 		exit(1);
@@ -89,48 +89,6 @@ static void check_line(char *ptr, int lineno) {
 		check_file_name(ptr, lineno);
 }
 
-
-static char *remove_spaces(const char *buf) {
-	assert(buf);
-	if (strlen(buf) == 0)
-		return NULL;
-	
-	// allocate memory for the new string
-	char *rv = malloc(strlen(buf) + 1);
-	if (rv == NULL)
-		errExit("malloc");
-	
-	// remove space at start of line
-	const char *ptr1 = buf;
-	while (*ptr1 == ' ' || *ptr1 == '\t')
-		ptr1++;
-	
-	// copy data and remove additional spaces
-	char *ptr2 = rv;
-	int state = 0;
-	while (*ptr1 != '\0') {
-		if (*ptr1 == '\n' || *ptr1 == '\r')
-			break;
-			
-		if (state == 0) {
-			if (*ptr1 != ' ' && *ptr1 != '\t')
-				*ptr2++ = *ptr1++;
-			else {
-				*ptr2++ = ' ';
-				ptr1++;
-				state = 1;
-			}
-		}
-		else { // state == 1
-			while (*ptr1 == ' ' || *ptr1 == '\t')
-				ptr1++;
-			state = 0;
-		}
-	}
-	*ptr2 = '\0';
-
-	return rv;
-}
 
 // read a profile file
 void profile_read(const char *fname) {
@@ -163,7 +121,7 @@ void profile_read(const char *fname) {
 	while (fgets(buf, MAX_READ, fp)) {
 		++lineno;
 		// remove empty space
-		char *ptr = remove_spaces(buf);
+		char *ptr = line_remove_spaces(buf);
 		if (ptr == NULL || *ptr == '\0')
 			continue;
 		

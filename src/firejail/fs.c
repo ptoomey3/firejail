@@ -120,16 +120,6 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 
 	int i = 0;
 	while (blacklist[i]) {
-		// process newtmp macro
-		if (strncmp(blacklist[i], "newdir", 6) == 0) {
-			if (strcmp(blacklist[i], "newdir /tmp") == 0)
-				mnt_tmp();
-			else
-				fprintf(stderr, "Warning: %s not implemented yet\n", blacklist[i]);
-			i++;
-			continue;
-		}
-
 		// process blacklist command
 		if (strncmp(blacklist[i], "blacklist", 9) != 0) {
 			fprintf(stderr, "Error: invalid profile line %s\n", blacklist[i]);

@@ -117,3 +117,44 @@ int is_link(const char *fname) {
 	return 0;
 }
 
+char *line_remove_spaces(const char *buf) {
+	assert(buf);
+	if (strlen(buf) == 0)
+		return NULL;
+	
+	// allocate memory for the new string
+	char *rv = malloc(strlen(buf) + 1);
+	if (rv == NULL)
+		errExit("malloc");
+	
+	// remove space at start of line
+	const char *ptr1 = buf;
+	while (*ptr1 == ' ' || *ptr1 == '\t')
+		ptr1++;
+	
+	// copy data and remove additional spaces
+	char *ptr2 = rv;
+	int state = 0;
+	while (*ptr1 != '\0') {
+		if (*ptr1 == '\n' || *ptr1 == '\r')
+			break;
+			
+		if (state == 0) {
+			if (*ptr1 != ' ' && *ptr1 != '\t')
+				*ptr2++ = *ptr1++;
+			else {
+				*ptr2++ = ' ';
+				ptr1++;
+				state = 1;
+			}
+		}
+		else { // state == 1
+			while (*ptr1 == ' ' || *ptr1 == '\t')
+				ptr1++;
+			state = 0;
+		}
+	}
+	*ptr2 = '\0';
+
+	return rv;
+}

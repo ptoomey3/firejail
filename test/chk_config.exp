@@ -1,0 +1,68 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+# check br0
+send -- "/sbin/ifconfig;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"br0"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"10.10.20.1"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"home"
+}
+
+# check br1
+send -- "/sbin/ifconfig;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"br1"
+}
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"10.10.30.1"
+}
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"home"
+}
+
+# check br2
+send -- "/sbin/ifconfig;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"br2"
+}
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"10.10.40.1"
+}
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"home"
+}
+
+# check br3
+send -- "/sbin/ifconfig;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"br3"
+}
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"10.10.50.1"
+}
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"home"
+}
+
+puts "\n"
+

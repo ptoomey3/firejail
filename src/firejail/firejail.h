@@ -72,6 +72,14 @@ static inline char *in_netrange(uint32_t ip, uint32_t ifip, uint32_t ifmask) {
 }
 
 // main.c
+typedef struct bridge_t {
+	char *dev;		// bridge device name
+	uint32_t ip;		// bridge device IP address
+	uint32_t mask;		// bridge device mask
+	uint32_t ipaddress;	// sandbox interface IP address
+	unsigned char configured;
+}  Bridge;
+
 typedef struct config_t {
 	// user data
 	char *username;
@@ -83,17 +91,23 @@ typedef struct config_t {
 
 	// networking
 	char *hostname;
-	char *bridgedev;
-	uint32_t ipaddress;	// sandbox ip address
 	uint32_t defaultgw;	// default gateway
-	uint32_t bridgeip;		// bridge device ip address
-	uint32_t bridgemask;	// bridge device mask
+	Bridge bridge0;
+	Bridge bridge1;
+	Bridge bridge2;
+	Bridge bridge3;
 
 	// command line, profile, hostname, chroot dir
 	char *command_line;
 	char *command_name;
 } Config;
 extern Config cfg;
+static inline int any_bridge_configured(void) {
+	if (cfg.bridge3.configured || cfg.bridge2.configured || cfg.bridge1.configured || cfg.bridge0.configured)
+		return 1;
+	else
+		return 0;
+}
 extern int arg_private;		// mount private /home and /tmp directory
 extern int arg_debug;		// print debug messages
 extern int arg_nonetwork;		// --net=none

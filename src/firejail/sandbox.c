@@ -110,28 +110,62 @@ int sandbox(void* sandbox_arg) {
 		net_if_up("lo");
 	}
 	else if (arg_noip) {
-		assert(cfg.ipaddress == 0);
 		net_if_up("lo");
-		net_if_up("eth0");
-	}
-	else if (cfg.bridgedev && cfg.bridgeip && cfg.bridgemask) {
-		assert(cfg.ipaddress);
-		
-		// configure lo and eth0
-		net_if_up("lo");
-		net_if_up("eth0");
-		if (cfg.ipaddress) {
-			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(cfg.ipaddress));
-			net_if_ip("eth0", cfg.ipaddress, cfg.bridgemask);
+		if (cfg.bridge0.configured)
 			net_if_up("eth0");
+		if (cfg.bridge1.configured)
+			net_if_up("eth1");
+		if (cfg.bridge2.configured)
+			net_if_up("eth2");
+		if (cfg.bridge3.configured)
+			net_if_up("eth3");
+	}
+	else if (any_bridge_configured()) {
+		// configure lo and eth0...eth3
+		net_if_up("lo");
+		if (cfg.bridge0.configured) {
+			Bridge *br = &cfg.bridge0;
+			net_if_up("eth0");
+			assert(br->ipaddress);
+			if (arg_debug)
+				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(br->ipaddress));
+			net_if_ip("eth0", br->ipaddress, br->mask);
+			net_if_up("eth0");
+		}
+		if (cfg.bridge1.configured) {
+			Bridge *br = &cfg.bridge1;
+			net_if_up("eth1");
+			assert(br->ipaddress);
+			if (arg_debug)
+				printf("Configuring %d.%d.%d.%d address on interface eth1\n", PRINT_IP(br->ipaddress));
+			net_if_ip("eth1", br->ipaddress, br->mask);
+			net_if_up("eth1");
+		}
+		if (cfg.bridge2.configured) {
+			Bridge *br = &cfg.bridge2;
+			net_if_up("eth2");
+			assert(br->ipaddress);
+			if (arg_debug)
+				printf("Configuring %d.%d.%d.%d address on interface eth2\n", PRINT_IP(br->ipaddress));
+			net_if_ip("eth2", br->ipaddress, br->mask);
+			net_if_up("eth2");
+		}
+		if (cfg.bridge3.configured) {
+			Bridge *br = &cfg.bridge3;
+			net_if_up("eth3");
+			assert(br->ipaddress);
+			if (arg_debug)
+				printf("Configuring %d.%d.%d.%d address on interface eth3\n", PRINT_IP(br->ipaddress));
+			net_if_ip("eth3", br->ipaddress, br->mask);
+			net_if_up("eth3");
 		}
 		
 		// add a default route
 		if (!cfg.defaultgw) {
-			cfg.defaultgw = cfg.bridgeip;
+			// set the default route as IP address of first bridge
+			cfg.defaultgw = cfg.bridge0.ip;
 			if (arg_debug)
-				printf("Using bridge address as default route\n");
+				printf("Using first bridge address as default route\n");
 		}
 		if (net_add_route(0, 0, cfg.defaultgw))
 			fprintf(stderr, "Warning: cannot configure default route\n");

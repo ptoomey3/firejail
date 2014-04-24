@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "TESTING system configuration"
+./chk_config.exp
+
 echo "TESTING: PID"
 ./pid.exp
 
@@ -29,6 +32,12 @@ echo "TESTING: network no IP"
 
 echo "TESTING: network default gateway"
 ./net_defaultgw.exp
+
+echo "TESTING: 4 bridges ARP"
+./4bridges_arp.exp
+
+echo "TESTING: 4 bridges IP"
+./4bridges_arp.exp
 
 echo "TESTING: login SSH"
 ./login_ssh.exp

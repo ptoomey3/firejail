@@ -46,8 +46,9 @@ uninstall:;
 	rm -f $(PREFIX)/bin/firejail
 	rm -f $(PREFIX)/bin/firemon
 	rm -fr $(PREFIX)/share/doc/firejail
-	rm -fr $(PREFIX)/share/man/man1/firejail.1*
-	rm -fr $(PREFIX)/share/man/man1/firemon.1*
+	rm -f $(PREFIX)/share/man/man1/firejail.1*
+	rm -f $(PREFIX)/share/man/man1/firemon.1*
+	rm -f $(PREFIX)/share/bash-completion/completions/firejail
 	
 dist:
 	make distclean

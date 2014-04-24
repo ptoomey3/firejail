@@ -24,6 +24,9 @@ echo "TESTING: no network"
 echo "TESTING: network IP"
 ./net_ip.exp
 
+echo "TESTING: network no IP"
+./net_noip.exp
+
 echo "TESTING: network default gateway"
 ./net_defaultgw.exp
 

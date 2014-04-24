@@ -8,7 +8,8 @@ firejail (0.9.2) baseline; urgency=low
   * Added support of --ip=none option; it is necessary for DHCP setups
   * Added syslog support
   * Added support for "tmpfs" and "read-only" profile commands
-  * Addend an expect-based testing framework for the project
+  * Added an expect-based testing framework for the project
+  * Added bash completion support
   
  -- netblue30 <netblue30@yahoo.com>  Fri, 18 Apr 2014 08:00:00 -0500
 

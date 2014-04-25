@@ -459,9 +459,12 @@ int main(int argc, char **argv) {
 	
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
-	if (any_bridge_configured) {
+	if (any_bridge_configured() || arg_nonetwork) {
 		flags |= CLONE_NEWNET;
 	}
+	else if (arg_debug)
+		printf("Using the local network stack\n");
+		
 	const pid_t child = clone(sandbox,
 		child_stack + STACK_SIZE,
 		flags,

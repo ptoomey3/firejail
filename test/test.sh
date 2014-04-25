@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "TESTING system configuration"
+echo "*** TESTING system configuration ***"
 ./chk_config.exp
 
 echo "TESTING: PID"
@@ -21,6 +21,9 @@ echo "TESTING: profile tmpfs"
 echo "TESTING: private"
 ./private.exp
 
+echo "TESTING: local network"
+./net_local.exp
+
 echo "TESTING: no network"
 ./net_none.exp
 
@@ -37,7 +40,7 @@ echo "TESTING: 4 bridges ARP"
 ./4bridges_arp.exp
 
 echo "TESTING: 4 bridges IP"
-./4bridges_arp.exp
+./4bridges_ip.exp
 
 echo "TESTING: login SSH"
 ./login_ssh.exp

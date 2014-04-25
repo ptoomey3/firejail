@@ -71,7 +71,7 @@ Print program version and exit.
 The profile files define a chroot filesystem built on top of the existing
 host filesystem. Each line describes a file element that is removed from
 the filesystem (\fBblacklist\fR), a read-only file or directory (\fBread-only\fR),
-or a tmpfs mounted on top of an existing directory (\fBtmpfs\fR). Example:
+or a tmpfs mounted on top of an existing directory (\fBtmpfs\fR). Examples:
 .TP
 # this is a comment
 .TP
@@ -84,7 +84,7 @@ Remove /etc/password file.
 \f\read-only /etc/password
 Read-only /etc/password file.
 .TP
-\f\ttmpfs /etc
+tmpfs /etc
 Mount an empty tmpfs filesystem on top of /etc directory.
 .TP
 File globbing is supported, and PATH and HOME directories are searched:

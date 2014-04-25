@@ -189,6 +189,35 @@ static inline Bridge *last_bridge_configured(void) {
 		return NULL;
 }
 
+void check_default_gw(uint32_t defaultgw) {
+	assert(defaultgw);
+	
+	if (cfg.bridge0.configured) {
+		char *rv = in_netrange(defaultgw, cfg.bridge0.ip, cfg.bridge0.mask);
+		if (rv == 0)
+			return;
+	}
+	if (cfg.bridge1.configured) {
+		char *rv = in_netrange(defaultgw, cfg.bridge1.ip, cfg.bridge1.mask);
+		if (rv == 0)
+			return;
+	}
+	if (cfg.bridge2.configured) {
+		char *rv = in_netrange(defaultgw, cfg.bridge2.ip, cfg.bridge2.mask);
+		if (rv == 0)
+			return;
+	}
+	if (cfg.bridge3.configured) {
+		char *rv = in_netrange(defaultgw, cfg.bridge3.ip, cfg.bridge3.mask);
+		if (rv == 0)
+			return;
+	}
+	
+	fprintf(stderr, "Error: default gateway %d.%d.%d.%d is not in the range of any network\n", PRINT_IP(defaultgw));
+	exit(1);
+}
+	
+
 //*******************************************
 // Main program
 //*******************************************
@@ -327,12 +356,9 @@ int main(int argc, char **argv) {
 			}
 			configure_bridge(br, argv[i] + 6);
 		}
-		else if (strncmp(argv[i], "--ip=", 5) == 0) {
-			if (strcmp(argv[i] + 5, "none") == 0) {
+		else if (strcmp(argv[i], "--noip") == 0)
 				arg_noip = 1;
-				continue;
-			}
-			
+		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();
 			if (br == NULL) {
 				fprintf(stderr, "Error: no bridge device configured\n");
@@ -433,17 +459,11 @@ int main(int argc, char **argv) {
 		// initialize random number generator
 		time_t t = time(NULL);
 		srand(t ^ mypid);
-#if 0	
+
 		// check default gateway address
-		if (cfg.defaultgw) {
-			// check network range
-			char *rv = in_netrange(cfg.defaultgw, cfg.bridge0.ip, cfg.bridge0.mask);
-			if (rv) {
-				fprintf(stderr, "%s", rv);
-				exit(1);
-			}
-		}
-#endif
+		if (cfg.defaultgw)
+			check_default_gw(cfg.defaultgw);
+
 		configure_ip(&cfg.bridge0);	
 		configure_ip(&cfg.bridge1);	
 		configure_ip(&cfg.bridge2);	

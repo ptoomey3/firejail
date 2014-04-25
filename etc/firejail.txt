@@ -35,10 +35,6 @@ Print options end exit.
 \fB\--ip=address
 Use this IP address in the new network namespace.
 .TP
-\fB\--ip=none
-No IP address and no default gateway are configured in the new network namespace. Use this option
-in case you intend to start a DHCP client in the sandbox.
-.TP
 \fB\--join=pid
 Join the sandbox of the specified process.
 .TP
@@ -49,7 +45,12 @@ Set sandbox hostname.
 Enable a new network namespace and connect it to this bridge device.
 Unless specified with option --ip and --defaultgw, an IP address and a default gateway will be assigned
 automatically to the sandbox. The IP address is checked using ARP before assignment. The IP address
-assigned as default gateway is the bridge device IP address.
+assigned as default gateway is the bridge device IP address. Up to four --net
+bridge devices can be defined.
+.TP
+\fB\--noip
+No IP address and no default gateway are configured in the new network namespace. Use this option
+in case you intend to start a DHCP client in the sandbox.
 .TP
 \fB\--net=none
 Enable a new, unconnected network namespace.
@@ -68,16 +69,25 @@ Use a custom profile, see below.
 Print program version and exit.
 .SH PROFILES
 The profile files define a chroot filesystem built on top of the existing
-filesystem. Each line describes a file element that is removed from
-the filesystem, for example:
+host filesystem. Each line describes a file element that is removed from
+the filesystem (\fBblacklist\fR), a read-only file or directory (\fBread-only\fR),
+or a tmpfs mounted on top of an existing directory (\fBtmpfs\fR). Example:
 .TP
 # this is a comment
+.TP
+\f\blacklist /usr/bin
+Remove /usr/bin directory.
 .TP
 \f\blacklist /etc/password
 Remove /etc/password file.
 .TP
-\f\blacklist /usr/bin
-Remove /usr/bin directory.
+\f\read-only /etc/password
+Read-only /etc/password file.
+.TP
+\f\ttmpfs /etc
+Mount an empty tmpfs filesystem on top of /etc directory.
+.TP
+File globbing is supported, and PATH and HOME directories are searched:
 .TP
 \f\blacklist /usr/bin/gcc*
 Remove all gcc files in /usr/bin (file globbing).
@@ -119,11 +129,13 @@ Start a /bin/bash session in a new network namespace. The session is
 connected to the main network using br0 bridge device. An IP address
 of 10.10.20.10 is assigned to the sandbox.
 .TP
+\f\firejail --net=br0 --net=br1 --net=br2
+Start a /bin/bash session in a new network namespace and connect it
+to br0, br1, and br2 host bridge devices.
+.TP
 \f\firejail --list
 List all running sandboxes.
-.SH COPYRIGHT
-Copyright @ 2014 netblue30@yahoo.com.
-.PP
+.SH LICENSE
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 .PP
 Homepage: http://firejail.sourceforge.net

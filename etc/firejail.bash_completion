@@ -37,7 +37,6 @@ _firejail()
             -- "$cur" ) )
         [[ $COMPREPLY == *=* ]] && compopt -o nospace
     else
-#        COMPREPLY=( $( compgen -W '--help --debug --overlay --private --version --chroot= --defaultgw= --ip= --name= --net= --profile=' -- "$cur" ) )
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
@@ -45,5 +44,4 @@ _firejail()
 complete -F _firejail firejail
 
 
-#        COMPREPLY=( $( compgen -W '--help --debug --overlay --private --version --chroot= --defaultgw= --ip= --name= --net= --profile=' -- "$cur" ) )
 

@@ -30,11 +30,23 @@ echo "TESTING: no network"
 echo "TESTING: network IP"
 ./net_ip.exp
 
-echo "TESTING: network no IP"
+echo "TESTING: network bad IP"
+./net_badip.exp
+
+echo "TESTING: network no IP test 1"
 ./net_noip.exp
 
-echo "TESTING: network default gateway"
+echo "TESTING: network no IP test 2"
+./net_noip2.exp
+
+echo "TESTING: network default gateway test 1"
 ./net_defaultgw.exp
+
+echo "TESTING: network default gateway test 2"
+./net_defaultgw2.exp
+
+echo "TESTING: network default gateway test 3"
+./net_defaultgw3.exp
 
 echo "TESTING: 4 bridges ARP"
 ./4bridges_arp.exp

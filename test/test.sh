@@ -33,6 +33,13 @@ echo "TESTING: profile tmpfs"
 echo "TESTING: private"
 ./private.exp
 
+grep "openSUSE" /etc/os-release
+if [ "$?" -eq 0 ];
+then
+	echo "TESTING: overlayfs"
+	./fs_overlay.exp
+fi
+
 echo "TESTING: local network"
 ./net_local.exp
 

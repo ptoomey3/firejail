@@ -1,0 +1,17 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send -- "man firejail\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Linux namespaces sandbox program"
+}
+sleep 1
+
+send -- "q\r"
+sleep 1
+puts "\n"
+

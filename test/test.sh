@@ -3,6 +3,18 @@
 echo "*** TESTING system configuration ***"
 ./chk_config.exp
 
+echo "TESTING: version"
+./option_version.exp
+
+echo "TESTING: help"
+./option_help.exp
+
+echo "TESTING: man"
+./option_man.exp
+
+echo "TESTING: list"
+./option_list.exp
+
 echo "TESTING: PID"
 ./pid.exp
 

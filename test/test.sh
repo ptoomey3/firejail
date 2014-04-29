@@ -31,7 +31,7 @@ echo "TESTING: profile tmpfs"
 ./profile_tmpfs.exp
 
 echo "TESTING: private"
-./private.exp
+./private.exp `whoami`
 
 grep "openSUSE" /etc/os-release
 if [ "$?" -eq 0 ];

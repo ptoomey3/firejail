@@ -7,6 +7,14 @@ match_max 100000
 send -- "ssh bingo@0\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
+	"password:" {
+		puts "(TESTING)"
+		expect_user -re "(.*)\n"
+		send_user "\n"
+		stty echo
+		set pass $expect_out(1,string)
+		send -- "$pass\r"
+	}	
 	"Child process initialized"
 }
 sleep 1

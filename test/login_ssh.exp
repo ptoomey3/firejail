@@ -8,12 +8,15 @@ send -- "ssh bingo@0\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"password:" {
-		puts "(TESTING)"
+		puts "\nTESTING: please enter SSH password"
+		set oldmode [stty -echo -raw]
 		expect_user -re "(.*)\n"
 		send_user "\n"
-		stty echo
+		eval stty $oldmode
+#		stty echo
 		set pass $expect_out(1,string)
 		send -- "$pass\r"
+		puts "TESTING: password sent to the server"
 	}	
 	"Child process initialized"
 }

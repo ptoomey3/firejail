@@ -15,7 +15,3 @@
 (as root)
 # firejail --net=br0 "/etc/init.d/ssh start && sleep inf"
 # echo "firejail --net=br0 '/etc/init.d/ssh start && sleep inf'" | at 0904
-
-* test profile file access
-$ firejail --profile=/etc/shadow
-

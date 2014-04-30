@@ -204,6 +204,23 @@ void fs_rdonly(const char *dir) {
 			errExit("mount read-only");
 	}
 }
+void fs_rdonly_noexit(const char *dir) {
+	assert(dir);
+	// check directory exists
+	struct stat s;
+	int rv = stat(dir, &s);
+	if (rv == 0) {
+		int merr = 0;
+		// mount --bind /bin /bin
+		if (mount(dir, dir, NULL, MS_BIND|MS_REC, NULL) < 0)
+			merr = 1;
+		// mount --bind -o remount,ro /bin
+		if (mount(NULL, dir, NULL, MS_BIND|MS_REMOUNT|MS_RDONLY|MS_REC, NULL) < 0)
+			merr = 1;
+		if (merr)
+			fprintf(stderr, "Warning: cannot mount %s read-only\n", dir); 
+	}
+}
 
 // mount /proc and /sys directories
 void fs_proc_sys(void) {
@@ -220,6 +237,17 @@ void fs_proc_sys(void) {
 
 	//	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
 	//		errExit("/sys");
+
+	// Disable SysRq
+	// a linux box can be shut down easilliy using the following commands (as root):
+	// # echo 1 > /proc/sys/kernel/sysrq
+	// #echo b > /proc/sysrq-trigger
+	// for more information see https://www.kernel.org/doc/Documentation/sysrq.txt
+	fs_rdonly_noexit("/proc/sysrq-trigger");
+	
+	// disable hotplug and uevent_helper
+	fs_rdonly_noexit("/proc/sys/kernel/hotplug");
+	fs_rdonly_noexit("/sys/kernel/uevent_helper");
 }
 
 static void resolve_run_shm(void) {

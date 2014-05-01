@@ -1,0 +1,28 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send -- "firejail firefox www.gentoo.org\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 10
+
+spawn $env(SHELL)
+send -- "firejail --list\r"
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"root:firejail"
+}
+expect {
+	timeout {puts "TESTING ERROR 3.1\n";exit}
+	"firefox"
+}
+sleep 1
+
+
+puts "\n"
+

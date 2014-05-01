@@ -15,6 +15,13 @@ echo "TESTING: man"
 echo "TESTING: list"
 ./option_list.exp
 
+grep "Ubuntu" /etc/os-release
+if [ "$?" -eq 0 ];
+then
+	echo "TESTING: firefox"
+	./firefox.exp
+fi
+
 echo "TESTING: PID"
 ./pid.exp
 

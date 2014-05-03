@@ -432,6 +432,13 @@ static void resolve_run_shm(void) {
 			errExit("chown");
 		unlink("/tmp/resolv.conf");
 	}
+	
+	if (!is_link("/var/tmp")) {
+		if (arg_debug)
+			printf("Mounting tmpfs on /var/tmp\n");
+		if (mount("tmpfs", "/var/tmp", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting /dev/shm");
+	}	
 }
 
 // build a basic read-only filesystem

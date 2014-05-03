@@ -11,8 +11,7 @@ if { $argc != 1 } {
 	exit
 }
 
-exit
-# testing profiel and private
+# testing profile and private
 send -- "firejail --private --profile=/etc/firejail/firefox.profile\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}

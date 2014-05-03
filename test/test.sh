@@ -54,6 +54,18 @@ then
 	./fs_overlay.exp
 fi
 
+echo "TESTING: read/write /var/tmp"
+./fs_var_tmp.exp
+
+echo "TESTING: read/write /var/run"
+./fs_var_run.exp
+
+echo "TESTING: read/write /var/lock"
+./fs_var_lock.exp
+
+echo "TESTING: read/write /dev/shm"
+./fs_dev_shm.exp
+
 echo "TESTING: local network"
 ./net_local.exp
 

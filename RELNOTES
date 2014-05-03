@@ -1,3 +1,12 @@
+ffirejail (0.9.2) baseline; urgency=low
+
+  * Fix resolv.conf setup on Ubuntu systems
+  * Fix /var/lock directory
+  * Fix /var/tmp directory
+  * added profiles for evince, midori
+
+ -- netblue30 <netblue30@yahoo.com>  Mon, 5 May 2014 08:00:00 -0500
+
 firejail (0.9.2) baseline; urgency=low
 
   * Checking IP address passed with --ip option using ARP; exit if the address

@@ -4,14 +4,19 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
-send -- "firejail\r"
+send -- "firejail --chroot=/tmp/chroot\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"Child process initialized"
 }
 sleep 1
 
-# test processes
+send -- "cd ~;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"netblue"
+}
+sleep 1
 send -- "bash\r"
 sleep 1
 send -- "ps aux; pwd\r"
@@ -46,3 +51,4 @@ expect {
 sleep 1
 
 puts "\n"
+

@@ -37,6 +37,9 @@ echo "TESTING: profile read-only"
 echo "TESTING: profile tmpfs"
 ./profile_tmpfs.exp
 
+echo "TESTING: profile applications"
+./profile_apps.exp
+
 echo "TESTING: private"
 ./private.exp `whoami`
 
@@ -53,6 +56,9 @@ then
 	echo "TESTING: overlayfs"
 	./fs_overlay.exp
 fi
+
+echo "TESTING: chroot"
+./fs_chroot.exp
 
 echo "TESTING: read/write /var/tmp"
 ./fs_var_tmp.exp

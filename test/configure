@@ -9,3 +9,24 @@ ifconfig br2 10.10.40.1/24 up
 brctl addbr br3
 ifconfig br3 10.10.50.1/24 up
 
+
+# build a very small chroot
+ROOTDIR="/tmp/chroot"			# default chroot directory
+DEFAULT_FILES="/bin/bash /bin/sh "	# basic chroot files
+DEFAULT_FILES+="/etc/passwd /etc/nsswitch.conf /etc/group "
+DEFAULT_FILES+=`find /lib -name libnss*`	# files required by glibc
+DEFAULT_FILES+=" /bin/ls /bin/cat /bin/ps /usr/bin/id /usr/bin/whoami /usr/bin/wc "
+
+rm -fr $ROOTDIR
+mkdir -p $ROOTDIR/{root,bin,lib,lib64,usr,home,etc,dev/shm,tmp,var/run,var/tmp,var/lock,proc,home/netblue}
+SORTED=`for FILE in $* $DEFAULT_FILES; do echo " $FILE "; ldd $FILE | grep -v dynamic | cut -d " " -f 3; done | sort -u`
+for FILE in $SORTED
+do
+	cp --parents $FILE $ROOTDIR
+done
+cp --parents /lib64/ld-linux-x86-64.so.2 $ROOTDIR
+#cp --parents /lib/ld-linux.so.2 $ROOTDIR
+
+cd $ROOTDIR; find .
+
+echo "To enter the chroot directory run: firejail --chroot=$ROOTDIR"

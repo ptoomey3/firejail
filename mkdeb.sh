@@ -35,6 +35,8 @@ mkdir -p $DEBIAN_CTRL_DIR
 sed "s/FIREJAILVER/$2/g"  platform/debian/control > $DEBIAN_CTRL_DIR/control
 mkdir -p debian/etc/firejail
 cp etc/firefox.profile debian/etc/firejail/.
+cp etc/evince.profile debian/etc/firejail/.
+cp etc/midori.profile debian/etc/firejail/.
 cp debian/etc/firejail/firefox.profile debian/etc/firejail/iceweasel.profile
 cp etc/login* debian/etc/firejail/.
 cp platform/debian/conffiles $DEBIAN_CTRL_DIR/.

@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
 			return 0;
 		}
 		if (strcmp(argv[i], "--version") == 0) {
-			printf("firejail - version %s\n\n", VERSION);
+			printf("firemon version %s\n\n", VERSION);
 			return 0;
 		}
 	}

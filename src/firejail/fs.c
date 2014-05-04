@@ -357,7 +357,7 @@ static void resolve_run_shm(void) {
 	if (is_dir("/var/lock")) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/lock\n");
-		if (mount("tmpfs", "/lock", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+		if (mount("tmpfs", "/var/lock", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 			errExit("mounting /lock");
 	}
 	else {

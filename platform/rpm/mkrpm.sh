@@ -9,29 +9,32 @@ EOF
 
 cd ~/rpmbuild
 
-mkdir -p firejail-0.9.2/usr/bin
-install -m 755 /usr/bin/firejail firejail-0.9.2/usr/bin/.
-install -m 755 /usr/bin/firemon firejail-0.9.2/usr/bin/.
+mkdir -p firejail-0.9.4/usr/bin
+install -m 755 /usr/bin/firejail firejail-0.9.4/usr/bin/.
+install -m 755 /usr/bin/firemon firejail-0.9.4/usr/bin/.
 
-mkdir -p firejail-0.9.2/usr/share/man/man1
-install -m 644 /usr/share/man/man1/firejail.1.gz firejail-0.9.2/usr/share/man/man1/.
-install -m 644 /usr/share/man/man1/firemon.1.gz firejail-0.9.2/usr/share/man/man1/.
+mkdir -p firejail-0.9.4/usr/share/man/man1
+install -m 644 /usr/share/man/man1/firejail.1.gz firejail-0.9.4/usr/share/man/man1/.
+install -m 644 /usr/share/man/man1/firemon.1.gz firejail-0.9.4/usr/share/man/man1/.
 
-mkdir -p firejail-0.9.2/usr/share/doc/packages/firejail
-install -m 644 /usr/share/doc/firejail/COPYING firejail-0.9.2/usr/share/doc/packages/firejail/.
-install -m 644 /usr/share/doc/firejail/README firejail-0.9.2/usr/share/doc/packages/firejail/.
-install -m 644 /usr/share/doc/firejail/RELNOTES firejail-0.9.2/usr/share/doc/packages/firejail/.
+mkdir -p firejail-0.9.4/usr/share/doc/packages/firejail
+install -m 644 /usr/share/doc/firejail/COPYING firejail-0.9.4/usr/share/doc/packages/firejail/.
+install -m 644 /usr/share/doc/firejail/README firejail-0.9.4/usr/share/doc/packages/firejail/.
+install -m 644 /usr/share/doc/firejail/RELNOTES firejail-0.9.4/usr/share/doc/packages/firejail/.
 
-mkdir -p firejail-0.9.2/etc/firejail
-install -m 644 /etc/firejail/firefox.profile firejail-0.9.2/etc/firejail/firefox.profile
-install -m 644 /etc/firejail/login.users firejail-0.9.2/etc/firejail/login.users
+mkdir -p firejail-0.9.4/etc/firejail
+install -m 644 /etc/firejail/firefox.profile firejail-0.9.4/etc/firejail/firefox.profile
+install -m 644 /etc/firejail/evince.profile firejail-0.9.4/etc/firejail/evince.profile
+install -m 644 /etc/firejail/midori.profile firejail-0.9.4/etc/firejail/midori.profile
 
-mkdir -p firejail-0.9.2//usr/share/bash-completion/completions
-install -m 644 /usr/share/bash-completion/completions/firejail  firejail-0.9.2//usr/share/bash-completion/completions/.
+install -m 644 /etc/firejail/login.users firejail-0.9.4/etc/firejail/login.users
 
-tar -czvf firejail-0.9.2.tar.gz firejail-0.9.2
+mkdir -p firejail-0.9.4//usr/share/bash-completion/completions
+install -m 644 /usr/share/bash-completion/completions/firejail  firejail-0.9.4//usr/share/bash-completion/completions/.
 
-cp firejail-0.9.2.tar.gz SOURCES/.
+tar -czvf firejail-0.9.4.tar.gz firejail-0.9.4
+
+cp firejail-0.9.4.tar.gz SOURCES/.
 
 cat <<EOF > SPECS/firejail.spec
 %define        __spec_install_post %{nil}
@@ -40,7 +43,7 @@ cat <<EOF > SPECS/firejail.spec
 
 Summary: Linux namepaces sandbox program
 Name: firejail
-Version: 0.9.2
+Version: 0.9.4
 Release: 1
 License: GPL+
 Group: Development/Tools
@@ -73,6 +76,8 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/%{name}/firefox.profile
+%config(noreplace) %{_sysconfdir}/%{name}/midori.profile
+%config(noreplace) %{_sysconfdir}/%{name}/evince.profile
 %config(noreplace) %{_sysconfdir}/%{name}/login.users
 %{_bindir}/*
 %{_docdir}/*
@@ -83,6 +88,14 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Sun May 5 2014  netblue30 <netblue30@yahoo.com> 0.9.4-1
+ - Fixed resolv.conf on Ubuntu systems using DHCP
+ - Fixed resolv.conf on Debian systems using resolvconf package
+ - Fixed /var/lock directory
+ - Fixed /var/tmp directory
+ - Fixed symbolic links in profile files
+ - Added profiles for evince, midori
+
 * Fri Apr 25 2014  netblue30 <netblue30@yahoo.com> 0.9.2-1
 - Checking IP address passed with --ip option using ARP; exit if the address
    is already present
@@ -105,7 +118,7 @@ chmod u+s /usr/bin/firejail
 EOF
 
 rpmbuild -ba SPECS/firejail.spec
-rpm -qpl RPMS/x86_64/firejail-0.9.2-1.x86_64.rpm
+rpm -qpl RPMS/x86_64/firejail-0.9.4-1.x86_64.rpm
 cd ..
-rm -f firejail-0.9.2-1.x86_64.rpm
-cp rpmbuild/RPMS/x86_64/firejail-0.9.2-1.x86_64.rpm .
+rm -f firejail-0.9.4-1.x86_64.rpm
+cp rpmbuild/RPMS/x86_64/firejail-0.9.4-1.x86_64.rpm .

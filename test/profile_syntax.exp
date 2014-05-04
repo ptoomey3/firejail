@@ -32,24 +32,36 @@ expect {
 }
 
 sleep 1
-send -- "ls -l /bin/rmdir\r"
+send -- "rmdir;pwd\r"
 expect {
-	timeout {puts "TESTING ERROR 3\n";exit}
-	"root root 0"
+	timeout {puts "TESTING ERROR 4\n";exit}
+	"Permission denied"
+}
+expect {
+	timeout {puts "TESTING ERROR 5\n";exit}
+	"home"
 }
 
 sleep 1
-send -- "ls -l /bin/mount\r"
+send -- "mount;pwd\r"
 expect {
-	timeout {puts "TESTING ERROR 3\n";exit}
-	"root root 0"
+	timeout {puts "TESTING ERROR 6\n";exit}
+	"Permission denied"
+}
+expect {
+	timeout {puts "TESTING ERROR 7\n";exit}
+	"home"
 }
 
 sleep 1
-send -- "ls -l /bin/umount\r"
+send -- "umount;pwd\r"
 expect {
-	timeout {puts "TESTING ERROR 3\n";exit}
-	"root root 0"
+	timeout {puts "TESTING ERROR 8\n";exit}
+	"Permission denied"
+}
+expect {
+	timeout {puts "TESTING ERROR 9\n";exit}
+	"home"
 }
 
 sleep 1

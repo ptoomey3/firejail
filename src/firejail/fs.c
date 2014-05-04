@@ -45,22 +45,21 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 	assert(emptyfile);
 	assert(op <OPERATION_MAX);
 
-	// if the file is not present, do nothing
-	struct stat s;
-	if (stat(fname, &s) == -1)
-		return;
-	
 	// if the file is a link, follow the link
 	char *lnk = NULL;
 	if (is_link(fname)) {
-printf("here1\n");		
-		lnk = get_link("/etc/resolv.conf");
+		lnk = get_link(fname);
 		if (lnk)
 			fname = lnk;
 		else
 			fprintf(stderr, "Warning: cannot follow link %s, skipping...\n", fname);
 	}
 	
+	// if the file is not present, do nothing
+	struct stat s;
+	if (stat(fname, &s) == -1)
+		return;
+
 	// modify the file
 	if (op == BLACKLIST_FILE) {
 		if (arg_debug)
@@ -132,7 +131,6 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 	char *emptydir;
 	char *emptyfile;
 	assert(tmpdir);
-printf("here2\n");
 
 	// create read-only root directory
 	if (asprintf(&emptydir, "%s/firejail.ro.dir", tmpdir) == -1)

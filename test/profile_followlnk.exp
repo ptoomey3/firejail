@@ -13,7 +13,7 @@ sleep 1
 send -- "ln -s /tmp/firejailtestfile /tmp/firejailtestfilelnk\r"
 sleep 1
 
-send -- "firejail --profile=readonly-lnk.profile\r"
+send -- "firejail --profile=readonly-lnk.profile --debug\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"Child process initialized"

@@ -45,38 +45,55 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 	assert(emptyfile);
 	assert(op <OPERATION_MAX);
 
+	// if the file is not present, do nothing
 	struct stat s;
-	if (stat(fname, &s) == 0) {
-		if (op == BLACKLIST_FILE) {
-			if (arg_debug)
-				printf("Disabling %s\n", fname);
-			if (S_ISDIR(s.st_mode)) {
-				if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
-					errExit("disable file");
-			}
-			else {
-				if (mount(emptyfile, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
-					errExit("disable file");
-			}
+	if (stat(fname, &s) == -1)
+		return;
+	
+	// if the file is a link, follow the link
+	char *lnk = NULL;
+	if (is_link(fname)) {
+printf("here1\n");		
+		lnk = get_link("/etc/resolv.conf");
+		if (lnk)
+			fname = lnk;
+		else
+			fprintf(stderr, "Warning: cannot follow link %s, skipping...\n", fname);
+	}
+	
+	// modify the file
+	if (op == BLACKLIST_FILE) {
+		if (arg_debug)
+			printf("Disabling %s\n", fname);
+		if (S_ISDIR(s.st_mode)) {
+			if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
+				errExit("disable file");
 		}
-		else if (op == MOUNT_READONLY) {
-			if (arg_debug)
-				printf("Mounting read-only %s\n", fname);
-			fs_rdonly(fname);
+		else {
+			if (mount(emptyfile, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
+				errExit("disable file");
 		}
-		else if (op == MOUNT_TMPFS) {
-			if (S_ISDIR(s.st_mode)) {
-				if (arg_debug)
-					printf("Mounting tmpfs on %s\n", fname);
-				if (mount("tmpfs", fname, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755") < 0)
-					errExit("mounting tmpfs");
-			}
-			else
-				printf("Warning: %s is not a directory; cannot mount a tmpfs on top of it.\n", fname);
+	}
+	else if (op == MOUNT_READONLY) {
+		if (arg_debug)
+			printf("Mounting read-only %s\n", fname);
+		fs_rdonly(fname);
+	}
+	else if (op == MOUNT_TMPFS) {
+		if (S_ISDIR(s.st_mode)) {
+			if (arg_debug)
+				printf("Mounting tmpfs on %s\n", fname);
+			if (mount("tmpfs", fname, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755") < 0)
+				errExit("mounting tmpfs");
 		}
 		else
-			ASSERT(0);
+			printf("Warning: %s is not a directory; cannot mount a tmpfs on top of it.\n", fname);
 	}
+	else
+		ASSERT(0);
+
+	if (lnk)
+		free(lnk);
 }
 
 static void globbing(OPERATION op, const char *fname, const char *emptydir, const char *emptyfile) {
@@ -115,6 +132,7 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 	char *emptydir;
 	char *emptyfile;
 	assert(tmpdir);
+printf("here2\n");
 
 	// create read-only root directory
 	if (asprintf(&emptydir, "%s/firejail.ro.dir", tmpdir) == -1)
@@ -282,31 +300,31 @@ static void resolve_run_shm(void) {
 				free(lnk);
 			}
 		}
-
-		if (is_link("/etc/resolv.conf")) {
-			lnk = get_link("/etc/resolv.conf");
-			if (lnk) {
-				printf("/etc/resolv.conf is a symbolic link to %s\n", lnk);
-				free(lnk);
-			}
-		}
-	}
-
-	// grab a copy of resolv.conf in case it is a symbolic link into /run directory - Ubuntu  is running such a setting
-	int use_resolv_conf = 0;
-	if (is_link("/etc/resolv.conf")) {
-		char *lnk = get_link("/etc/resolv.conf");
-		if (lnk && strcmp(lnk, "../run/resolvconf/resolv.conf") == 0) {
-			int rv = copy_file("/run/resolvconf/resolv.conf", "/tmp/resolv.conf");
-			if (rv == -1)
-				fprintf(stderr,"Warning: /etc/resolv.conf not initialized\n");
-			else
-				use_resolv_conf = 1;
-		}
-		if (lnk)
-			free(lnk);
 	}
 	
+	int run_resolv_conf = 0; // resolv.conf detected under /run/resolvconf directory
+	// grab a copy of resolv.conf in case it is a symbolic link into /run directory
+	// - setting found in Ubuntu
+	// - setting found in Debian when resolvconf package is installed
+	if (is_link("/etc/resolv.conf")) {
+		char *lnk = get_link("/etc/resolv.conf");
+		if (lnk) {
+			if (arg_debug)
+				printf("/etc/resolv.conf is a symbolic link to %s\n", lnk);
+			struct stat s;
+			if (stat("/run/resolvconf/resolv.conf", &s) == 0) {
+				if (arg_debug)
+					printf("Found /run/resolvconf/resolv.conf\n");
+				int rv = copy_file("/run/resolvconf/resolv.conf", "/tmp/resolv.conf");
+				if (rv == -1)
+					fprintf(stderr,"Warning: /etc/resolv.conf not initialized\n");
+				else
+					run_resolv_conf = 1;
+			}
+			free(lnk);
+		}
+	}
+
 	if (is_dir("/var/run")) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/run\n");
@@ -417,7 +435,7 @@ static void resolve_run_shm(void) {
 	}
 	
 	// restore resolv.conf
-	if (use_resolv_conf) {
+	if (run_resolv_conf) {
 		// create directory
 		if (mkdir("/run/resolvconf", S_IRWXU|S_IRWXG|S_IRWXO))
 			errExit("mkdir");
@@ -431,6 +449,8 @@ static void resolve_run_shm(void) {
 		if (chown("/run/resolvconf/resolv.conf", 0, 0))
 			errExit("chown");
 		unlink("/tmp/resolv.conf");
+		if (arg_debug)
+			printf("Updated /run/resolvconf/resolv.conf\n");
 	}
 	
 	if (!is_link("/var/tmp")) {

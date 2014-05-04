@@ -105,6 +105,8 @@ void profile_read(const char *fname) {
 		exit(1);
 	}
 
+	printf("Reading %s\n", fname);
+
 	// linked list of lines
 	struct mylist {
 		char *line;

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ */
 #define _GNU_SOURCE
 #include <sys/utsname.h>
 #include <sched.h>
@@ -35,25 +35,24 @@
 #ifdef USELOCK
 #include <sys/file.h>
 #endif
-
+#include <sys/prctl.h>
 
 #include "firejail.h"
 #include "../include/pid.h"
 
 #define STACK_SIZE (1024 * 1024)
-static char child_stack[STACK_SIZE];	// space for child's stack
-Config cfg;			// configuration
-int arg_private = 0;		// mount private /home and /tmp directoryu
-int arg_debug = 0;		// print debug messages
-int arg_nonetwork = 0;		// --net=none
-int arg_noip = 0;			// --ip=none
-int arg_command = 0;		// -c
-int arg_overlay = 0;		// --overlay
-int fds[2];			// parent-child communication pipe
+static char child_stack[STACK_SIZE];		  // space for child's stack
+Config cfg;					  // configuration
+int arg_private = 0;				  // mount private /home and /tmp directoryu
+int arg_debug = 0;				  // print debug messages
+int arg_nonetwork = 0;				  // --net=none
+int arg_noip = 0;				  // --ip=none
+int arg_command = 0;				  // -c
+int arg_overlay = 0;				  // --overlay
+int fds[2];					  // parent-child communication pipe
 
-char *fullargv[MAX_ARGS]; // expanded argv for restricted shell
+char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell
 int fullargc = 0;
-
 
 static void extract_user_data(void) {
 	// check suid
@@ -82,10 +81,11 @@ static void extract_user_data(void) {
 	}
 }
 
+
 static void configure_bridge(Bridge *br, char *name) {
 	assert(br);
 	assert(name);
-	
+
 	br->dev = name;
 
 	// check the bridge device exists
@@ -104,8 +104,8 @@ static void configure_bridge(Bridge *br, char *name) {
 	if (arg_debug)
 		printf("Bridge device %s at %d.%d.%d.%d/%d\n",
 			br->dev, PRINT_IP(br->ip), mask2bits(br->mask));
-	
-	uint32_t range = ~br->mask + 1; // the number of potential addresses
+
+	uint32_t range = ~br->mask + 1;		  // the number of potential addresses
 	// this software is not supported for /31 networks
 	if (range < 4) {
 		fprintf(stderr, "Error: the software is not supported for /31 networks\n");
@@ -114,11 +114,12 @@ static void configure_bridge(Bridge *br, char *name) {
 	br->configured = 1;
 }
 
+
 static void configure_ip(Bridge *br) {
 	assert(br);
 	if (br->configured == 0)
 		return;
-		
+
 	if (arg_noip);
 	else if (br->ipaddress) {
 		// check network range
@@ -137,6 +138,7 @@ static void configure_ip(Bridge *br) {
 		br->ipaddress = arp_assign(br->dev, br->ip, br->mask);
 }
 
+
 static void configure_veth_pair(Bridge *br, const char *ifname, pid_t child) {
 	assert(br);
 	if (br->configured == 0)
@@ -150,10 +152,10 @@ static void configure_veth_pair(Bridge *br, const char *ifname, pid_t child) {
 
 	// bring up the interface
 	net_if_up(dev);
-		
-		// add interface to the bridge
+
+	// add interface to the bridge
 	net_bridge_add_interface(br->dev, dev);
-	
+
 	char *msg;
 	if (asprintf(&msg, "%d.%d.%d.%d address assigned to sandbox", PRINT_IP(br->ipaddress)) == -1)
 		errExit("asprintf");
@@ -162,6 +164,7 @@ static void configure_veth_pair(Bridge *br, const char *ifname, pid_t child) {
 	free(msg);
 }
 
+
 static void bridge_wait_ip(Bridge *br) {
 	assert(br);
 	if (br->configured == 0)
@@ -169,12 +172,13 @@ static void bridge_wait_ip(Bridge *br) {
 
 	// wait for the ip address to come up
 	int cnt = 0;
-	while (cnt < 5) { // arp_check has a 1s wait
+	while (cnt < 5) {			  // arp_check has a 1s wait
 		if (arp_check(br->dev, br->ipaddress, br->ip) == 0)
 			break;
 		cnt++;
 	}
 }
+
 
 static inline Bridge *last_bridge_configured(void) {
 	if (cfg.bridge3.configured)
@@ -189,9 +193,10 @@ static inline Bridge *last_bridge_configured(void) {
 		return NULL;
 }
 
+
 void check_default_gw(uint32_t defaultgw) {
 	assert(defaultgw);
-	
+
 	if (cfg.bridge0.configured) {
 		char *rv = in_netrange(defaultgw, cfg.bridge0.ip, cfg.bridge0.mask);
 		if (rv == 0)
@@ -212,25 +217,25 @@ void check_default_gw(uint32_t defaultgw) {
 		if (rv == 0)
 			return;
 	}
-	
+
 	fprintf(stderr, "Error: default gateway %d.%d.%d.%d is not in the range of any network\n", PRINT_IP(defaultgw));
 	exit(1);
 }
-	
+
 
 //*******************************************
 // Main program
 //*******************************************
 int main(int argc, char **argv) {
 	int i;
-	int prog_index = -1;		// index in argv where the program command starts
+	int prog_index = -1;			  // index in argv where the program command starts
 	int set_exit = 0;
 #ifdef USELOCK
 	int lockfd = -1;
-#endif		
+#endif
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
-	const pid_t ppid = getppid();	
+	const pid_t ppid = getppid();
 	const pid_t mypid = getpid();
 
 	// is this a login shell?
@@ -240,7 +245,7 @@ int main(int argc, char **argv) {
 			int j;
 			for (i = 1, j = fullargc; i < argc && j < MAX_ARGS; i++, j++, fullargc++)
 				fullargv[j] = argv[i];
-				
+
 			// replace argc/argv with fullargc/fullargv
 			argv = fullargv;
 			argc = j;
@@ -253,7 +258,7 @@ int main(int argc, char **argv) {
 		// basic arguments
 		//*************************************
 		if (strcmp(argv[i], "--help") == 0 ||
-		    strcmp(argv[i], "-?") == 0) {
+		strcmp(argv[i], "-?") == 0) {
 			usage();
 			exit(0);
 		}
@@ -276,7 +281,7 @@ int main(int argc, char **argv) {
 			errno = 0;
 			pid_t pid = strtol(argv[i] + 7, &endptr, 10);
 			if ((errno == ERANGE && (pid == LONG_MAX || pid == LONG_MIN))
-				|| (errno != 0 && pid == 0)) {
+			|| (errno != 0 && pid == 0)) {
 				fprintf(stderr, "Error: invalid process ID\n");
 				exit(1);
 			}
@@ -284,13 +289,13 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: invalid process ID\n");
 				exit(1);
 			}
-			
+
 			logmsg(pid_proc_cmdline(mypid));
 			join(pid, cfg.homedir);
 			// it will never get here!!!
 			exit(0);
 		}
-		
+
 		//*************************************
 		// filesystem
 		//*************************************
@@ -320,7 +325,7 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 		}
-		
+
 		//*************************************
 		// network
 		//*************************************
@@ -357,7 +362,7 @@ int main(int argc, char **argv) {
 			configure_bridge(br, argv[i] + 6);
 		}
 		else if (strcmp(argv[i], "--noip") == 0)
-				arg_noip = 1;
+			arg_noip = 1;
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();
 			if (br == NULL) {
@@ -392,7 +397,7 @@ int main(int argc, char **argv) {
 			if (asprintf(&cfg.command_name, "%s", argv[i]) == -1)
 				errExit("asprintf");
 			prog_index = i;
-			break;		
+			break;
 		}
 	}
 
@@ -402,16 +407,17 @@ int main(int argc, char **argv) {
 		int i;
 		int len = 0;
 		for (i = 1; i < fullargc; i++)
-			len += strlen(fullargv[i]) + 1; // + ' '
+						  // + ' '
+				len += strlen(fullargv[i]) + 1;
 		char cmd[len + 50];
 		strcpy(cmd, "expanded args: ");
 		char *ptr = cmd + strlen(cmd);
 		for (i = 1; i < fullargc; i++) {
 			sprintf(ptr, "%s ", fullargv[i]);
 			ptr += strlen(ptr);
-		} 
+		}
 		logmsg(cmd);
-		
+
 		char *msg;
 		if (asprintf(&msg, "user %s entering restricted shell", cfg.username) == -1)
 			errExit("asprintf");
@@ -432,10 +438,12 @@ int main(int argc, char **argv) {
 		int len = 0;
 		int argcnt = argc - prog_index;
 		for (i = 0; i < argcnt; i++)
-			len += strlen(argv[i + prog_index]) + 1; // + ' '
-		
+						  // + ' '
+			len += strlen(argv[i + prog_index]) + 1;
+
 		// build the string
-		cfg.command_line = malloc(len + 1); // + '\0'
+						  // + '\0'
+		cfg.command_line = malloc(len + 1);
 		if (!cfg.command_line)
 			errExit("malloc");
 		char *ptr = cfg.command_line;
@@ -444,8 +452,6 @@ int main(int argc, char **argv) {
 			ptr += strlen(ptr);
 		}
 	}
-
-
 
 	// check and assign an IP address
 	if (any_bridge_configured()) {
@@ -464,19 +470,19 @@ int main(int argc, char **argv) {
 		if (cfg.defaultgw)
 			check_default_gw(cfg.defaultgw);
 
-		configure_ip(&cfg.bridge0);	
-		configure_ip(&cfg.bridge1);	
-		configure_ip(&cfg.bridge2);	
-		configure_ip(&cfg.bridge3);	
+		configure_ip(&cfg.bridge0);
+		configure_ip(&cfg.bridge1);
+		configure_ip(&cfg.bridge2);
+		configure_ip(&cfg.bridge3);
 	}
 
 	// create the parrent-child communication pipe
 	if (pipe(fds) < 0)
 		errExit("pipe");
-	
+
 	if (set_exit)
 		set_exit_parent(getpid(), arg_overlay);
-	
+
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
 	if (any_bridge_configured() || arg_nonetwork) {
@@ -484,7 +490,7 @@ int main(int argc, char **argv) {
 	}
 	else if (arg_debug)
 		printf("Using the local network stack\n");
-		
+
 	const pid_t child = clone(sandbox,
 		child_stack + STACK_SIZE,
 		flags,
@@ -494,7 +500,7 @@ int main(int argc, char **argv) {
 
 	if (!arg_command)
 		printf("Parent pid %u, child pid %u\n", mypid, child);
-	
+
 	// create veth pair
 	if (any_bridge_configured() && !arg_nonetwork) {
 		configure_veth_pair(&cfg.bridge0, "eth0", child);
@@ -510,14 +516,14 @@ int main(int argc, char **argv) {
 	fprintf(stream, "%u\n", child);
 	fflush(stream);
 	close(fds[1]);
-	
+
 #ifdef USELOCK
 	if (lockfd != -1) {
-		bridge_wait_ip(&cfg.bridge0);		
-		bridge_wait_ip(&cfg.bridge1);		
-		bridge_wait_ip(&cfg.bridge2);		
-		bridge_wait_ip(&cfg.bridge3);		
-		flock(lockfd, LOCK_UN);	
+		bridge_wait_ip(&cfg.bridge0);
+		bridge_wait_ip(&cfg.bridge1);
+		bridge_wait_ip(&cfg.bridge2);
+		bridge_wait_ip(&cfg.bridge3);
+		flock(lockfd, LOCK_UN);
 	}
 #endif
 
@@ -528,6 +534,8 @@ int main(int argc, char **argv) {
 		logmsg(msg);
 		free(msg);
 	}
+	
+	
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
 	logmsg("exiting...");

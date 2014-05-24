@@ -455,8 +455,10 @@ static void resolve_run_shm(void) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/tmp\n");
 		if (mount("tmpfs", "/var/tmp", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mounting /dev/shm");
-	}	
+			errExit("mounting /var/tmp");
+	}
+	
+	
 }
 
 // build a basic read-only filesystem
@@ -472,6 +474,7 @@ void fs_basic_fs(void) {
 	fs_rdonly("/etc");
 	fs_rdonly("/var");
 	resolve_run_shm();
+	fs_varlog();
 }
 
 

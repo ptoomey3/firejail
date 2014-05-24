@@ -200,4 +200,7 @@ extern char *tmpdir; // temporary directory
 void set_exit_parent(pid_t pid, int nocleanup);
 void bye_parent(void);
 
+// fs_varlog.c
+void fs_varlog(void);
+
 #endif

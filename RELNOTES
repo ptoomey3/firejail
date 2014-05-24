@@ -1,3 +1,6 @@
+ * Mounting tmpfs on top of /var/log, required by several server programs
+
+
 firejail (0.9.4) baseline; urgency=low
 
   * Fixed resolv.conf on Ubuntu systems using DHCP

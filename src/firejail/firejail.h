@@ -201,7 +201,8 @@ void set_exit_parent(pid_t pid, int nocleanup);
 void bye_parent(void);
 
 // fs_varlog.c
-void fs_varlog(void);
-void fs_varlib(void);
-
+void fs_var_log(void);	// mounting /var/log
+void fs_var_lib(void);	// mounting /var/lib
+void fs_var_run_shm(void);	// mounting /var/run, /var/lock, /dev/shm, /etc/resolv.conf, /var/tmp
+void fs_var_fixes(void);	// various other fixes for software in /var directory
 #endif

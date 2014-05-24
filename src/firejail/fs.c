@@ -475,9 +475,8 @@ void fs_basic_fs(void) {
 	fs_rdonly("/var");
 	resolve_run_shm();
 	fs_varlog();
+	fs_varlib();
 }
-
-
 
 // private mode: mount tmpfs over /home and /tmp
 void fs_private(const char *homedir) {

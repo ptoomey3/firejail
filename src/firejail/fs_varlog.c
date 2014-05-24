@@ -46,12 +46,13 @@ static void release_all(void) {
 		free(ptr);
 		ptr = next;
 	}
+	dirlist = NULL;
 }
 	
-void fs_varlog(void) {
+static void build_list(const char *srcdir) {
 	// extract current /var/log directory data
 	struct dirent *dir;
-	DIR *d = opendir( "/var/log" );
+	DIR *d = opendir(srcdir);
 	if (d == NULL)
 		return;
 
@@ -60,14 +61,17 @@ void fs_varlog(void) {
 			continue;
 
 		if (dir->d_type == DT_DIR ) {
-
 			// get properties
 			struct stat s;
 			char *name;
-			if (asprintf(&name, "/var/log/%s", dir->d_name) == -1)
+			if (asprintf(&name, "%s/%s", srcdir, dir->d_name) == -1)
 				continue;
 			if (stat(name, &s) == -1)
 				continue;
+			if (S_ISLNK(s.st_mode)) {
+				free(name);
+				continue;
+			}
 
 //			printf("directory %u %u:%u %s\n",
 //				s.st_mode,
@@ -88,13 +92,9 @@ void fs_varlog(void) {
 		}			
 	}
 	closedir(d);
-	
-	// mount a tmpfs on top of /var/log
-	if (arg_debug)
-		printf("Mounting tmpfs on /var/log\n");
-	if (mount("tmpfs", "/var/log", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("mounting /var/log");
-	
+}
+
+static void build_dirs(viod) {
 	// create directories under /var/log
 	DirData *ptr = dirlist;
 	while (ptr) {
@@ -104,7 +104,30 @@ void fs_varlog(void) {
 			errExit("chown");
 		ptr = ptr->next;
 	}
+}
 	
-	// release all memory
+void fs_varlog(void) {
+	build_list("/var/log");
+	
+	// mount a tmpfs on top of /var/log
+	if (arg_debug)
+		printf("Mounting tmpfs on /var/log\n");
+	if (mount("tmpfs", "/var/log", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+		errExit("mounting /var/log");
+	
+	build_dirs();
+	release_all();
+}
+
+void fs_varlib(void) {
+	build_list("/var/lib");
+	
+	// mount a tmpfs on top of /var/log
+	if (arg_debug)
+		printf("Mounting tmpfs on /var/lib\n");
+	if (mount("tmpfs", "/var/lib", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+		errExit("mounting /var/lib");
+	
+	build_dirs();
 	release_all();
 }

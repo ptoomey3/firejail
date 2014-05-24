@@ -202,5 +202,6 @@ void bye_parent(void);
 
 // fs_varlog.c
 void fs_varlog(void);
+void fs_varlib(void);
 
 #endif

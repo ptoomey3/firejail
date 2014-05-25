@@ -33,6 +33,7 @@ void usage(void) {
 	printf("Options:\n");
 	printf("\t-c - execute command and exit\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
+	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
 	printf("\t--defaultgw=address - use this address as default gateway in the new\n");
 	printf("\t\tnetwork namespace\n");
@@ -57,6 +58,7 @@ void usage(void) {
 	printf("\t--private - mount a new /home/user directory\n");
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--version - print program version and exit\n");
+	printf("\t--zsh - use /usr/bin/zsh as default shell\n");
 	printf("\n");
 	printf("Profile files\n\n");
 	printf("The profile files define a chroot filesystem built on top of the existing host\n");

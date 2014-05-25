@@ -49,8 +49,10 @@ int arg_nonetwork = 0;				  // --net=none
 int arg_noip = 0;				  // --ip=none
 int arg_command = 0;				  // -c
 int arg_overlay = 0;				  // --overlay
-int fds[2];					  // parent-child communication pipe
+static int arg_zsh = 0;					// use zsh as default shell
+static int arg_csh = 0;					// use csh as default shell
 
+int fds[2];					  // parent-child communication pipe
 char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell
 int fullargc = 0;
 
@@ -385,6 +387,10 @@ int main(int argc, char **argv) {
 		//*************************************
 		// command
 		//*************************************
+		else if (strcmp(argv[i], "--csh") == 0)
+			arg_csh = 1;
+		else if (strcmp(argv[i], "--zsh") == 0)
+			arg_zsh = 1;
 		else if (strcmp(argv[i], "-c") == 0) {
 			arg_command = 1;
 			if (i == (argc -  1)) {
@@ -426,7 +432,15 @@ int main(int argc, char **argv) {
 	}
 
 	// build the sandbox command
-	if (prog_index == -1) {
+	if (prog_index == -1 && arg_zsh) {
+		cfg.command_line = "/usr/bin/zsh";
+		cfg.command_name = "zsh";
+	}
+	else if (prog_index == -1 && arg_csh) {
+		cfg.command_line = "/bin/csh";
+		cfg.command_name = "csh";
+	}
+	else if (prog_index == -1) {
 		cfg.command_line = "/bin/bash";
 		cfg.command_name = "bash";
 	}
@@ -438,12 +452,10 @@ int main(int argc, char **argv) {
 		int len = 0;
 		int argcnt = argc - prog_index;
 		for (i = 0; i < argcnt; i++)
-						  // + ' '
-			len += strlen(argv[i + prog_index]) + 1;
+			len += strlen(argv[i + prog_index]) + 1; // + ' '
 
 		// build the string
-						  // + '\0'
-		cfg.command_line = malloc(len + 1);
+		cfg.command_line = malloc(len + 1); // + '\0'
 		if (!cfg.command_line)
 			errExit("malloc");
 		char *ptr = cfg.command_line;

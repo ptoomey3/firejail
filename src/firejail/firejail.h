@@ -200,9 +200,10 @@ extern char *tmpdir; // temporary directory
 void set_exit_parent(pid_t pid, int nocleanup);
 void bye_parent(void);
 
-// fs_varlog.c
+// fs_var.c
 void fs_var_log(void);	// mounting /var/log
-void fs_var_lib(void);	// mounting /var/lib
 void fs_var_run_shm(void);	// mounting /var/run, /var/lock, /dev/shm, /etc/resolv.conf, /var/tmp
-void fs_var_fixes(void);	// various other fixes for software in /var directory
+void fs_var_lib(void);	// various other fixes for software in /var directory
+void fs_var_cache(void); // various other fixes for software in /var/cache directory
+
 #endif

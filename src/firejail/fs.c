@@ -282,7 +282,7 @@ void fs_basic_fs(void) {
 	fs_var_run_shm();
 	fs_var_log();
 	fs_var_lib();
-	fs_var_fixes();
+	fs_var_cache();
 }
 
 // private mode: mount tmpfs over /home and /tmp
@@ -403,3 +403,4 @@ void fs_chroot(const char *rootdir) {
 	if (chroot(rootdir) < 0)
 		errExit("chroot");
 }
+

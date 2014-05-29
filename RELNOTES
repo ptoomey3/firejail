@@ -1,6 +1,7 @@
   * Mounting tmpfs on top of /var/log, required by several server programs
   * Mounting tmpfs on top of /var/lib, required by several programs
   * private mode fixes
+  * csh and zsh default shell support
   tested lighttpd, isc-dhcp-server, apache2, nginx, snmpd,
 
 firejail (0.9.4) baseline; urgency=low

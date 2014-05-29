@@ -288,17 +288,27 @@ void fs_basic_fs(void) {
 // private mode: mount tmpfs over /home and /tmp
 void fs_private(const char *homedir) {
 	assert(homedir);
-	
-	if (arg_debug)
-		printf("Mounting a new /home directory\n");
-	if (mount("tmpfs", homedir, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("mounting home directory");
-
 	uid_t u = getuid();
 	gid_t g = getgid();
-	if (chown(homedir, u, g) == -1)
-		errExit("chown");
 
+	if (arg_debug)
+		printf("Mounting a new /home directory\n");
+	if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+		errExit("mounting home directory");
+
+	if (arg_debug)
+		printf("Mounting a new /root directory\n");
+	if (mount("tmpfs", "/root", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=700,gid=0") < 0)
+		errExit("mounting home directory");
+
+	// mounting /home/user
+	if (u != 0) {
+		mkdir(homedir, S_IRWXU);
+		if (chown(homedir, u, g) < 0)
+			errExit("chown");
+
+	}
+	
 	// copy skel files
 	char *fname;
 	if (asprintf(&fname, "%s/.bashrc", homedir) == -1)
@@ -314,7 +324,6 @@ void fs_private(const char *homedir) {
 		printf("Mounting a new /tmp directory\n");
 	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 		errExit("mounting tmp directory");
-
 }
 
 // mount overlayfs on top of / directory

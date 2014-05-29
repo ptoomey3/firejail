@@ -1,5 +1,5 @@
   * Mounting tmpfs on top of /var/log, required by several server programs
-  * Mounting tmpfs on top of /var/lib, required by several programs
+  * Server fixes for /var/lib and /var/cache
   * private mode fixes
   * csh and zsh default shell support
   tested lighttpd, isc-dhcp-server, apache2, nginx, snmpd,

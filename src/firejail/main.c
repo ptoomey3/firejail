@@ -49,8 +49,8 @@ int arg_nonetwork = 0;				  // --net=none
 int arg_noip = 0;				  // --ip=none
 int arg_command = 0;				  // -c
 int arg_overlay = 0;				  // --overlay
-static int arg_zsh = 0;					// use zsh as default shell
-static int arg_csh = 0;					// use csh as default shell
+int arg_zsh = 0;					// use zsh as default shell
+int arg_csh = 0;					// use csh as default shell
 
 int fds[2];					  // parent-child communication pipe
 char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell

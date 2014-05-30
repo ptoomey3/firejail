@@ -193,6 +193,11 @@ int sandbox(void* sandbox_arg) {
 		errExit("setenv");
 	if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
 		errExit("setenv");
+	if (arg_zsh && setenv("SHELL", "/usr/bin/zsh", 1) < 0)
+		errExit("setenv");
+	if (arg_csh && setenv("SHELL", "/bin/csh", 1) < 0)
+		errExit("setenv");
+
 	// drop privileges
 	if (setuid(getuid()) < 0)
 		errExit("setuid/getuid");

@@ -15,6 +15,12 @@ echo "TESTING: man"
 echo "TESTING: list"
 ./option_list.exp
 
+echo "TESTING: zsh"
+./shell_zsh.exp
+
+echo "TESTING: csh"
+./shell_csh.exp
+
 grep "Ubuntu" /etc/os-release
 if [ "$?" -eq 0 ];
 then

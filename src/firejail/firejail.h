@@ -114,6 +114,8 @@ extern int arg_nonetwork;		// --net=none
 extern int arg_noip;		// --ip=none
 extern int arg_command;		// -c
 extern int arg_overlay;		// --overlay
+extern int arg_zsh;		// use zsh as default shell
+extern int arg_csh;		// use csh as default shell
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)

@@ -416,6 +416,4 @@ sudo firejail --net=br0 --ip=10.10.20.10 "/etc/init.d/rsyslog start; /etc/init.d
 apt-get install isc-dhcp-server
 insserv -r isc-dhcp-server
 sudo firejail --net=br0 --ip=10.10.20.10 "/etc/init.d/rsyslog start; /etc/init.d/ssh start; /etc/init.d/isc-dhcp-server start; sleep inf"
-
-
 #endif

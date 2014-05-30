@@ -67,5 +67,5 @@ expect {
 }
 
 # wait for snadboxes to be shutdown
-sleep 15
+sleep 30
 puts "\n"

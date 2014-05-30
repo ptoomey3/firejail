@@ -63,6 +63,7 @@ expect {
 	timeout {puts "TESTING ERROR 9\n";exit}
 	"home"
 }
+send -- "exit\r"
 
 sleep 1
 puts "\n"

@@ -2,6 +2,7 @@
   * Server fixes for /var/lib and /var/cache
   * private mode fixes
   * csh and zsh default shell support
+  * --chroot option fixes
   tested lighttpd, isc-dhcp-server, apache2, nginx, snmpd,
 
 firejail (0.9.4) baseline; urgency=low

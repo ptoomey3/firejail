@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <syslog.h>
+#include <errno.h>
 #include "firejail.h"
 
 void logmsg(const char *msg) {
@@ -31,31 +32,47 @@ void logmsg(const char *msg) {
 	closelog();
 }
 
+
 void logerr(const char *msg) {
 	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_DAEMON);
 	syslog(LOG_ERR, "%s\n", msg);
 	closelog();
 }
 
+
+int mkpath(char* file_path, mode_t mode) {
+	assert(file_path && *file_path);
+	char* p;
+	for (p=strchr(file_path+1, '/'); p; p=strchr(p+1, '/')) {
+		*p='\0';
+		if (mkdir(file_path, mode)==-1) {
+			if (errno!=EEXIST) { *p='/'; return -1; }
+		}
+		*p='/';
+	}
+	return 0;
+}
+
+
 // return -1 if error, 0 if no error
 int copy_file(const char *srcname, const char *destname) {
 	assert(srcname);
 	assert(destname);
-	
+
 	// open source
 	int src = open(srcname, O_RDONLY);
 	if (src < 0) {
 		fprintf(stderr, "Warning: cannot open %s\n", srcname);
 		return -1;
 	}
-	
+
 	// open destination
 	int dst = open(destname, O_CREAT|O_WRONLY|O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (dst < 0) {
 		fprintf(stderr, "Warning: cannot open %s\n", destname);
 		return -1;
 	}
-	
+
 	// copy
 	ssize_t len;
 	static const int BUFLEN = 1024;
@@ -69,22 +86,23 @@ int copy_file(const char *srcname, const char *destname) {
 				close(dst);
 				return -1;
 			}
-			
+
 			done += rv;
 		}
 	}
-	
+
 	close(src);
 	close(dst);
 	return 0;
 }
+
 
 char *get_link(const char *fname) {
 	assert(fname);
 	struct stat sb;
 	char *linkname;
 	ssize_t r;
-	
+
 	if (lstat(fname, &sb) == -1)
 		return NULL;
 
@@ -99,6 +117,7 @@ char *get_link(const char *fname) {
 	return linkname;
 }
 
+
 int is_dir(const char *fname) {
 	assert(fname);
 	struct stat s;
@@ -109,6 +128,7 @@ int is_dir(const char *fname) {
 
 	return 0;
 }
+
 
 int is_link(const char *fname) {
 	assert(fname);
@@ -121,28 +141,29 @@ int is_link(const char *fname) {
 	return 0;
 }
 
+
 char *line_remove_spaces(const char *buf) {
 	assert(buf);
 	if (strlen(buf) == 0)
 		return NULL;
-	
+
 	// allocate memory for the new string
 	char *rv = malloc(strlen(buf) + 1);
 	if (rv == NULL)
 		errExit("malloc");
-	
+
 	// remove space at start of line
 	const char *ptr1 = buf;
 	while (*ptr1 == ' ' || *ptr1 == '\t')
 		ptr1++;
-	
+
 	// copy data and remove additional spaces
 	char *ptr2 = rv;
 	int state = 0;
 	while (*ptr1 != '\0') {
 		if (*ptr1 == '\n' || *ptr1 == '\r')
 			break;
-			
+
 		if (state == 0) {
 			if (*ptr1 != ' ' && *ptr1 != '\t')
 				*ptr2++ = *ptr1++;
@@ -152,7 +173,7 @@ char *line_remove_spaces(const char *buf) {
 				state = 1;
 			}
 		}
-		else { // state == 1
+		else {				  // state == 1
 			while (*ptr1 == ' ' || *ptr1 == '\t')
 				ptr1++;
 			state = 0;
@@ -162,5 +183,3 @@ char *line_remove_spaces(const char *buf) {
 
 	return rv;
 }
-
-	

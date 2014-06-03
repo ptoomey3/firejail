@@ -443,7 +443,10 @@ void fs_overlayfs(void) {
 void fs_chroot(const char *rootdir) {
 	assert(rootdir);
 	
+	//***********************************
 	// mount-bind a /dev in rootdir
+	//***********************************
+	// mount /dev
 	if (arg_debug)
 		printf("Mounting /dev in chroot directory %s\n", rootdir);
 	char *newdev;
@@ -451,6 +454,57 @@ void fs_chroot(const char *rootdir) {
 		errExit("asprintf");
 	if (mount("/dev", newdev, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mounting /dev");
+
+	// resolve /dev/shm directory
+	if (is_dir("/dev/shm")) {
+		if (arg_debug)
+			printf("Mounting tmpfs on /dev/shm\n");
+		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting /dev/shm");
+	}
+	else {
+		if (arg_debug)
+			printf("host /dev/shm is a link\n");
+		char *lnk = get_link("/dev/shm");
+		if (lnk) {
+			// convert a link such as "../shm" into "/shm"
+			char *lnk2 = lnk;
+			int cnt = 0;
+			while (strncmp(lnk2, "../", 3) == 0) {
+				cnt++;
+				lnk2 = lnk2 + 3;
+			}
+			if (cnt != 0)
+				lnk2 = lnk + (cnt - 1) * 3 + 2;
+
+			char *lnk3;
+			if (asprintf(&lnk3, "%s%s", rootdir, lnk2) == -1)
+				errExit("asprintf");
+
+			if (!is_dir(lnk3)) {
+				// create directory
+				if (mkdir(lnk3, S_IRWXU|S_IRWXG|S_IRWXO)) {
+					if (mkpath(lnk3, S_IRWXU|S_IRWXG|S_IRWXO))
+						errExit("mkdir");
+					if (mkdir(lnk3, S_IRWXU|S_IRWXG|S_IRWXO))
+						errExit("mkdir");
+				}
+				if (chown(lnk3, 0, 0))
+					errExit("chown");
+				if (chmod(lnk3, S_IRWXU|S_IRWXG|S_IRWXO))
+					errExit("chmod");
+			}
+			if (arg_debug)
+				printf("Mounting tmpfs on %s\n", lnk3);
+			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+				errExit("mounting /var/tmp");
+			free(lnk3);
+			free(lnk);
+		}
+		else
+			fprintf(stderr, "Warning: /dev/shm not mounted\n");
+	}
+	
 	
 	// copy /etc/resolv.conf in chroot directory
 	if (arg_debug)
@@ -461,10 +515,14 @@ void fs_chroot(const char *rootdir) {
 	if (copy_file("/etc/resolv.conf", fname) == -1)
 		fprintf(stderr, "Warning: /etc/resolv.conf not initialized\n");
 		
-	fs_var_run_shm();
-
 	// chroot into the new directory
 	if (chroot(rootdir) < 0)
 		errExit("chroot");
 }
 
+// centos6-openvz
+// first run as root:
+// passwd 			# set root password
+// groupadd --gid 1000 netblue 	# create netblue group
+// adduser --uid 1000 --gid 1000 netblue	# create the user
+// passwd netblue			# set user password

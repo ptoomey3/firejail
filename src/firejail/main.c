@@ -319,6 +319,13 @@ int main(int argc, char **argv) {
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
 			// extract chroot dirname
 			cfg.chrootdir = argv[i] + 9;
+			// if the directory starts with ~, expand the home directory
+			if (*cfg.chrootdir == '~') {
+				char *tmp;
+				if (asprintf(&tmp, "%s%s", cfg.homedir, cfg.chrootdir + 1) == -1)
+					errExit("asprintf");
+				cfg.chrootdir = tmp;
+			}
 			// check chroot dirname exists
 			struct stat s;
 			int rv = stat(cfg.chrootdir, &s);

@@ -426,11 +426,14 @@ void fs_overlayfs(void) {
 	if (mount("/dev", dev, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mounting /dev");
 
-	fs_var_run_shm();
-
 	// chroot in the new filesystem
 	if (chroot(root) == -1)
 		errExit("chroot");
+
+	fs_var_run_shm();
+	fs_var_log();
+	fs_var_lib();
+	fs_var_cache();
 
 	// cleanup and exit
 	free(option);
@@ -457,10 +460,10 @@ void fs_chroot(const char *rootdir) {
 
 	// resolve /dev/shm directory
 	if (is_dir("/dev/shm")) {
-		if (arg_debug)
-			printf("Mounting tmpfs on /dev/shm\n");
-		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mounting /dev/shm");
+//		if (arg_debug)
+//			printf("Mounting tmpfs on /dev/shm\n");
+//		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+//			errExit("mounting /dev/shm");
 	}
 	else {
 		if (arg_debug)
@@ -494,10 +497,10 @@ void fs_chroot(const char *rootdir) {
 				if (chmod(lnk3, S_IRWXU|S_IRWXG|S_IRWXO))
 					errExit("chmod");
 			}
-			if (arg_debug)
-				printf("Mounting tmpfs on %s\n", lnk3);
-			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-				errExit("mounting /var/tmp");
+//			if (arg_debug)
+//				printf("Mounting tmpfs on %s\n", lnk3);
+//			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+//				errExit("mounting /var/tmp");
 			free(lnk3);
 			free(lnk);
 		}
@@ -518,11 +521,10 @@ void fs_chroot(const char *rootdir) {
 	// chroot into the new directory
 	if (chroot(rootdir) < 0)
 		errExit("chroot");
+
+	fs_var_run_shm();
+	fs_var_log();
+	fs_var_lib();
+	fs_var_cache();
 }
 
-// centos6-openvz
-// first run as root:
-// passwd 			# set root password
-// groupadd --gid 1000 netblue 	# create netblue group
-// adduser --uid 1000 --gid 1000 netblue	# create the user
-// passwd netblue			# set user password

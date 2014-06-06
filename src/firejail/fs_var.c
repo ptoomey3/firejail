@@ -110,14 +110,20 @@ static void build_dirs(viod) {
 void fs_var_log(void) {
 	build_list("/var/log");
 	
-	// mount a tmpfs on top of /var/log
-	if (arg_debug)
-		printf("Mounting tmpfs on /var/log\n");
-	if (mount("tmpfs", "/var/log", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("mounting /var/log");
-	
-	build_dirs();
-	release_all();
+	// create /var/log if it does't exit
+	struct stat s;
+	if (is_dir("/var/log")) {
+		// mount a tmpfs on top of /var/log
+		if (arg_debug)
+			printf("Mounting tmpfs on /var/log\n");
+		if (mount("tmpfs", "/var/log", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+			errExit("mounting /var/log");
+		
+		build_dirs();
+		release_all();
+	}
+	else
+		fprintf(stderr, "Warning: cannot mount tmpfs in top of /var/log\n");
 }
 
 void fs_var_lib(void) {

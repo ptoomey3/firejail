@@ -55,7 +55,7 @@ void usage(void) {
 	printf("\t--overlay - mount a filesystem overlay on top of the current filesystem\n");
 	printf("\t\t(OverlayFS support is required in Linux kernel for this option\n");
 	printf("\t\tto work)\n");    
-	printf("\t--private - mount a new /home/user directory\n");
+	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");

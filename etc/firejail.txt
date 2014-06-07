@@ -63,16 +63,16 @@ Mount a filesystem overlay on top of the current filesystem. OverlayFS support i
 for this option to work.
 .TP
 \fB\--private
-Mount a new /home/user directory.
+Mount new /tmp, /root and /home/user directories.
 .TP
 \fB\--profile=filename
 Use a custom profile, see below.
 .TP
 \fB\--version
+Print program version and exit.
 .TP
 \fB\--zsh
 Use /usr/bin/zsh as default user shell.
-Print program version and exit.
 .SH PROFILES
 The profile files define a chroot filesystem built on top of the existing
 host filesystem. Each line describes a file element that is removed from

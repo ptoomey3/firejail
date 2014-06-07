@@ -70,9 +70,16 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// configure filesystem
 	//****************************
-	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0)
-		errExit("mounting filesystem as slave");
-
+	// mount events are not forwarded between the host the sandbox
+	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0) {
+		// if we are starting firejail inside firejail, we don't care about this
+		char *mycont = getenv("container");
+		if (mycont == NULL)
+			errExit("mounting filesystem as slave");
+		if (strcmp(mycont, "firejail") != 0)
+			errExit("mounting filesystem as slave");
+	}
+	
 	if (cfg.chrootdir) {
 		fs_chroot(cfg.chrootdir);
 	}

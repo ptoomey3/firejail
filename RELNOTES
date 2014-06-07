@@ -1,9 +1,13 @@
+firejail (0.9.6) baseline; urgency=low
+
   * Mounting tmpfs on top of /var/log, required by several server programs
   * Server fixes for /var/lib and /var/cache
-  * private mode fixes
+  * Private mode fixes
   * csh and zsh default shell support
-  * --chroot option fixes
-  tested lighttpd, isc-dhcp-server, apache2, nginx, snmpd,
+  * Chroot mode fixes
+  * Added support for lighttpd, isc-dhcp-server, apache2, nginx, snmpd,
+
+ -- netblue30 <netblue30@yahoo.com>  Sat, 7 Jun 2014 09:00:00 -0500
 
 firejail (0.9.4) baseline; urgency=low
 

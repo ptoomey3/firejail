@@ -91,23 +91,32 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// apply the profile file
 	//****************************
-	assert(cfg.command_name);
-	if (!cfg.custom_profile) {
-		// look for a profile in ~/.config/firejail directory
-		char *usercfgdir;
-		if (asprintf(&usercfgdir, "%s/.config/firejail", cfg.homedir) == -1)
-			errExit("asprintf");
-		profile_find(cfg.command_name, usercfgdir);
+	// profiles are not handled in chroot mode; the profile file might be different in chroot than on host
+	if (!cfg.chrootdir) {	
+		assert(cfg.command_name);
+		if (!cfg.custom_profile) {
+			// look for a profile in ~/.config/firejail directory
+			char *usercfgdir;
+			if (asprintf(&usercfgdir, "%s/.config/firejail", cfg.homedir) == -1)
+				errExit("asprintf");
+			profile_find(cfg.command_name, usercfgdir);
+		}
+		if (!cfg.custom_profile)
+			// look for a user profile in /etc/firejail directory
+			profile_find(cfg.command_name, "/etc/firejail");
+		if (cfg.custom_profile)
+			fs_blacklist(cfg.custom_profile, cfg.homedir);
 	}
-	if (!cfg.custom_profile)
-		// look for a user profile in /etc/firejail directory
-		profile_find(cfg.command_name, "/etc/firejail");
-	if (cfg.custom_profile)
-		fs_blacklist(cfg.custom_profile, cfg.homedir);
-
+	
+	//****************************
+	// private mode
+	//****************************
 	if (arg_private)
 		fs_private(cfg.homedir);
 		
+	//****************************
+	// update /proc directory
+	//****************************
 	fs_proc_sys();
 	
 	//****************************

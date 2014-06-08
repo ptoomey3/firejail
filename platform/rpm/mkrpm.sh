@@ -9,32 +9,32 @@ EOF
 
 cd ~/rpmbuild
 
-mkdir -p firejail-0.9.4/usr/bin
-install -m 755 /usr/bin/firejail firejail-0.9.4/usr/bin/.
-install -m 755 /usr/bin/firemon firejail-0.9.4/usr/bin/.
+mkdir -p firejail-0.9.6/usr/bin
+install -m 755 /usr/bin/firejail firejail-0.9.6/usr/bin/.
+install -m 755 /usr/bin/firemon firejail-0.9.6/usr/bin/.
 
-mkdir -p firejail-0.9.4/usr/share/man/man1
-install -m 644 /usr/share/man/man1/firejail.1.gz firejail-0.9.4/usr/share/man/man1/.
-install -m 644 /usr/share/man/man1/firemon.1.gz firejail-0.9.4/usr/share/man/man1/.
+mkdir -p firejail-0.9.6/usr/share/man/man1
+install -m 644 /usr/share/man/man1/firejail.1.gz firejail-0.9.6/usr/share/man/man1/.
+install -m 644 /usr/share/man/man1/firemon.1.gz firejail-0.9.6/usr/share/man/man1/.
 
-mkdir -p firejail-0.9.4/usr/share/doc/packages/firejail
-install -m 644 /usr/share/doc/firejail/COPYING firejail-0.9.4/usr/share/doc/packages/firejail/.
-install -m 644 /usr/share/doc/firejail/README firejail-0.9.4/usr/share/doc/packages/firejail/.
-install -m 644 /usr/share/doc/firejail/RELNOTES firejail-0.9.4/usr/share/doc/packages/firejail/.
+mkdir -p firejail-0.9.6/usr/share/doc/packages/firejail
+install -m 644 /usr/share/doc/firejail/COPYING firejail-0.9.6/usr/share/doc/packages/firejail/.
+install -m 644 /usr/share/doc/firejail/README firejail-0.9.6/usr/share/doc/packages/firejail/.
+install -m 644 /usr/share/doc/firejail/RELNOTES firejail-0.9.6/usr/share/doc/packages/firejail/.
 
-mkdir -p firejail-0.9.4/etc/firejail
-install -m 644 /etc/firejail/firefox.profile firejail-0.9.4/etc/firejail/firefox.profile
-install -m 644 /etc/firejail/evince.profile firejail-0.9.4/etc/firejail/evince.profile
-install -m 644 /etc/firejail/midori.profile firejail-0.9.4/etc/firejail/midori.profile
+mkdir -p firejail-0.9.6/etc/firejail
+install -m 644 /etc/firejail/firefox.profile firejail-0.9.6/etc/firejail/firefox.profile
+install -m 644 /etc/firejail/evince.profile firejail-0.9.6/etc/firejail/evince.profile
+install -m 644 /etc/firejail/midori.profile firejail-0.9.6/etc/firejail/midori.profile
 
-install -m 644 /etc/firejail/login.users firejail-0.9.4/etc/firejail/login.users
+install -m 644 /etc/firejail/login.users firejail-0.9.6/etc/firejail/login.users
 
-mkdir -p firejail-0.9.4//usr/share/bash-completion/completions
-install -m 644 /usr/share/bash-completion/completions/firejail  firejail-0.9.4//usr/share/bash-completion/completions/.
+mkdir -p firejail-0.9.6//usr/share/bash-completion/completions
+install -m 644 /usr/share/bash-completion/completions/firejail  firejail-0.9.6//usr/share/bash-completion/completions/.
 
-tar -czvf firejail-0.9.4.tar.gz firejail-0.9.4
+tar -czvf firejail-0.9.6.tar.gz firejail-0.9.6
 
-cp firejail-0.9.4.tar.gz SOURCES/.
+cp firejail-0.9.6.tar.gz SOURCES/.
 
 cat <<EOF > SPECS/firejail.spec
 %define        __spec_install_post %{nil}
@@ -43,7 +43,7 @@ cat <<EOF > SPECS/firejail.spec
 
 Summary: Linux namepaces sandbox program
 Name: firejail
-Version: 0.9.4
+Version: 0.9.6
 Release: 1
 License: GPL+
 Group: Development/Tools
@@ -88,6 +88,14 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Sat Jun 7 2014  netblue30 <netblue30@yahoo.com> 0.9.6-1
+ - Mounting tmpfs on top of /var/log, required by several server programs
+ - Server fixes for /var/lib and /var/cache
+ - Private mode fixes
+ - csh and zsh default shell support
+ - Chroot mode fixes
+ - Added support for lighttpd, isc-dhcp-server, apache2, nginx, snmpd,
+
 * Sun May 5 2014  netblue30 <netblue30@yahoo.com> 0.9.4-1
  - Fixed resolv.conf on Ubuntu systems using DHCP
  - Fixed resolv.conf on Debian systems using resolvconf package
@@ -118,7 +126,7 @@ chmod u+s /usr/bin/firejail
 EOF
 
 rpmbuild -ba SPECS/firejail.spec
-rpm -qpl RPMS/x86_64/firejail-0.9.4-1.x86_64.rpm
+rpm -qpl RPMS/x86_64/firejail-0.9.6-1.x86_64.rpm
 cd ..
-rm -f firejail-0.9.4-1.x86_64.rpm
-cp rpmbuild/RPMS/x86_64/firejail-0.9.4-1.x86_64.rpm .
+rm -f firejail-0.9.6-1.x86_64.rpm
+cp rpmbuild/RPMS/x86_64/firejail-0.9.6-1.x86_64.rpm .

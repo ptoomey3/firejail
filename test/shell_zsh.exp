@@ -23,10 +23,14 @@ expect {
 send -- "env | grep SHELL;pwd\r"
 expect {
 	timeout {puts "TESTING ERROR 2\n";exit}
-	"SHELL=/usr/bin/zsh"
+	"SHELL"
 }
 expect {
 	timeout {puts "TESTING ERROR 2.1\n";exit}
+	"/usr/bin/zsh"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.2\n";exit}
 	"home"
 }
 send -- "exit\r"

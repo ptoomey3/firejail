@@ -219,6 +219,11 @@ int sandbox(void* sandbox_arg) {
 		errExit("setuid/getuid");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
+	
+	// set seccomp
+	if (arg_nofilter == 0)
+		seccomp_filter();
+	
 	// set prompt color to green
 	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
 	if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)

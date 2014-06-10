@@ -116,6 +116,7 @@ extern int arg_command;		// -c
 extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
+extern int arg_nofilter;				 // no seccomp filtering
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
@@ -208,5 +209,8 @@ void fs_var_log(void);	// mounting /var/log
 void fs_var_run_shm(void);	// mounting /var/run, /var/lock, /dev/shm, /etc/resolv.conf, /var/tmp
 void fs_var_lib(void);	// various other fixes for software in /var directory
 void fs_var_cache(void); // various other fixes for software in /var/cache directory
+
+// seccomp.h
+int seccomp_filter(void);
 
 #endif

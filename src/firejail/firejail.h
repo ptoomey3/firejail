@@ -164,6 +164,7 @@ void profile_read(const char *fname);
 
 // list.c
 void list(void);
+void list_mem(void);
 
 // usage.c
 void usage(void);

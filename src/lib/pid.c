@@ -25,10 +25,38 @@
 #include <string.h>
 #include <dirent.h>
 #include <pwd.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 #include "../include/pid.h"
 
 #define PIDS_BUFLEN 4096
 Process pids[MAX_PIDS];
+#define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
+
+// memory pages from /proc/pid/mem
+static unsigned pgs_rss = 0;
+static unsigned pgs_shared = 0;
+// get the memory associated with this pid
+static void getmem(unsigned pid) {
+	// open stat file
+	char *file;
+	if (asprintf(&file, "/proc/%u/statm", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		free(file);
+		return;
+	}
+	unsigned a, b, c;
+	if (3 != fscanf(fp, "%u %u %u", &a, &b, &c))
+		return;
+	pgs_rss += b;
+	pgs_shared += c;
+}
+
+
 
 char *pid_proc_cmdline(const pid_t pid) {
 	// open /proc/pid/cmdline file
@@ -146,10 +174,6 @@ doexit:
 	return rv;
 }
 
-#include <termios.h>
-#include <sys/ioctl.h>
-#define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
-
 static void print_elem(unsigned index, int nowrap) {
 	// get terminal size
 	struct winsize sz;
@@ -207,6 +231,27 @@ void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
 	for (i = index + 1; i < MAX_PIDS; i++) {
 		if (pids[i].parent == index)
 			pid_print_tree(i, index, nowrap);
+	}
+}
+
+void pid_print_mem(unsigned index, unsigned parent) {
+	if (pids[index].level == 1) {
+		pgs_rss = 0;
+		pgs_shared = 0;
+		print_elem(index, 1);
+	}
+	
+	getmem(index);
+	
+	int i;
+	for (i = index + 1; i < MAX_PIDS; i++) {
+		if (pids[i].parent == index)
+			pid_print_mem(i, index);
+	}
+
+	if (pids[index].level == 1) {
+		int pgsz = getpagesize();
+		printf("\tresident %uK, shared %uK\n", pgs_rss * pgsz / 1024, pgs_shared * pgsz /1024);
 	}
 }
 

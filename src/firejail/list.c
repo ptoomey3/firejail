@@ -30,3 +30,14 @@ void list(void) {
 			pid_print_tree(i, 0, 0);
 	}
 }
+
+void list_mem(void) {
+	pid_read();
+	
+	// print files
+	int i;
+	for (i = 0; i < MAX_PIDS; i++) {
+		if (pids[i].level == 1)
+			pid_print_mem(i, 0);
+	}
+}

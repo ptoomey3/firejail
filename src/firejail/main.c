@@ -278,6 +278,10 @@ int main(int argc, char **argv) {
 			list();
 			exit(0);
 		}
+		else if (strcmp(argv[i], "--mem") == 0) {
+			list_mem();
+			exit(0);
+		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			char *endptr;
 			errno = 0;

@@ -11,5 +11,7 @@ AC_PROG_RANLIB
 # checking pthread library
 AC_CHECK_LIB([pthread], [main], [], AC_MSG_ERROR([*** POSIX thread support not installed ***]))
 AC_CHECK_HEADER(pthread.h,,AC_MSG_ERROR([*** POSIX thread support not installed ***]))
+AC_CHECK_HEADER([linux/seccomp.h], SECCOMP="-DHAVE_SECCOMP_H", SECCOMP="")
+AC_SUBST(SECCOMP)
 
 AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile)

@@ -624,6 +624,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+SECCOMP
 EGREP
 GREP
 CPP
@@ -3777,6 +3778,15 @@ if test "x$ac_cv_header_pthread_h" = xyes; then :
 else
   as_fn_error $? "*** POSIX thread support not installed ***" "$LINENO" 5
 fi
+
+
+ac_fn_c_check_header_mongrel "$LINENO" "linux/seccomp.h" "ac_cv_header_linux_seccomp_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_seccomp_h" = xyes; then :
+  SECCOMP="-DHAVE_SECCOMP_H"
+else
+  SECCOMP=""
+fi
+
 
 
 

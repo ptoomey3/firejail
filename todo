@@ -10,4 +10,24 @@
 		return -1;
 	}
 
+* Investigate PR_SET_NO_NEW_PRIVS
+// Disable ability to gain privileges.
+  if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {
+    warn("prctl(PR_SET_NO_NEW_PRIVS)");
+  }
+http://www.openwall.com/lists/kernel-hardening/2012/06/05/1
+The execve system call can grant a newly-started program privileges
+that its parent did not have. The most obvious examples are
+setuid/setgid programs and file capabilities. To prevent the parent
+program from gaining these privileges as well, the kernel and user
+code must be careful to prevent the parent from doing anything that
+could subvert the child. For example:
 
+kernel 3.5 or newer needed
+definitions in /usr/include/linux/prctl.h
+#define PR_SET_NO_NEW_PRIVS     38
+#define PR_GET_NO_NEW_PRIVS     39
+
+* container usage
+http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
+https://github.com/google/lmctfy/

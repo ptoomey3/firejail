@@ -37,7 +37,7 @@ uid_t pid_get_uid(pid_t pid);
 char *pid_proc_cmdline(const pid_t pid);
 char *pid_get_user_name(uid_t uid);
 int pid_is_firejail(pid_t pid);
-void pid_print_tree(unsigned index, unsigned parent);
+void pid_print_tree(unsigned index, unsigned parent, int nowrap);
 void pid_read(void);
 
 #endif

@@ -60,6 +60,10 @@ char *pid_proc_cmdline(const pid_t pid) {
 
 	// return a malloc copy of the command line
 	char *rv = strdup(buffer);
+	if (strlen(rv) == 0) {
+		free(rv);
+		return NULL;
+	}
 	return rv;
 }
 
@@ -142,23 +146,47 @@ doexit:
 	return rv;
 }
 
+#include <termios.h>
+#include <sys/ioctl.h>
+#define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
-static void print_elem(unsigned index) {
+static void print_elem(unsigned index, int nowrap) {
+	// get terminal size
+	struct winsize sz;
+	int col = 0;
+	if (isatty(STDIN_FILENO)) {
+		if (!ioctl(0, TIOCGWINSZ, &sz))
+			col  = sz.ws_col;
+	}
+
+	// indent
+	char indent[(pids[index].level - 1) * 2 + 1];
+	memset(indent, ' ', sizeof(indent));
+	indent[(pids[index].level - 1) * 2] = '\0';
+
+	// get data
 	uid_t uid = pids[index].uid;
-	int i;
-	for (i = 0; i < pids[index].level - 1; i++)
-		printf("  ");
-	
 	char *cmd = pid_proc_cmdline(index);
 	char *user = pid_get_user_name(uid);
 	char *allocated = user;
 	if (user ==NULL)
 		user = "";
 	if (cmd) {
-		if (strlen(cmd) > 55)
-			printf("%u:%s:%-55.55s...\n", index, user, cmd);
-		else
-			printf("%u:%s:%s\n", index, user, cmd);
+		if (col < 4 || nowrap) 
+			printf("%s%u:%s:%s\n", indent, index, user, cmd);
+		else {
+			char *out;
+			if (asprintf(&out, "%s%u:%s:%s\n", indent, index, user, cmd) == -1)
+				errExit("asprintf");
+			int len = strlen(out);
+			if (len > col) {
+				out[col] = '\0';
+				out[col - 1] = '\n';
+			}
+			printf("%s", out);
+			free(out);
+		}
+				
 		free(cmd);
 	}
 	else {
@@ -172,13 +200,13 @@ static void print_elem(unsigned index) {
 }
 
 // recursivity!!!
-void pid_print_tree(unsigned index, unsigned parent) {
-	print_elem(index);
+void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
+	print_elem(index, nowrap);
 	
 	int i;
 	for (i = index + 1; i < MAX_PIDS; i++) {
 		if (pids[i].parent == index)
-			pid_print_tree(i, index);
+			pid_print_tree(i, index, nowrap);
 	}
 }
 

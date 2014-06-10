@@ -1,3 +1,5 @@
+  * nowrap mode for firejail --list command option
+
 firejail (0.9.6) baseline; urgency=low
 
   * Mounting tmpfs on top of /var/log, required by several server programs

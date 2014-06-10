@@ -275,7 +275,7 @@ static void print_pids(void) {
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i].level == 1)
-			pid_print_tree(i, 0);
+			pid_print_tree(i, 0, 1);
 	}
 	printf("\n");
 }

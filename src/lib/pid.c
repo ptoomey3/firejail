@@ -234,11 +234,28 @@ void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
 	}
 }
 
+
+void pid_print_mem_header(void) {
+	printf("%-8.8s %-35.35s  %-10.10s %s\n", "PID", "Process", "RSS (KiB)", "Shared (Kib)");
+}
+
+
+// recursivity!!!
 void pid_print_mem(unsigned index, unsigned parent) {
 	if (pids[index].level == 1) {
 		pgs_rss = 0;
 		pgs_shared = 0;
-		print_elem(index, 1);
+		
+		char *cmd = pid_proc_cmdline(index);
+		char pidstr[10];
+		snprintf(pidstr, 10, "%u", index);
+		if (cmd == NULL) {
+			if (pids[index].zombie)
+				cmd = "(zombie)";
+			else
+				cmd = "";
+		}
+		printf("%-8.8s %-35.35s  ", pidstr, cmd);
 	}
 	
 	getmem(index);
@@ -251,7 +268,11 @@ void pid_print_mem(unsigned index, unsigned parent) {
 
 	if (pids[index].level == 1) {
 		int pgsz = getpagesize();
-		printf("\tresident %uK, shared %uK\n", pgs_rss * pgsz / 1024, pgs_shared * pgsz /1024);
+		char rss[10];
+		snprintf(rss, 10, "%u", pgs_rss * pgsz / 1024);
+		char shared[10];
+		snprintf(shared, 10, "%u", pgs_shared * pgsz / 1024);
+		printf("%-10.10s %-10.10s\n", rss, shared);
 	}
 }
 

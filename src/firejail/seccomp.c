@@ -1,18 +1,22 @@
 /*
- * Naive system call dropper built on seccomp_filter.
+ * Copyright (C) 2014 netblue30 (netblue30@yahoo.com)
  *
- * Copyright (c) 2012 The Chromium OS Authors <chromium-os-dev@chromium.org>
- * Author: Will Drewry <wad@chromium.org>
+ * This file is part of firejail project
  *
- * The code may be used by anyone for any purpose,
- * and can serve as a starting point for developing
- * applications using prctl(PR_SET_SECCOMP, 2, ...).
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- * When run, returns the specified errno for the specified
- * system call number against the given architecture.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Run this one as root as PR_SET_NO_NEW_PRIVS is not called.
- */
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
 
 #include <errno.h>
 #include <linux/filter.h>
@@ -52,56 +56,27 @@ struct seccomp_data {
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL) //	\
 //		 SECCOMP_RET_ERRNO|(SECCOMP_RET_DATA))
 
+#define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+
 int seccomp_filter(void) {
 	struct sock_filter filter[] = {
 		BLACKLIST(SYS_mount),
 		BLACKLIST(SYS_umount2),
 		BLACKLIST(SYS_ptrace),
-		BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW),
+		RETURN_ALLOW
 	};
+	
 	struct sock_fprog prog = {
 		.len = (unsigned short)(sizeof(filter)/sizeof(filter[0])),
 		.filter = filter,
 	};
-	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
-		perror("prctl(NO_NEW_PRIVS)");
-		goto failed;
-	}
-	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
-		perror("prctl(SECCOMP)");
-		goto failed;
+
+	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) || prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
+		fprintf(stderr, "Warning: privilege locking was disabled. It requires a Linux kernel version 3.5 or newer.\n");
+		return 1;
 	}
 	
 	return 0;
-failed:
-	if (errno == EINVAL)
-		fprintf(stderr, "SECCOMP_FILTER is not available.\n");
-	return 1;
 }
 
-
-#if 0
-int main(int argc, char **argv) {
-
-printf("mount %d\n", SYS_mount);
-printf("umount2 %d\n", SYS_umount2);
-
-	if (argc != 3 ) {
-		fprintf(stderr, "Usage:\n"
-			"dropper <syscall_nr> <prog>\n");
-		return 1;
-	}
-	if (install_filter(strtol(argv[1], NULL, 0)))
-		return 1;
-
-	char *arg[4];
-	arg[0] = "bash";
-	arg[1] = "-c";
-	arg[2] = argv[2];
-	argv[3] = NULL;
-	execvp("/bin/bash", arg); 
-
-	return 0;
-}
-#endif
 

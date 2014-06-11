@@ -17,28 +17,28 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#include "firejail.h"
+#ifndef FIREMON_H
+#define FIREMON_H
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
+#include <dirent.h>
+#include <linux/connector.h>
+#include <linux/netlink.h>
+#include <linux/cn_proc.h>
 #include "../include/pid.h"
 
-void list(void) {
-	pid_read();
-	
-	// print files
-	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
-		if (pids[i].level == 1)
-			pid_print_tree(i, 0, 0);
-	}
-}
+#define BUFLEN 4096
 
-void list_mem(void) {
-	pid_read();
-	pid_print_mem_header();
-	
-	// print files
-	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
-		if (pids[i].level == 1)
-			pid_print_mem(i, 0);
-	}
-}
+// procevent.c
+int procevent_netlink_setup(void);
+int procevent_monitor(const int sock, pid_t mypid);
+void procevent_print_pids(void);
+#endif

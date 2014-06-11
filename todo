@@ -31,3 +31,15 @@ definitions in /usr/include/linux/prctl.h
 * container usage
 http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
 https://github.com/google/lmctfy/
+
+
+* investigate capabilities
+see /usr/include/linux/capability.h
+/* Insert and remove kernel modules - modify kernel without limit */
+#define CAP_SYS_MODULE       16
+#define CAP_SYS_BOOT         22
+
+example to remove module loading globally from the command line
+http://www.cyberciti.biz/tips/linux-advanced-hardening.html
+
+Linux capabilities are a sparsely used kernel facility to add granularity to the set of privileges that a process can have. By using capabilities, an administrator can grant a process a limited set of privileges, rather than the usual, essentially binary, choice between granting all privileges via setuid() or granting just those of the user running the program.

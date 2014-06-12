@@ -279,7 +279,13 @@ void fs_basic_fs(void) {
 	fs_rdonly("/boot");
 	fs_rdonly("/etc");
 	fs_rdonly("/var");
-	fs_var_run_shm();
+
+	// update /var directory in order to support multiple sandboxes running on the same root directory
+	fs_var_run();
+	fs_dev_shm();
+	fs_var_lock();
+	fs_var_tmp();
+	fs_etc_resolvconf();
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
@@ -430,7 +436,12 @@ void fs_overlayfs(void) {
 	if (chroot(root) == -1)
 		errExit("chroot");
 
-	fs_var_run_shm();
+	// update /var directory in order to support multiple sandboxes running on the same root directory
+	fs_var_run();
+	fs_dev_shm();
+	fs_var_lock();
+	fs_var_tmp();
+	fs_etc_resolvconf();
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
@@ -450,79 +461,48 @@ void fs_chroot(const char *rootdir) {
 	// mount-bind a /dev in rootdir
 	//***********************************
 	// mount /dev
-	if (arg_debug)
-		printf("Mounting /dev in chroot directory %s\n", rootdir);
 	char *newdev;
 	if (asprintf(&newdev, "%s/dev", rootdir) == -1)
 		errExit("asprintf");
+	if (arg_debug)
+		printf("Mounting /dev on %s\n", newdev);
 	if (mount("/dev", newdev, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mounting /dev");
-
-	// resolve /dev/shm directory
-	if (is_dir("/dev/shm")) {
-//		if (arg_debug)
-//			printf("Mounting tmpfs on /dev/shm\n");
-//		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-//			errExit("mounting /dev/shm");
-	}
-	else {
-		if (arg_debug)
-			printf("host /dev/shm is a link\n");
-		char *lnk = get_link("/dev/shm");
-		if (lnk) {
-			// convert a link such as "../shm" into "/shm"
-			char *lnk2 = lnk;
-			int cnt = 0;
-			while (strncmp(lnk2, "../", 3) == 0) {
-				cnt++;
-				lnk2 = lnk2 + 3;
-			}
-			if (cnt != 0)
-				lnk2 = lnk + (cnt - 1) * 3 + 2;
-
-			char *lnk3;
-			if (asprintf(&lnk3, "%s%s", rootdir, lnk2) == -1)
-				errExit("asprintf");
-
-			if (!is_dir(lnk3)) {
-				// create directory
-				if (mkdir(lnk3, S_IRWXU|S_IRWXG|S_IRWXO)) {
-					if (mkpath(lnk3, S_IRWXU|S_IRWXG|S_IRWXO))
-						errExit("mkdir");
-					if (mkdir(lnk3, S_IRWXU|S_IRWXG|S_IRWXO))
-						errExit("mkdir");
-				}
-				if (chown(lnk3, 0, 0))
-					errExit("chown");
-				if (chmod(lnk3, S_IRWXU|S_IRWXG|S_IRWXO))
-					errExit("chmod");
-			}
-//			if (arg_debug)
-//				printf("Mounting tmpfs on %s\n", lnk3);
-//			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-//				errExit("mounting /var/tmp");
-			free(lnk3);
-			free(lnk);
-		}
-		else
-			fprintf(stderr, "Warning: /dev/shm not mounted\n");
-	}
 	
+	// some older distros don't have a /run directory
+	// create one by default
+	// no exit on error, let the user deal with any problems
+	char *rundir;
+	if (asprintf(&rundir, "%s/run", rootdir) == -1)
+		errExit("asprintf");
+	if (!is_dir(rundir)) {
+		int rv = mkdir(rundir, S_IRWXU | S_IRWXG | S_IRWXO);
+		rv = chown(rundir, 0, 0);
+	}
 	
 	// copy /etc/resolv.conf in chroot directory
-	if (arg_debug)
-		printf("Updating /etc/resolv.conf\n");
+	// if resolv.conf in chroot is a symbolic link, this will fail
+	// no exit on error, let the user deal with the problem
 	char *fname;
 	if (asprintf(&fname, "%s/etc/resolv.conf", rootdir) == -1)
 		errExit("asprintf");
+	if (arg_debug)
+		printf("Updating /etc/resolv.conf in %s\n", fname);
 	if (copy_file("/etc/resolv.conf", fname) == -1)
 		fprintf(stderr, "Warning: /etc/resolv.conf not initialized\n");
 		
 	// chroot into the new directory
+	if (arg_debug)
+		printf("Chrooting into %s\n", rootdir);
 	if (chroot(rootdir) < 0)
 		errExit("chroot");
 
-	fs_var_run_shm();
+	// update /var directory in order to support multiple sandboxes running on the same root directory
+	fs_var_run();
+	fs_dev_shm();
+	fs_var_lock();
+	fs_var_tmp();
+// already done:	fs_etc_resolvconf();
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();

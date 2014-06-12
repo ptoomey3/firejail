@@ -206,9 +206,13 @@ void bye_parent(void);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log
-void fs_var_run_shm(void);	// mounting /var/run, /var/lock, /dev/shm, /etc/resolv.conf, /var/tmp
 void fs_var_lib(void);	// various other fixes for software in /var directory
 void fs_var_cache(void); // various other fixes for software in /var/cache directory
+void fs_dev_shm(void);
+void fs_var_run(void);
+void fs_var_lock(void);
+void fs_var_tmp(void);
+void fs_etc_resolvconf(void);
 
 // seccomp.h
 int seccomp_filter(void);

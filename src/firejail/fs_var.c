@@ -204,63 +204,65 @@ void fs_var_cache(void) {
 	}			
 }
 
-void fs_var_run_shm(void) {
+static dbg_test_dir(const char *dir) {
 	if (arg_debug) {
-		char *lnk;
-		if (is_dir("/var/run"))
-			printf("/var/run is a directory\n");
-		if (is_link("/var/run")) {
-			lnk = get_link("/var/run");
-			if (lnk) {
-				printf("/var/run is a symbolic link to %s\n", lnk);
-				free(lnk);
-			}
-		}
-		
-		if (is_dir("/var/lock"))
-			printf("/var/lock is a directory\n");
-		if (is_link("/var/lock")) {
-			lnk = get_link("/var/lock");
-			if (lnk) {
-				printf("/var/lock is a symbolic link to %s\n", lnk);
-				free(lnk);
-			}
-		}
-		
-		if (is_dir("/dev/shm"))
-			printf("/dev/shm is a directory\n");
+		if (is_dir(dir))
+			printf("%s is a directory\n", dir);
 		if (is_link("/dev/shm")) {
-			lnk = get_link("/dev/shm");
+			char *lnk = get_link(dir);
 			if (lnk) {
-				printf("/dev/shm is a symbolic link to %s\n", lnk);
+				printf("%s is a symbolic link to %s\n", dir, lnk);
 				free(lnk);
 			}
 		}
 	}
+}
+
+void fs_dev_shm(void) {
 	
-	int run_resolv_conf = 0; // resolv.conf detected under /run/resolvconf directory
-	// grab a copy of resolv.conf in case it is a symbolic link into /run directory
-	// - setting found in Ubuntu
-	// - setting found in Debian when resolvconf package is installed
-	if (is_link("/etc/resolv.conf")) {
-		char *lnk = get_link("/etc/resolv.conf");
+	if (is_dir("/dev/shm")) {
+		if (arg_debug)
+			printf("Mounting tmpfs on /dev/shm\n");
+		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting /dev/shm");
+	}
+	else {
+		char *lnk = get_link("/dev/shm");
 		if (lnk) {
-			if (arg_debug)
-				printf("/etc/resolv.conf is a symbolic link to %s\n", lnk);
-			struct stat s;
-			if (stat("/run/resolvconf/resolv.conf", &s) == 0) {
-				if (arg_debug)
-					printf("Found /run/resolvconf/resolv.conf\n");
-				int rv = copy_file("/run/resolvconf/resolv.conf", "/tmp/resolv.conf");
-				if (rv == -1)
-					fprintf(stderr,"Warning: /etc/resolv.conf not initialized\n");
-				else
-					run_resolv_conf = 1;
+			// convert a link such as "../shm" into "/shm"
+			char *lnk2 = lnk;
+			int cnt = 0;
+			while (strncmp(lnk2, "../", 3) == 0) {
+				cnt++;
+				lnk2 = lnk2 + 3;
 			}
+			if (cnt != 0)
+				lnk2 = lnk + (cnt - 1) * 3 + 2;
+
+			if (!is_dir(lnk2)) {
+				// create directory
+				if (mkdir(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
+					errExit("mkdir");
+				if (chown(lnk2, 0, 0))
+					errExit("chown");
+				if (chmod(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
+					errExit("chmod");
+			}
+			if (arg_debug)
+				printf("Mounting tmpfs on %s on behalf of /dev/shm\n", lnk2);
+			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+				errExit("mounting /var/tmp");
 			free(lnk);
 		}
+		else {
+			fprintf(stderr, "Warning: /dev/shm not mounted\n");
+			dbg_test_dir("/dev/shm");
+		}
+			
 	}
+}
 
+void fs_var_run(void) {
 	if (is_dir("/var/run")) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/run\n");
@@ -282,15 +284,20 @@ void fs_var_run_shm(void) {
 
 			if (is_dir(lnk2)) {
 				if (arg_debug)
-					printf("Mounting tmpfs on %s directory\n", lnk2);
+					printf("Mounting tmpfs on %s directory on behalf of /var/run\n", lnk2);
 				if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 					errExit("mounting tmpfs");
 			}
 			free(lnk);
 		}
-		else
+		else {
 			fprintf(stderr, "Warning: /var/run not mounted\n");
+			dbg_test_dir("/var/run");
+		}
 	}
+}
+
+void fs_var_lock(void) {
 
 	if (is_dir("/var/lock")) {
 		if (arg_debug)
@@ -321,55 +328,56 @@ void fs_var_run_shm(void) {
 					errExit("chmod");
 			}
 			if (arg_debug)
-				printf("Mounting tmpfs on %s\n", lnk2);
+				printf("Mounting tmpfs on %s on behalf of /var/lock\n", lnk2);
 			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 				errExit("mounting /var/lock");
 			free(lnk);
 		}
-		else
+		else {
 			fprintf(stderr, "Warning: /dev/lock not mounted\n");
+			dbg_test_dir("/var/lock");
+		}
 	}
+}
 
+void fs_var_tmp(void) {
 
-
-	if (is_dir("/dev/shm")) {
+	if (!is_link("/var/tmp")) {
 		if (arg_debug)
-			printf("Mounting tmpfs on /dev/shm\n");
-		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mounting /dev/shm");
+			printf("Mounting tmpfs on /var/tmp\n");
+		if (mount("tmpfs", "/var/tmp", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting /var/tmp");
 	}
 	else {
-		char *lnk = get_link("/dev/shm");
-		if (lnk) {
-			// convert a link such as "../shm" into "/shm"
-			char *lnk2 = lnk;
-			int cnt = 0;
-			while (strncmp(lnk2, "../", 3) == 0) {
-				cnt++;
-				lnk2 = lnk2 + 3;
-			}
-			if (cnt != 0)
-				lnk2 = lnk + (cnt - 1) * 3 + 2;
+		fprintf(stderr, "Warning: /var/tmp not mounted\n");
+		dbg_test_dir("/var/tmp");
+	}
+}
 
-			if (!is_dir(lnk2)) {
-				// create directory
-				if (mkdir(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
-					errExit("mkdir");
-				if (chown(lnk2, 0, 0))
-					errExit("chown");
-				if (chmod(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
-					errExit("chmod");
-			}
+void fs_etc_resolvconf(void) {
+	int run_resolv_conf = 0; // resolv.conf detected under /run/resolvconf directory
+	// grab a copy of resolv.conf in case it is a symbolic link into /run directory
+	// - setting found in Ubuntu
+	// - setting found in Debian when resolvconf package is installed
+	if (is_link("/etc/resolv.conf")) {
+		char *lnk = get_link("/etc/resolv.conf");
+		if (lnk) {
 			if (arg_debug)
-				printf("Mounting tmpfs on %s\n", lnk2);
-			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-				errExit("mounting /var/tmp");
+				printf("/etc/resolv.conf is a symbolic link to %s\n", lnk);
+			struct stat s;
+			if (stat("/run/resolvconf/resolv.conf", &s) == 0) {
+				if (arg_debug)
+					printf("Found /run/resolvconf/resolv.conf\n");
+				int rv = copy_file("/run/resolvconf/resolv.conf", "/tmp/resolv.conf");
+				if (rv == -1)
+					fprintf(stderr,"Warning: /etc/resolv.conf not initialized\n");
+				else
+					run_resolv_conf = 1;
+			}
 			free(lnk);
 		}
-		else
-			fprintf(stderr, "Warning: /dev/shm not mounted\n");
 	}
-	
+
 	// restore resolv.conf
 	if (run_resolv_conf) {
 		// create directory
@@ -389,12 +397,6 @@ void fs_var_run_shm(void) {
 			printf("Updated /run/resolvconf/resolv.conf\n");
 	}
 	
-	if (!is_link("/var/tmp")) {
-		if (arg_debug)
-			printf("Mounting tmpfs on /var/tmp\n");
-		if (mount("tmpfs", "/var/tmp", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mounting /var/tmp");
-	}
 }
 
 #if 0

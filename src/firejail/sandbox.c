@@ -214,15 +214,15 @@ int sandbox(void* sandbox_arg) {
 	if (arg_csh && setenv("SHELL", "/bin/csh", 1) < 0)
 		errExit("setenv");
 
+	// set seccomp
+	if (arg_unlock == 0)
+		seccomp_filter();
+
 	// drop privileges
 	if (setuid(getuid()) < 0)
 		errExit("setuid/getuid");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
-	
-	// set seccomp
-	if (arg_nofilter == 0)
-		seccomp_filter();
 	
 	// set prompt color to green
 	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '

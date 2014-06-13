@@ -40,6 +40,8 @@ void usage(void) {
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--ip=address - use this IP address in the new network namespace\n");
 	printf("\t--join=pid - join the sandbox of the specified process\n");
+	printf("\t--list - list all sandboxed processes\n");
+	printf("\t--mem - list the memory consumed by each sandbox\n");
 	printf("\t--name=name - set sandbox hostname\n");
 	printf("\t--net=bridgename - enable network namespaces and connect to this bridge\n");
 	printf("\t\tdevice. Unless specified with option --ip and --defaultgw, an\n");
@@ -57,6 +59,7 @@ void usage(void) {
 	printf("\t\tto work)\n");    
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
+	printf("\t--unlock - unlock user privilege escalation.\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");
 	printf("\n");

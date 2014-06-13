@@ -46,12 +46,12 @@ Config cfg;					  // configuration
 int arg_private = 0;				  // mount private /home and /tmp directoryu
 int arg_debug = 0;				  // print debug messages
 int arg_nonetwork = 0;				  // --net=none
-int arg_noip = 0;				  // --ip=none
+int arg_noip = 0;				  	// --ip=none
 int arg_command = 0;				  // -c
 int arg_overlay = 0;				  // --overlay
 int arg_zsh = 0;					// use zsh as default shell
 int arg_csh = 0;					// use csh as default shell
-int arg_nofilter = 0;				 // no seccomp filtering
+int arg_unlock = 0;				 // unlock user privilege escalation
 
 int fds[2];					  // parent-child communication pipe
 char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell
@@ -306,8 +306,8 @@ int main(int argc, char **argv) {
 		//*************************************
 		// misc features
 		//*************************************
-		else if (strcmp(argv[i], "--nofilter") == 0)
-			arg_nofilter = 1;
+		else if (strcmp(argv[i], "--unlock") == 0)
+			arg_unlock = 1;
 		
 		//*************************************
 		// filesystem

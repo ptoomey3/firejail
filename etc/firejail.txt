@@ -41,6 +41,12 @@ Use this IP address in the new network namespace.
 \fB\--join=pid
 Join the sandbox of the specified process.
 .TP
+\fB\--list
+List all sandboxed processes.
+.TP
+\fB\--mem
+List the memory consumed by each sandbox.
+.TP
 \fB\--name=name
 Set sandbox hostname.
 .TP
@@ -67,6 +73,9 @@ Mount new /tmp, /root and /home/user directories.
 .TP
 \fB\--profile=filename
 Use a custom profile, see below.
+.TP
+\fB\--unlock
+Unlock user privilege escalation.
 .TP
 \fB\--version
 Print program version and exit.
@@ -140,7 +149,7 @@ Start a /bin/bash session in a new network namespace and connect it
 to br0, br1, and br2 host bridge devices.
 .TP
 \f\firejail --list
-List all running sandboxes.
+List all sandboxed processes.
 .SH LICENSE
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 .PP

@@ -1,5 +1,8 @@
   * nowrap mode for firejail --list command option
-  * Added --mem option - to do help and man
+  * Added firejail --mem option
+  * User privilege escalation locking set as default. The feature requires a Linux kernel 3.5 or newer
+  * Added --unlock option to allow user privilege escalation on Linux kernels 3.5 or newer
+  * bugfixes
   
 firejail (0.9.6) baseline; urgency=low
 

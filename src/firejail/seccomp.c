@@ -72,7 +72,7 @@ int seccomp_filter(void) {
 	};
 
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) || prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
-		fprintf(stderr, "Warning: privilege locking was disabled. It requires a Linux kernel version 3.5 or newer.\n");
+		fprintf(stderr, "Warning: user privilege locking was disabled. It requires a Linux kernel version 3.5 or newer.\n");
 		return 1;
 	}
 	

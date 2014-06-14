@@ -75,7 +75,7 @@ Mount new /tmp, /root and /home/user directories.
 Use a custom profile, see below.
 .TP
 \fB\--unlock
-Unlock user privilege escalation.
+Unlock user privilege level.
 .TP
 \fB\--version
 Print program version and exit.

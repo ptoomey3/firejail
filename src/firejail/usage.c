@@ -59,7 +59,7 @@ void usage(void) {
 	printf("\t\tto work)\n");    
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
-	printf("\t--unlock - unlock user privilege escalation.\n");
+	printf("\t--unlock - unlock user privilege level.\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");
 	printf("\n");

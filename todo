@@ -10,36 +10,10 @@
 		return -1;
 	}
 
-* Investigate PR_SET_NO_NEW_PRIVS
-// Disable ability to gain privileges.
-  if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {
-    warn("prctl(PR_SET_NO_NEW_PRIVS)");
-  }
-http://www.openwall.com/lists/kernel-hardening/2012/06/05/1
-The execve system call can grant a newly-started program privileges
-that its parent did not have. The most obvious examples are
-setuid/setgid programs and file capabilities. To prevent the parent
-program from gaining these privileges as well, the kernel and user
-code must be careful to prevent the parent from doing anything that
-could subvert the child. For example:
-
+* Document PR_SET_NO_NEW_PRIVS; use https://lkml.org/lkml/2012/6/5/363
 kernel 3.5 or newer needed
-definitions in /usr/include/linux/prctl.h
-#define PR_SET_NO_NEW_PRIVS     38
-#define PR_GET_NO_NEW_PRIVS     39
 
 * container usage
 http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
 https://github.com/google/lmctfy/
 
-
-* investigate capabilities
-see /usr/include/linux/capability.h
-/* Insert and remove kernel modules - modify kernel without limit */
-#define CAP_SYS_MODULE       16
-#define CAP_SYS_BOOT         22
-
-example to remove module loading globally from the command line
-http://www.cyberciti.biz/tips/linux-advanced-hardening.html
-
-Linux capabilities are a sparsely used kernel facility to add granularity to the set of privileges that a process can have. By using capabilities, an administrator can grant a process a limited set of privileges, rather than the usual, essentially binary, choice between granting all privileges via setuid() or granting just those of the user running the program.

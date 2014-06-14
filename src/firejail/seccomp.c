@@ -24,8 +24,9 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <sys/prctl.h>
 #include <sys/syscall.h>
+#include <linux/capability.h>
+#include "firejail.h"
 
 #include <sys/prctl.h>
 #ifndef PR_SET_NO_NEW_PRIVS
@@ -59,6 +60,16 @@ struct seccomp_data {
 #define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
 int seccomp_filter(void) {
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0))
+		fprintf(stderr, "Warning: kernel module loading allowed for root user, your kernel does not have support for PR_CAPBSET_DROP");
+	else if (arg_debug)
+		printf("Kernel modules loading disabled\n");
+
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_BOOT, 0, 0, 0))
+		fprintf(stderr, "Warning: system rebooting capability not removed, your kernel does not have support for PR_CAPBSET_DROP");
+	else if (arg_debug)
+		printf("System rebooting disabled\n");
+		
 	struct sock_filter filter[] = {
 		BLACKLIST(SYS_mount),
 		BLACKLIST(SYS_umount2),
@@ -71,12 +82,32 @@ int seccomp_filter(void) {
 		.filter = filter,
 	};
 
-	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) || prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog)) {
+	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog) || prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
 		fprintf(stderr, "Warning: user privilege locking was disabled. It requires a Linux kernel version 3.5 or newer.\n");
 		return 1;
+	}
+	else if (arg_debug) {
+		printf("mount, umount2 and ptrace system calls disabled\n");
+		printf("User privileges locked\n");
 	}
 	
 	return 0;
 }
 
-
+#if 0
+void printcaps(void) {
+	cap_user_header_t       hdr;
+	cap_user_data_t         data;
+	hdr = malloc(sizeof(*hdr));
+	data = malloc(sizeof(*data));
+	memset(hdr, 0, sizeof(*hdr));
+	hdr->version = _LINUX_CAPABILITY_VERSION;
+	if (capget(hdr, data) < 0)
+		perror("capget");
+	printf("effective\t%x\n", data->effective);
+	printf("permitted\t%x\n", data->permitted);
+	printf("inheritable\t%x\n", data->inheritable);
+	free(hdr);
+	free(data);
+}
+#endif

@@ -40,6 +40,6 @@ int pid_is_firejail(pid_t pid);
 void pid_print_tree(unsigned index, unsigned parent, int nowrap);
 void pid_print_mem(unsigned index, unsigned parent);
 void pid_print_mem_header(void);
-void pid_read(void);
+void pid_read(pid_t mon_pid);
 
 #endif

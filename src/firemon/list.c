@@ -18,45 +18,44 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firemon.h"
-static int arg_list = 0;
-static int arg_mem = 0;
 
-int main(int argc, char **argv) {
-	unsigned pid = 0;
-	int i;
+static void drop_privs(void) {
+	// drop privileges
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
+	if (setgid(getgid()) < 0)
+		errExit("setgid/getgid");
+}
 
-	for (i = 1; i < argc; i++) {
-		// default options
-		if (strcmp(argv[i], "--help") == 0 ||
-		    strcmp(argv[i], "-?") == 0) {
-			usage();
-			return 0;
-		}
-		else if (strcmp(argv[i], "--version") == 0) {
-			printf("firemon version %s\n\n", VERSION);
-			return 0;
-		}
+void list(pid_t pid) {
+	drop_privs();
+	while (1) {
+		clrscr();
+		pid_read(pid);	// include all processes
 		
-		// list options
-		else if (strcmp(argv[i], "--list") == 0)
-			arg_list = 1;
-		else if (strcmp(argv[i], "--mem") == 0)
-			arg_mem = 1;
-		
-		// PID argument
-		else {
-			// this should be a pid number
-			sscanf(argv[i], "%u", &pid);
-			break;
+		// print processes
+		int i;
+		for (i = 0; i < MAX_PIDS; i++) {
+			if (pids[i].level == 1)
+				pid_print_tree(i, 0, 0);
 		}
+		sleep(5);
 	}
+}
 
-	if (arg_list)
-		list(pid); // never to return
-	else if (arg_mem)
-		list_mem(pid); // never to return
-	else
-		procevent((pid_t) pid); // never to return
+void list_mem(pid_t pid) {
+	drop_privs();
+	while (1) {
+		clrscr();
+		pid_read(pid);	// include all processes
+		pid_print_mem_header();
 		
-	return 0;
+		// print processes
+		int i;
+		for (i = 0; i < MAX_PIDS; i++) {
+			if (pids[i].level == 1)
+				pid_print_mem(i, 0);
+		}
+		sleep(5);
+	}
 }

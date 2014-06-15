@@ -18,45 +18,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firemon.h"
-static int arg_list = 0;
-static int arg_mem = 0;
 
-int main(int argc, char **argv) {
-	unsigned pid = 0;
-	int i;
-
-	for (i = 1; i < argc; i++) {
-		// default options
-		if (strcmp(argv[i], "--help") == 0 ||
-		    strcmp(argv[i], "-?") == 0) {
-			usage();
-			return 0;
-		}
-		else if (strcmp(argv[i], "--version") == 0) {
-			printf("firemon version %s\n\n", VERSION);
-			return 0;
-		}
-		
-		// list options
-		else if (strcmp(argv[i], "--list") == 0)
-			arg_list = 1;
-		else if (strcmp(argv[i], "--mem") == 0)
-			arg_mem = 1;
-		
-		// PID argument
-		else {
-			// this should be a pid number
-			sscanf(argv[i], "%u", &pid);
-			break;
-		}
-	}
-
-	if (arg_list)
-		list(pid); // never to return
-	else if (arg_mem)
-		list_mem(pid); // never to return
-	else
-		procevent((pid_t) pid); // never to return
-		
-	return 0;
+void usage(void) {
+	printf("firemon - version %s\n", VERSION);
+	printf("Usage: firemon [OPTIONS] [PID]\n\n");
+	printf("Monitor processes started in a Firejail sandbox. Without any PID specified,\n");
+	printf("all processes started by Firejail are monitored. Descendants of these processes\n");
+	printf("are also being monitored.\n\n");
+	printf("Options:\n");
+	printf("\t--help, -? - this help screen\n");
+	printf("\t--list - monitor all sandboxed processes\n");
+	printf("\t--mem - monitor the memory consumed by each sandbox\n");
+	printf("\t--version - print program version and exit\n\n");
+	printf("License GPL version 2 or later\n");
+	printf("Homepage: http://firejail.sourceforge.net\n");
+	printf("\n");
 }

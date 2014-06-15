@@ -20,10 +20,19 @@
 #include "firejail.h"
 #include "../include/pid.h"
 
+static void drop_privs(void) {
+	// drop privileges
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
+	if (setgid(getgid()) < 0)
+		errExit("setgid/getgid");
+}
+
 void list(void) {
-	pid_read();
+	drop_privs();
+	pid_read(0);	// include all processes
 	
-	// print files
+	// print processes
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i].level == 1)
@@ -32,10 +41,11 @@ void list(void) {
 }
 
 void list_mem(void) {
-	pid_read();
+	drop_privs();
+	pid_read(0);	// include all processes
 	pid_print_mem_header();
 	
-	// print files
+	// print processes
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i].level == 1)

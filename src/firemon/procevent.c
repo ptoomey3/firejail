@@ -19,7 +19,7 @@
 */
 #include "firemon.h"
 
-int procevent_netlink_setup(void) {
+static int procevent_netlink_setup(void) {
 	// open socket for process event connector
 	int sock;
 	if ((sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR)) < 0) {
@@ -69,7 +69,7 @@ int procevent_netlink_setup(void) {
 	return sock;
 }
 
-int procevent_monitor(const int sock, pid_t mypid) {
+static int procevent_monitor(const int sock, pid_t mypid) {
 	ssize_t len;
 	struct nlmsghdr *nlmsghdr;
 
@@ -252,7 +252,7 @@ int procevent_monitor(const int sock, pid_t mypid) {
 	return 0;
 }
 
-void procevent_print_pids(void) {
+static void procevent_print_pids(void) {
 	// print files
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
@@ -260,4 +260,24 @@ void procevent_print_pids(void) {
 			pid_print_tree(i, 0, 1);
 	}
 	printf("\n");
+}
+
+void procevent(pid_t pid) {
+	// need to be root for this
+	if (getuid() != 0) {
+		fprintf(stderr, "Error: you need to be root to get process events\n");
+		exit(1);
+	}
+
+	// read and print sandboxed processes
+	pid_read(pid);
+	procevent_print_pids();
+
+	// monitor using netlink
+	int sock = procevent_netlink_setup();
+	if (sock < 0) {
+		fprintf(stderr, "Error: cannot open netlink socket\n");
+		exit(1);
+	}
+	procevent_monitor(sock,pid); // it will never return from here
 }

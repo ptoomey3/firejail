@@ -54,6 +54,7 @@ static void getmem(unsigned pid) {
 		return;
 	pgs_rss += b;
 	pgs_shared += c;
+	fclose(fp);
 }
 
 
@@ -236,7 +237,7 @@ void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
 
 
 void pid_print_mem_header(void) {
-	printf("%-8.8s %-35.35s  %-10.10s %s\n", "PID", "Process", "RSS (KiB)", "Shared (Kib)");
+	printf("%-55.55s  %-10.10s %s\n", "PID:user:command", "RSS (KiB)", "Shared (Kib)");
 }
 
 
@@ -246,16 +247,35 @@ void pid_print_mem(unsigned index, unsigned parent) {
 		pgs_rss = 0;
 		pgs_shared = 0;
 		
-		char *cmd = pid_proc_cmdline(index);
 		char pidstr[10];
 		snprintf(pidstr, 10, "%u", index);
+
+		char *cmd = pid_proc_cmdline(index);
+		char *ptrcmd;
 		if (cmd == NULL) {
 			if (pids[index].zombie)
-				cmd = "(zombie)";
+				ptrcmd = "(zombie)";
 			else
-				cmd = "";
+				ptrcmd = "";
 		}
-		printf("%-8.8s %-35.35s  ", pidstr, cmd);
+		else
+			ptrcmd = cmd;
+		
+		char *user = pid_get_user_name(pids[index].uid);
+		char *ptruser;
+		if (user)
+			ptruser = user;
+		else
+			ptruser = "";
+			
+		char entry[60];
+		snprintf(entry, 60, "%s:%s:%s", pidstr, ptruser, ptrcmd);
+			
+		printf("%-55.55s  ", entry);
+		if (cmd)
+			free(cmd);
+		if (user)
+			free(user);
 	}
 	
 	getmem(index);
@@ -276,15 +296,19 @@ void pid_print_mem(unsigned index, unsigned parent) {
 	}
 }
 
-
-void pid_read(void) {
+// mon_pid: pid of sandbox to be monitored, 0 if all sandboxes are included
+void pid_read(pid_t mon_pid) {
 	memset(pids, 0, sizeof(pids));
 	pid_t mypid = getpid();
 
 	DIR *dir;
 	if (!(dir = opendir("/proc"))) {
-		fprintf(stderr, "Error: cannot open /proc directory\n");
-		exit(1);
+		// sleep 2 seconds and try again
+		sleep(2);
+		if (!(dir = opendir("/proc"))) {
+			fprintf(stderr, "Error: cannot open /proc directory\n");
+			exit(1);
+		}
 	}
 	
 	pid_t child = -1;
@@ -322,10 +346,12 @@ void pid_read(void) {
 					fprintf(stderr, "Error: cannot read /proc file\n");
 					exit(1);
 				}
-
-				if (strncmp(ptr, "firejail", 8) == 0) {
+				
+				if (mon_pid == 0 && strncmp(ptr, "firejail", 8) == 0) {
 					pids[pid].level = 1;
-					break;
+				}
+				else if (mon_pid == pid && strncmp(ptr, "firejail", 8) == 0) {
+					pids[pid].level = 1;
 				}
 				else
 					pids[pid].level = -1;
@@ -362,7 +388,7 @@ void pid_read(void) {
 					}
 					pids[pid].uid = atoi(ptr);
 				}
-				break; // break regardless!
+				break;
 			}
 		}
 		fclose(fp);

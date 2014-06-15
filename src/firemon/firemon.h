@@ -37,8 +37,21 @@
 
 #define BUFLEN 4096
 
+#define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
+
+static inline clrscr(void) {
+	printf("\033[2J\033[1;1H");
+	fflush(0);
+}
+
 // procevent.c
-int procevent_netlink_setup(void);
-int procevent_monitor(const int sock, pid_t mypid);
-void procevent_print_pids(void);
+void procevent(pid_t pid);
+
+// usage.c
+void usage(void);
+
+// list.c
+void list(pid_t pid);
+void list_mem(pid_t pid);
+
 #endif

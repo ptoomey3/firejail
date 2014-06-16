@@ -23,6 +23,16 @@ static int arg_mem = 0;
 static int arg_cpu = 0;
 static int arg_uptime = 0;
 
+// drop privileges
+void drop_privs(void) {
+	// drop privileges
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
+	if (setgid(getgid()) < 0)
+		errExit("setgid/getgid");
+}
+
+
 int main(int argc, char **argv) {
 	unsigned pid = 0;
 	int i;
@@ -48,6 +58,10 @@ int main(int argc, char **argv) {
 			arg_cpu = 1;
 		else if (strcmp(argv[i], "--uptime") == 0)
 			arg_uptime = 1;
+		
+		// options without a pid argument
+		else if (strcmp(argv[i], "--top") == 0)
+			top();
 		
 		// PID argument
 		else {

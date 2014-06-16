@@ -40,3 +40,4 @@ rm -f firejail.1.gz firemon.1.gz
 # bash completion
 mkdir -p $1/share/bash-completion/completions
 install -c -m 0644 etc/firejail.bash_completion $1/share/bash-completion/completions/firejail
+install -c -m 0644 etc/firemon.bash_completion $1/share/bash-completion/completions/firemon

@@ -33,12 +33,12 @@
 Process pids[MAX_PIDS];
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 static unsigned long long sysuptime = 0;
-unsigned clocktick = 0;
+static unsigned clocktick = 0;
 static unsigned pgs_rss = 0;
 static unsigned pgs_shared = 0;
 
 // get the memory associated with this pid
-static void getmem(unsigned pid) {
+void pid_getmem(unsigned pid, unsigned *rss, unsigned *shared) {
 	// open stat file
 	char *file;
 	if (asprintf(&file, "/proc/%u/statm", pid) == -1) {
@@ -55,14 +55,13 @@ static void getmem(unsigned pid) {
 	unsigned a, b, c;
 	if (3 != fscanf(fp, "%u %u %u", &a, &b, &c))
 		return;
-	pgs_rss += b;
-	pgs_shared += c;
+	*rss += b;
+	*shared += c;
 	fclose(fp);
-	
 }
 
 
-static void get_cpu_time(unsigned pid, unsigned *utime, unsigned *stime) {
+void pid_get_cpu_time(unsigned pid, unsigned *utime, unsigned *stime) {
 	// open stat file
 	char *file;
 	if (asprintf(&file, "/proc/%u/stat", pid) == -1) {
@@ -95,7 +94,7 @@ static void get_cpu_time(unsigned pid, unsigned *utime, unsigned *stime) {
 	fclose(fp);
 }
 
-static unsigned long long get_start_time(unsigned pid) {
+unsigned long long pid_get_start_time(unsigned pid) {
 	// open stat file
 	char *file;
 	if (asprintf(&file, "/proc/%u/stat", pid) == -1) {
@@ -349,7 +348,7 @@ void pid_print_mem(unsigned index, unsigned parent) {
 			free(user);
 	}
 	
-	getmem(index);
+	pid_getmem(index, &pgs_rss, &pgs_shared);
 	
 	
 	int i;
@@ -369,7 +368,7 @@ void pid_print_mem(unsigned index, unsigned parent) {
 }
 
 void pid_print_uptime_header(void) {
-	// open stat file
+	// find system uptime
 	FILE *fp = fopen("/proc/uptime", "r");
 	if (fp) {
 		float f;
@@ -414,7 +413,7 @@ void pid_print_uptime(unsigned index, unsigned parent) {
 			free(cmd);
 		if (user)
 			free(user);
-		unsigned long long uptime = get_start_time(index);
+		unsigned long long uptime = pid_get_start_time(index);
 		if (clocktick == 0)
 			clocktick = sysconf(_SC_CLK_TCK);
 		uptime /= sysconf(_SC_CLK_TCK);
@@ -455,7 +454,7 @@ void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *s
 	
 	unsigned utmp;
 	unsigned stmp;
-	get_cpu_time(index, &utmp, &stmp);
+	pid_get_cpu_time(index, &utmp, &stmp);
 	*utime += utmp;
 	*stime += stmp;
 	
@@ -514,7 +513,7 @@ void pid_print_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *s
 	
 	unsigned utmp;
 	unsigned stmp;
-	get_cpu_time(index, &utmp, &stmp);
+	pid_get_cpu_time(index, &utmp, &stmp);
 	*utime += utmp;
 	*stime += stmp;
 //printf("%u, %u\n", utmp, stmp);	

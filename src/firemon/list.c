@@ -19,14 +19,6 @@
 */
 #include "firemon.h"
 
-static void drop_privs(void) {
-	// drop privileges
-	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
-	if (setgid(getgid()) < 0)
-		errExit("setgid/getgid");
-}
-
 void list(pid_t pid) {
 	drop_privs();
 	while (1) {

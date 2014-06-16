@@ -59,3 +59,29 @@ void list_mem(pid_t pid) {
 		sleep(5);
 	}
 }
+
+void list_cpu(pid_t pid) {
+	drop_privs();
+	while (1) {
+		pid_read(pid);	// include all processes
+		
+		// print processes
+		int i;
+		for (i = 0; i < MAX_PIDS; i++) {
+			unsigned utime;
+			unsigned stime;
+			if (pids[i].level == 1)
+				pid_store_cpu(i, 0, &utime, &stime);
+		}
+		sleep(5);
+		clrscr();
+		pid_print_cpu_header();
+		for (i = 0; i < MAX_PIDS; i++) {
+			unsigned utime;
+			unsigned stime;
+			if (pids[i].level == 1)
+				pid_print_cpu(i, 0, &utime, &stime, 5);
+		}
+		
+	}
+}

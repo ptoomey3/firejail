@@ -49,15 +49,50 @@ static void getmem(unsigned pid) {
 		free(file);
 		return;
 	}
+	free(file);
+	
 	unsigned a, b, c;
 	if (3 != fscanf(fp, "%u %u %u", &a, &b, &c))
 		return;
 	pgs_rss += b;
 	pgs_shared += c;
 	fclose(fp);
+	
 }
 
 
+static void get_cpu_time(unsigned pid, unsigned *utime, unsigned *stime) {
+	// open stat file
+	char *file;
+	if (asprintf(&file, "/proc/%u/stat", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		free(file);
+		return;
+	}
+	free(file);
+	
+	char line[PIDS_BUFLEN];
+	if (fgets(line, PIDS_BUFLEN - 1, fp)) {
+		char *ptr = line;
+		// jump 13 fields
+		int i;
+		for (i = 0; i < 13; i++) {
+			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
+				ptr++;
+			if (*ptr == '\0')
+				return;
+			ptr++;
+		}
+		if (2 != sscanf(ptr, "%u %u", utime, stime))
+			return;
+	}
+	
+	fclose(fp);
+}
 
 char *pid_proc_cmdline(const pid_t pid) {
 	// open /proc/pid/cmdline file
@@ -280,6 +315,7 @@ void pid_print_mem(unsigned index, unsigned parent) {
 	
 	getmem(index);
 	
+	
 	int i;
 	for (i = index + 1; i < MAX_PIDS; i++) {
 		if (pids[i].parent == index)
@@ -295,6 +331,105 @@ void pid_print_mem(unsigned index, unsigned parent) {
 		printf("%-10.10s %-10.10s\n", rss, shared);
 	}
 }
+
+void pid_print_cpu_header(void) {
+	printf("%-55.55s  %s\n", "PID:user:command", "User   System   CPU");
+}
+
+
+// recursivity!!!
+void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *stime) {
+	if (pids[index].level == 1) {
+		*utime = 0;
+		*stime = 0;
+	}
+	
+	unsigned utmp;
+	unsigned stmp;
+	get_cpu_time(index, &utmp, &stmp);
+	*utime += utmp;
+	*stime += stmp;
+	
+	int i;
+	for (i = index + 1; i < MAX_PIDS; i++) {
+		if (pids[i].parent == index)
+			pid_store_cpu(i, index, utime, stime);
+	}
+
+	if (pids[index].level == 1) {
+		pids[index].utime = *utime;
+		pids[index].stime = *stime;
+	}
+}
+
+
+
+// recursivity!!!
+// itv - time interval in seconds
+void pid_print_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *stime, unsigned itv) {
+
+	if (pids[index].level == 1) {
+		*utime = 0;
+		*stime = 0;
+
+		char pidstr[10];
+		snprintf(pidstr, 10, "%u", index);
+
+		char *cmd = pid_proc_cmdline(index);
+		char *ptrcmd;
+		if (cmd == NULL) {
+			if (pids[index].zombie)
+				ptrcmd = "(zombie)";
+			else
+				ptrcmd = "";
+		}
+		else
+			ptrcmd = cmd;
+		
+		char *user = pid_get_user_name(pids[index].uid);
+		char *ptruser;
+		if (user)
+			ptruser = user;
+		else
+			ptruser = "";
+			
+		char entry[60];
+		snprintf(entry, 60, "%s:%s:%s", pidstr, ptruser, ptrcmd);
+			
+		printf("%-55.55s  ", entry);
+		if (cmd)
+			free(cmd);
+		if (user)
+			free(user);
+	}
+	
+	unsigned utmp;
+	unsigned stmp;
+	get_cpu_time(index, &utmp, &stmp);
+	*utime += utmp;
+	*stime += stmp;
+//printf("%u, %u\n", utmp, stmp);	
+	int i;
+	for (i = index + 1; i < MAX_PIDS; i++) {
+		if (pids[i].parent == index)
+			pid_print_cpu(i, index, utime, stime, itv);
+	}
+
+	if (pids[index].level == 1) {
+		itv *= sysconf(_SC_CLK_TCK);
+		double ud = (double) (*utime - pids[index].utime) / itv * 100;
+		double sd = (double) (*stime - pids[index].stime) / itv * 100;
+		double cd = ud + sd;
+		
+//	printf("%-55.55s  %-7.7s  %-7.7s%s\n", "PID:user:command", "User", "System", "CPU");
+		
+		printf("%2.2f   %2.2f    %2.2f\n", ud, sd, cd);
+	}
+}
+
+
+
+
 
 // mon_pid: pid of sandbox to be monitored, 0 if all sandboxes are included
 void pid_read(pid_t mon_pid) {

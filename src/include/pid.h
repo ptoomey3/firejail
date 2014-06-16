@@ -30,6 +30,8 @@ typedef struct {
 	uid_t uid;
 	char *user;
 	char *cmd;
+	unsigned utime;
+	unsigned stime;
 } Process;
 extern Process pids[MAX_PIDS];
 

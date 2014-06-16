@@ -52,3 +52,24 @@ void list_mem(void) {
 			pid_print_mem(i, 0);
 	}
 }
+
+void list_cpu(void) {
+	drop_privs();
+	pid_read(0);	// include all processes
+		
+	int i;
+	for (i = 0; i < MAX_PIDS; i++) {
+		unsigned utime;
+		unsigned stime;
+		if (pids[i].level == 1)
+			pid_store_cpu(i, 0, &utime, &stime);
+	}
+	sleep(5);
+	pid_print_cpu_header();
+	for (i = 0; i < MAX_PIDS; i++) {
+		unsigned utime;
+		unsigned stime;
+		if (pids[i].level == 1)
+			pid_print_cpu(i, 0, &utime, &stime, 5);
+	}
+}

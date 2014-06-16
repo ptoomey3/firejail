@@ -33,6 +33,7 @@ void usage(void) {
 	printf("Options:\n");
 	printf("\t-c - execute command and exit\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
+	printf("\t--cpu - list CPU utilization for all sandboxes\n");
 	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
 	printf("\t--defaultgw=address - use this address as default gateway in the new\n");

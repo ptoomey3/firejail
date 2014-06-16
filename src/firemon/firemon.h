@@ -53,5 +53,6 @@ void usage(void);
 // list.c
 void list(pid_t pid);
 void list_mem(pid_t pid);
+void list_cpu(pid_t pid);
 
 #endif

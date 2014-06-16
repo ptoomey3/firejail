@@ -17,3 +17,4 @@ kernel 3.5 or newer needed
 http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
 https://github.com/google/lmctfy/
 
+* If the demands being placed on a running program cause it to request excessive resources from your server this can lead to poor performance and system instability.

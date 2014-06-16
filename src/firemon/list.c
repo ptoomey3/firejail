@@ -31,7 +31,7 @@ void list(pid_t pid) {
 	drop_privs();
 	while (1) {
 		clrscr();
-		pid_read(pid);	// include all processes
+		pid_read(pid);
 		
 		// print processes
 		int i;
@@ -47,7 +47,7 @@ void list_mem(pid_t pid) {
 	drop_privs();
 	while (1) {
 		clrscr();
-		pid_read(pid);	// include all processes
+		pid_read(pid);
 		pid_print_mem_header();
 		
 		// print processes
@@ -63,9 +63,8 @@ void list_mem(pid_t pid) {
 void list_cpu(pid_t pid) {
 	drop_privs();
 	while (1) {
-		pid_read(pid);	// include all processes
+		pid_read(pid);
 		
-		// print processes
 		int i;
 		for (i = 0; i < MAX_PIDS; i++) {
 			unsigned utime;

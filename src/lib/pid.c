@@ -333,7 +333,7 @@ void pid_print_mem(unsigned index, unsigned parent) {
 }
 
 void pid_print_cpu_header(void) {
-	printf("%-55.55s  %s\n", "PID:user:command", "User   System   CPU");
+	printf("%-55.55s   %s\n", "PID:user:command", "User   System   CPU");
 }
 
 
@@ -421,9 +421,18 @@ void pid_print_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *s
 		double sd = (double) (*stime - pids[index].stime) / itv * 100;
 		double cd = ud + sd;
 		
-//	printf("%-55.55s  %-7.7s  %-7.7s%s\n", "PID:user:command", "User", "System", "CPU");
-		
-		printf("%2.2f   %2.2f    %2.2f\n", ud, sd, cd);
+		if (ud < 10)
+			printf(" %2.2f   ", ud);
+		else
+			printf("%2.2f   ", ud);
+		if (sd < 10)
+			printf(" %2.2f   ", sd);
+		else
+			printf("%2.2f   ", sd);
+		if (cd < 10)
+			printf(" %2.2f\n", cd);
+		else
+			printf("%2.2f\n", cd);
 	}
 }
 

@@ -283,6 +283,10 @@ int main(int argc, char **argv) {
 			list_mem();
 			exit(0);
 		}
+		else if (strcmp(argv[i], "--cpu") == 0) {
+			list_cpu();
+			exit(0);
+		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			char *endptr;
 			errno = 0;

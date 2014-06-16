@@ -23,6 +23,9 @@ Execute command and exit.
 \fB\--chroot=dirname
 Chroot into dirname directory.
 .TP
+\fB\--cpu
+List CPU utilization for all sandboxes.
+.TP
 \fB\--csh
 Use /bin/csh as default user shell.
 .TP

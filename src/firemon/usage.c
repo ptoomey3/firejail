@@ -27,6 +27,7 @@ void usage(void) {
 	printf("are also being monitored.\n\n");
 	printf("Options:\n");
 	printf("\t--help, -? - this help screen\n");
+	printf("\t--cpu - monitor CPU utilization for all sandboxes\n");
 	printf("\t--list - monitor all sandboxed processes\n");
 	printf("\t--mem - monitor the memory consumed by each sandbox\n");
 	printf("\t--version - print program version and exit\n\n");

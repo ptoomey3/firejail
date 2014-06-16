@@ -167,6 +167,7 @@ void profile_read(const char *fname);
 void list(void);
 void list_mem(void);
 void list_cpu(void);
+void list_uptime(void);
 
 // usage.c
 void usage(void);

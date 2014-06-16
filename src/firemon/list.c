@@ -84,3 +84,20 @@ void list_cpu(pid_t pid) {
 		
 	}
 }
+
+void list_uptime(pid_t pid) {
+	drop_privs();
+	while (1) {
+		clrscr();
+		pid_read(pid);
+		pid_print_uptime_header();
+		
+		// print processes
+		int i;
+		for (i = 0; i < MAX_PIDS; i++) {
+			if (pids[i].level == 1)
+				pid_print_uptime(i, 0);
+		}
+		sleep(5);
+	}
+}

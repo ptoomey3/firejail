@@ -54,5 +54,6 @@ void usage(void);
 void list(pid_t pid);
 void list_mem(pid_t pid);
 void list_cpu(pid_t pid);
+void list_uptime(pid_t pid);
 
 #endif

@@ -21,6 +21,7 @@
 static int arg_list = 0;
 static int arg_mem = 0;
 static int arg_cpu = 0;
+static int arg_uptime = 0;
 
 int main(int argc, char **argv) {
 	unsigned pid = 0;
@@ -45,6 +46,8 @@ int main(int argc, char **argv) {
 			arg_mem = 1;
 		else if (strcmp(argv[i], "--cpu") == 0)
 			arg_cpu = 1;
+		else if (strcmp(argv[i], "--uptime") == 0)
+			arg_uptime = 1;
 		
 		// PID argument
 		else {
@@ -60,6 +63,8 @@ int main(int argc, char **argv) {
 		list_mem(pid); // never to return
 	else if (arg_cpu)
 		list_cpu(pid); // never to return
+	else if (arg_uptime)
+		list_uptime(pid); // never to return
 	else
 		procevent((pid_t) pid); // never to return
 		

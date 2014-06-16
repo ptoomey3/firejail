@@ -21,6 +21,9 @@ Monitor all sandboxed processes.
 \fB\--mem
 Monitor the memory consumed by each sandbox.
 .TP
+\fB\--uptime
+Monitor uptime for all sandboxes.
+.TP
 \fB\--version
 Print program version and exit.
 .SH LICENSE

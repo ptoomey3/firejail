@@ -30,6 +30,7 @@ void usage(void) {
 	printf("\t--cpu - monitor CPU utilization for all sandboxes\n");
 	printf("\t--list - monitor all sandboxed processes\n");
 	printf("\t--mem - monitor the memory consumed by each sandbox\n");
+	printf("\t--uptime - monitor uptime for all sandboxes\n");
 	printf("\t--version - print program version and exit\n\n");
 	printf("License GPL version 2 or later\n");
 	printf("Homepage: http://firejail.sourceforge.net\n");

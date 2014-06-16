@@ -80,6 +80,9 @@ Use a custom profile, see below.
 \fB\--unlock
 Unlock user privilege level.
 .TP
+\fB\--uptime
+List uptime for all sandboxes.
+.TP
 \fB\--version
 Print program version and exit.
 .TP

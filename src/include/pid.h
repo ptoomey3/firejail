@@ -42,6 +42,8 @@ int pid_is_firejail(pid_t pid);
 void pid_print_tree(unsigned index, unsigned parent, int nowrap);
 void pid_print_mem(unsigned index, unsigned parent);
 void pid_print_mem_header(void);
+void pid_print_uptime_header(void);
+void pid_print_uptime(unsigned index, unsigned parent);
 void pid_print_cpu_header(void);
 void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *stime);
 void pid_print_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *stime, unsigned itv);

@@ -287,6 +287,10 @@ int main(int argc, char **argv) {
 			list_cpu();
 			exit(0);
 		}
+		else if (strcmp(argv[i], "--uptime") == 0) {
+			list_uptime();
+			exit(0);
+		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			char *endptr;
 			errno = 0;

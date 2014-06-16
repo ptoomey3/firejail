@@ -73,3 +73,17 @@ void list_cpu(void) {
 			pid_print_cpu(i, 0, &utime, &stime, 5);
 	}
 }
+
+void list_uptime(void) {
+	drop_privs();
+	pid_read(0);	// include all processes
+	pid_print_uptime_header();
+	
+	// print processes
+	int i;
+	for (i = 0; i < MAX_PIDS; i++) {
+		if (pids[i].level == 1)
+			pid_print_uptime(i, 0);
+	}
+}
+

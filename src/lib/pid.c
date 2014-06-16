@@ -32,10 +32,11 @@
 #define PIDS_BUFLEN 4096
 Process pids[MAX_PIDS];
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
-
-// memory pages from /proc/pid/mem
+static unsigned long long sysuptime = 0;
+unsigned clocktick = 0;
 static unsigned pgs_rss = 0;
 static unsigned pgs_shared = 0;
+
 // get the memory associated with this pid
 static void getmem(unsigned pid) {
 	// open stat file
@@ -92,6 +93,41 @@ static void get_cpu_time(unsigned pid, unsigned *utime, unsigned *stime) {
 	}
 	
 	fclose(fp);
+}
+
+static unsigned long long get_start_time(unsigned pid) {
+	// open stat file
+	char *file;
+	if (asprintf(&file, "/proc/%u/stat", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		free(file);
+		return 0;
+	}
+	free(file);
+	
+	char line[PIDS_BUFLEN];
+	unsigned long long retval;
+	if (fgets(line, PIDS_BUFLEN - 1, fp)) {
+		char *ptr = line;
+		// jump 13 fields
+		int i;
+		for (i = 0; i < 21; i++) {
+			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
+				ptr++;
+			if (*ptr == '\0')
+				return 0;
+			ptr++;
+		}
+		if (1 != sscanf(ptr, "%llu", &retval))
+			return 0;
+	}
+	
+	fclose(fp);
+	return retval;
 }
 
 char *pid_proc_cmdline(const pid_t pid) {
@@ -332,6 +368,79 @@ void pid_print_mem(unsigned index, unsigned parent) {
 	}
 }
 
+void pid_print_uptime_header(void) {
+	// open stat file
+	FILE *fp = fopen("/proc/uptime", "r");
+	if (fp) {
+		float f;
+		int rv = fscanf(fp, "%f", &f);
+		sysuptime = (unsigned long long) f;
+		fclose(fp);
+	}
+
+	printf("%-55.55s  %s\n", "PID:user:command", "Uptime");
+}
+
+
+// recursivity!!!
+void pid_print_uptime(unsigned index, unsigned parent) {
+	if (pids[index].level == 1) {
+		char pidstr[10];
+		snprintf(pidstr, 10, "%u", index);
+
+		char *cmd = pid_proc_cmdline(index);
+		char *ptrcmd;
+		if (cmd == NULL) {
+			if (pids[index].zombie)
+				ptrcmd = "(zombie)";
+			else
+				ptrcmd = "";
+		}
+		else
+			ptrcmd = cmd;
+		
+		char *user = pid_get_user_name(pids[index].uid);
+		char *ptruser;
+		if (user)
+			ptruser = user;
+		else
+			ptruser = "";
+			
+		char entry[60];
+		snprintf(entry, 60, "%s:%s:%s", pidstr, ptruser, ptrcmd);
+			
+		printf("%-55.55s  ", entry);
+		if (cmd)
+			free(cmd);
+		if (user)
+			free(user);
+		unsigned long long uptime = get_start_time(index);
+		if (clocktick == 0)
+			clocktick = sysconf(_SC_CLK_TCK);
+		uptime /= sysconf(_SC_CLK_TCK);
+		uptime = sysuptime - uptime;
+
+		unsigned sec = uptime % 60;
+		uptime -= sec;
+		uptime /= 60;
+		unsigned min = uptime % 60;
+		uptime -= min;
+		uptime /= 60;
+		unsigned hour = uptime % 24;
+		uptime -= hour;
+		unsigned day = uptime / 24;
+		if (day == 1)
+			printf("one day ");
+		else if (day)
+			printf("%u days ", day);
+		printf("%02u:%02u:%02u\n", hour, min, sec);
+	}
+}	
+	
+
+
+
+
 void pid_print_cpu_header(void) {
 	printf("%-55.55s   %s\n", "PID:user:command", "User   System   CPU");
 }
@@ -416,7 +525,10 @@ void pid_print_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *s
 	}
 
 	if (pids[index].level == 1) {
-		itv *= sysconf(_SC_CLK_TCK);
+		if (clocktick == 0)
+			clocktick = sysconf(_SC_CLK_TCK);
+
+		itv *= clocktick;
 		double ud = (double) (*utime - pids[index].utime) / itv * 100;
 		double sd = (double) (*stime - pids[index].stime) / itv * 100;
 		double cd = ud + sd;

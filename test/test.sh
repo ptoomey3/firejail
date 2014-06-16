@@ -15,6 +15,15 @@ echo "TESTING: man"
 echo "TESTING: list"
 ./option_list.exp
 
+echo "TESTING: cpu"
+./option_cpu.exp
+
+echo "TESTING: mem"
+./option_mem.exp
+
+echo "TESTING: uptime"
+./option_uptime.exp
+
 echo "TESTING: zsh"
 ./shell_zsh.exp
 

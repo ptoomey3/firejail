@@ -112,7 +112,7 @@ unsigned long long pid_get_start_time(unsigned pid) {
 	unsigned long long retval;
 	if (fgets(line, PIDS_BUFLEN - 1, fp)) {
 		char *ptr = line;
-		// jump 13 fields
+		// jump 21 fields
 		int i;
 		for (i = 0; i < 21; i++) {
 			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')

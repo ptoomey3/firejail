@@ -1,10 +1,10 @@
-  * nowrap mode for firejail --list command option
-  * Added firejail --mem option
+  * Implemented nowrap mode for firejail --list command option
+  * Added firejail --mem, --cpu and --uptime options
   * User privilege level locking set as default. The feature requires a Linux kernel 3.5 or newer
   * Added --unlock option to allow user privilege escalation on Linux kernels 3.5 or newer
   * Added pid support for firemon
-  * Added --list support for firemon
-  * Added --mem support for firemon
+  * Added firemon --list, --mem, --cpu and --uptime options
+  * Added firemon --top soption
   * bugfixes
   
 firejail (0.9.6) baseline; urgency=low

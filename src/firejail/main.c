@@ -36,6 +36,7 @@
 #include <sys/file.h>
 #endif
 #include <sys/prctl.h>
+#include <signal.h>
 
 #include "firejail.h"
 #include "../include/pid.h"
@@ -56,6 +57,13 @@ int arg_unlock = 0;				 // unlock user privilege escalation
 int fds[2];					  // parent-child communication pipe
 char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell
 int fullargc = 0;
+static pid_t child = 0;
+
+void my_handler(int s){
+	printf("\nSignal %d caught, shutting down the child process\n", s);
+	kill(child, SIGKILL);
+	exit(1); 
+}
 
 static void extract_user_data(void) {
 	// check suid
@@ -529,7 +537,7 @@ int main(int argc, char **argv) {
 	else if (arg_debug)
 		printf("Using the local network stack\n");
 
-	const pid_t child = clone(sandbox,
+	child = clone(sandbox,
 		child_stack + STACK_SIZE,
 		flags,
 		NULL);
@@ -573,6 +581,9 @@ int main(int argc, char **argv) {
 		free(msg);
 	}
 	
+	// handle CTRL-C in parent
+	signal (SIGINT, my_handler);
+	signal (SIGTERM, my_handler);
 	
 	// wait for the child to finish
 	waitpid(child, NULL, 0);

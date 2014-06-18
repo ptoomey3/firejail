@@ -209,42 +209,6 @@ doexit:
 	return rv;
 }
 
-int pid_is_firejail(pid_t pid) {
-	uid_t rv = 0;
-	
-	// open stat file
-	char *file;
-	if (asprintf(&file, "/proc/%u/status", pid) == -1) {
-		perror("asprintf");
-		exit(1);
-	}
-	FILE *fp = fopen(file, "r");
-	if (!fp) {
-		free(file);
-		return 0;
-	}
-
-	// look for firejail executable name
-	char buf[PIDS_BUFLEN];
-	while (fgets(buf, PIDS_BUFLEN - 1, fp)) {
-		if (strncmp(buf, "Name:", 5) == 0) {
-			char *ptr = buf + 5;
-			while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
-				ptr++;
-			}
-			if (*ptr == '\0')
-				goto doexit;
-			if (strncmp(ptr, "firejail", 8) == 0)
-				rv = 1;
-			break;
-		}
-	}
-doexit:	
-	fclose(fp);
-	free(file);
-	return rv;
-}
-
 static void print_elem(unsigned index, int nowrap) {
 	// get terminal size
 	struct winsize sz;
@@ -601,13 +565,19 @@ void pid_read(pid_t mon_pid) {
 					fprintf(stderr, "Error: cannot read /proc file\n");
 					exit(1);
 				}
-				
+
 				if (mon_pid == 0 && strncmp(ptr, "firejail", 8) == 0) {
 					pids[pid].level = 1;
 				}
 				else if (mon_pid == pid && strncmp(ptr, "firejail", 8) == 0) {
 					pids[pid].level = 1;
 				}
+//				else if (mon_pid == 0 && strncmp(ptr, "lxc-execute", 11) == 0) {
+//					pids[pid].level = 1;
+//				}
+//				else if (mon_pid == pid && strncmp(ptr, "lxc-execute", 11) == 0) {
+//					pids[pid].level = 1;
+//				}
 				else
 					pids[pid].level = -1;
 			}

@@ -176,6 +176,7 @@ static void head_add(float cpu, char *line) {
 	
 	// insert in first list position
 	if (head == NULL || head->cpu < cpu) {
+		node->next = head;
 		head = node;
 		return;
 	}

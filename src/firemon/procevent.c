@@ -19,6 +19,46 @@
 */
 #include "firemon.h"
 
+#define PIDS_BUFLEN 4096
+static int pid_is_firejail(pid_t pid) {
+	uid_t rv = 0;
+	
+	// open stat file
+	char *file;
+	if (asprintf(&file, "/proc/%u/status", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		free(file);
+		return 0;
+	}
+
+	// look for firejail executable name
+	char buf[PIDS_BUFLEN];
+	while (fgets(buf, PIDS_BUFLEN - 1, fp)) {
+		if (strncmp(buf, "Name:", 5) == 0) {
+			char *ptr = buf + 5;
+			while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+				ptr++;
+			}
+			if (*ptr == '\0')
+				goto doexit;
+			if (strncmp(ptr, "firejail", 8) == 0)
+				rv = 1;
+//			if (strncmp(ptr, "lxc-execute", 11) == 0)
+//				rv = 1;
+			break;
+		}
+	}
+doexit:	
+	fclose(fp);
+	free(file);
+	return rv;
+}
+
+
 static int procevent_netlink_setup(void) {
 	// open socket for process event connector
 	int sock;

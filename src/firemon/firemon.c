@@ -17,19 +17,66 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+#include <termios.h>
+#include <sys/ioctl.h>
+#include <sys/prctl.h>
+#include <signal.h>
 #include "firemon.h"
 static int arg_list = 0;
 static int arg_mem = 0;
 static int arg_cpu = 0;
 static int arg_uptime = 0;
 
+static struct termios tlocal;	// startup terminal setting
+static struct termios twait;		// no wait on key press
+static int terminal_set = 0;
+
+static void my_handler(int s){
+	if (terminal_set)
+		tcsetattr(0, TCSANOW, &tlocal);
+	exit(0); 
+}
+
 // drop privileges
-void drop_privs(void) {
+void firemon_drop_privs(void) {
 	// drop privileges
 	if (setuid(getuid()) < 0)
 		errExit("setuid/getuid");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
+}
+
+// sleep and wait for a key to be pressed
+void firemon_sleep(int st) {
+	if (terminal_set == 0) {
+		tcgetattr(0, &twait);          // get current terminal attirbutes; 0 is the file descriptor for stdin
+		memcpy(&tlocal, &twait, sizeof(tlocal));
+		twait.c_lflag &= ~ICANON;      // disable canonical mode
+		twait.c_lflag &= ~ECHO;	// no echo
+		twait.c_cc[VMIN] = 1;          // wait until at least one keystroke available
+		twait.c_cc[VTIME] = 0;         // no timeout
+		terminal_set = 1;
+	}
+	tcsetattr(0, TCSANOW, &twait);
+
+
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(0,&fds);
+	int maxfd = 1;
+
+	struct timeval ts;
+	ts.tv_sec = st;
+	ts.tv_usec = 0;
+
+	int ready = select(maxfd, &fds, (fd_set *) 0, (fd_set *) 0, &ts);
+	if( FD_ISSET(0, &fds)) {
+		getchar();
+		tcsetattr(0, TCSANOW, &tlocal);
+		printf("\n");
+		exit(0);
+	}
+	tcsetattr(0, TCSANOW, &tlocal);
 }
 
 
@@ -70,6 +117,10 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
+
+	// handle CTRL-C
+	signal (SIGINT, my_handler);
+	signal (SIGTERM, my_handler);
 
 	if (arg_list)
 		list(pid); // never to return

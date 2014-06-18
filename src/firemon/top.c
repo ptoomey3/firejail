@@ -224,8 +224,7 @@ void head_print(int col, int row) {
 }
 
 void top(void) {
-	drop_privs();
-
+	firemon_drop_privs();
 
 	while (1) {
 		// clear linked list
@@ -245,7 +244,7 @@ void top(void) {
 		}
 		
 		// wait 5 seconds
-		sleep(itv);
+		firemon_sleep(itv);
 		
 		// grab screen size
 		struct winsize sz;
@@ -257,7 +256,7 @@ void top(void) {
 		}
 
 		// start printing
-		clrscr();
+		firemon_clrscr();
 		char *header = get_header();
 		if (strlen(header) > col)
 			header[col] = '\0';

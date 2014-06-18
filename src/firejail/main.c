@@ -59,7 +59,7 @@ char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell
 int fullargc = 0;
 static pid_t child = 0;
 
-void my_handler(int s){
+static void my_handler(int s){
 	printf("\nSignal %d caught, shutting down the child process\n", s);
 	kill(child, SIGKILL);
 	exit(1); 

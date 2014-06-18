@@ -20,9 +20,9 @@
 #include "firemon.h"
 
 void list(pid_t pid) {
-	drop_privs();
+	firemon_drop_privs();
 	while (1) {
-		clrscr();
+		firemon_clrscr();
 		pid_read(pid);
 		
 		// print processes
@@ -31,14 +31,14 @@ void list(pid_t pid) {
 			if (pids[i].level == 1)
 				pid_print_tree(i, 0, 0);
 		}
-		sleep(5);
+		firemon_sleep(5);
 	}
 }
 
 void list_mem(pid_t pid) {
-	drop_privs();
+	firemon_drop_privs();
 	while (1) {
-		clrscr();
+		firemon_clrscr();
 		pid_read(pid);
 		pid_print_mem_header();
 		
@@ -48,12 +48,12 @@ void list_mem(pid_t pid) {
 			if (pids[i].level == 1)
 				pid_print_mem(i, 0);
 		}
-		sleep(5);
+		firemon_sleep(5);
 	}
 }
 
 void list_cpu(pid_t pid) {
-	drop_privs();
+	firemon_drop_privs();
 	while (1) {
 		pid_read(pid);
 		
@@ -64,8 +64,8 @@ void list_cpu(pid_t pid) {
 			if (pids[i].level == 1)
 				pid_store_cpu(i, 0, &utime, &stime);
 		}
-		sleep(5);
-		clrscr();
+		firemon_sleep(5);
+		firemon_clrscr();
 		pid_print_cpu_header();
 		for (i = 0; i < MAX_PIDS; i++) {
 			unsigned utime;
@@ -78,9 +78,9 @@ void list_cpu(pid_t pid) {
 }
 
 void list_uptime(pid_t pid) {
-	drop_privs();
+	firemon_drop_privs();
 	while (1) {
-		clrscr();
+		firemon_clrscr();
 		pid_read(pid);
 		pid_print_uptime_header();
 		
@@ -90,6 +90,6 @@ void list_uptime(pid_t pid) {
 			if (pids[i].level == 1)
 				pid_print_uptime(i, 0);
 		}
-		sleep(5);
+		firemon_sleep(5);
 	}
 }

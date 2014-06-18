@@ -39,13 +39,15 @@
 
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
-static inline clrscr(void) {
+// clear screen
+static inline firemon_clrscr(void) {
 	printf("\033[2J\033[1;1H");
 	fflush(0);
 }
 
 // firemon.c
-void drop_privs(void);
+void firemon_drop_privs(void);
+void firemon_sleep(int st);
 
 
 // procevent.c

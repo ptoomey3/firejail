@@ -125,6 +125,8 @@ char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigned *stim
 		float ud = (float) (*utime - pids[index].utime) / itv * 100;
 		float sd = (float) (*stime - pids[index].stime) / itv * 100;
 		float cd = ud + sd;
+		if (cd > 100)
+			cd = 100;
 		*cpu = cd;
 		char cpu_str[10];
 		snprintf(cpu_str, 10, "%2.2f%%", cd);

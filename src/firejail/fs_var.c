@@ -264,7 +264,14 @@ void fs_dev_shm(void) {
 
 void fs_var_run(void) {
 	// create a temporary resolv.conf file
-	int resolv_err = copy_file("/etc/resolv.conf", "/tmp/resolv.conf");
+	pid_t pid = getpid();
+	char *name_template;
+	if (asprintf(&name_template, "/tmp/resolv.conf-%u-XXXXXX", pid) == -1)
+		errExit("asprintf");
+	char *resolv_fname = mktemp(name_template);
+	if (resolv_fname == NULL)
+		errExit("mktemp");
+	int resolv_err = copy_file("/etc/resolv.conf", resolv_fname);
 
 	if (is_dir("/var/run")) {
 		if (arg_debug)
@@ -296,6 +303,8 @@ void fs_var_run(void) {
 		else {
 			fprintf(stderr, "Warning: /var/run not mounted\n");
 			dbg_test_dir("/var/run");
+			unlink(resolv_fname);
+			free(resolv_fname);
 			return;
 		}
 	}
@@ -305,9 +314,11 @@ void fs_var_run(void) {
 		mkdir("/run/resolvconf", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 		mkdir("/run/systemd", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 		mkdir("/run/systemd/resolve", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		copy_file("/tmp/resolv.conf", "/run/resolvconf/resolv.conf");
-		copy_file("/tmp/resolv.conf", "/run/systemd/resolve/resolv.conf");
+		copy_file(resolv_fname, "/run/resolvconf/resolv.conf");
+		copy_file(resolv_fname, "/run/systemd/resolve/resolv.conf");
 	}
+	unlink(resolv_fname);
+	free(resolv_fname);
 }
 
 void fs_var_lock(void) {
@@ -367,59 +378,6 @@ void fs_var_tmp(void) {
 	}
 }
 
-void fs_etc_resolvconf(void) {
-	int run_resolv_conf = 0; // resolv.conf detected under /run/resolvconf directory
-	// grab a copy of resolv.conf in case it is a symbolic link into /run directory
-	// - setting found in Ubuntu
-	// - setting found in Debian when resolvconf package is installed
-	if (is_link("/etc/resolv.conf")) {
-		char *lnk = get_link("/etc/resolv.conf");
-		if (lnk) {
-			if (arg_debug)
-				printf("/etc/resolv.conf is a symbolic link to %s\n", lnk);
-			struct stat s;
-			if (stat("/run/resolvconf/resolv.conf", &s) == 0) {
-				if (arg_debug)
-					printf("Found /run/resolvconf/resolv.conf\n");
-				int rv = copy_file("/run/resolvconf/resolv.conf", "/tmp/resolv.conf");
-				if (rv == -1)
-					fprintf(stderr,"Warning: /etc/resolv.conf not initialized\n");
-				else
-					run_resolv_conf = 1;
-			}
-			else if (stat("/run/systemd/resolve/resolv.conf", &s) == 0) {
-				if (arg_debug)
-					printf("Found /run/systemd/resolve/resolv.conf\n");
-				int rv = copy_file("/run/systemd/resolve/resolv.conf", "/tmp/resolv.conf");
-				if (rv == -1)
-					fprintf(stderr,"Warning: /etc/resolv.conf not initialized\n");
-				else
-					run_resolv_conf = 1;
-			}
-			free(lnk);
-		}
-	}
-
-	// restore resolv.conf
-	if (run_resolv_conf) {
-		// create directory
-		if (mkdir("/run/resolvconf", S_IRWXU|S_IRWXG|S_IRWXO))
-			errExit("mkdir");
-		if (chown("/run/resolvconf", 0, 0))
-			errExit("chown");
-		
-		// copy file
-		int rv = copy_file("/tmp/resolv.conf", "/run/resolvconf/resolv.conf");
-		if (rv == -1)
-			fprintf(stderr, "Warning: /etc/resolv.conf not initialized\n");
-		if (chown("/run/resolvconf/resolv.conf", 0, 0))
-			errExit("chown");
-		unlink("/tmp/resolv.conf");
-		if (arg_debug)
-			printf("Updated /run/resolvconf/resolv.conf\n");
-	}
-	
-}
 
 #if 0
 Testing servers:

@@ -214,7 +214,6 @@ void fs_dev_shm(void);
 void fs_var_run(void);
 void fs_var_lock(void);
 void fs_var_tmp(void);
-void fs_etc_resolvconf(void);
 
 // seccomp.h
 int seccomp_filter(void);

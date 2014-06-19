@@ -15,7 +15,7 @@ spawn $env(SHELL)
 send -- "firejail --list\r"
 expect {
 	timeout {puts "TESTING ERROR 3\n";exit}
-	"root:firejail"
+	":firejail"
 }
 expect {
 	timeout {puts "TESTING ERROR 3.1\n";exit}

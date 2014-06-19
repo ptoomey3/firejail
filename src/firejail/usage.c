@@ -33,7 +33,6 @@ void usage(void) {
 	printf("Options:\n");
 	printf("\t-c - execute command and exit\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
-	printf("\t--cpu - list CPU utilization for all sandboxes\n");
 	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
 	printf("\t--defaultgw=address - use this address as default gateway in the new\n");
@@ -42,7 +41,6 @@ void usage(void) {
 	printf("\t--ip=address - use this IP address in the new network namespace\n");
 	printf("\t--join=pid - join the sandbox of the specified process\n");
 	printf("\t--list - list all sandboxed processes\n");
-	printf("\t--mem - list the memory consumed by each sandbox\n");
 	printf("\t--name=name - set sandbox hostname\n");
 	printf("\t--net=bridgename - enable network namespaces and connect to this bridge\n");
 	printf("\t\tdevice. Unless specified with option --ip and --defaultgw, an\n");
@@ -61,7 +59,6 @@ void usage(void) {
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--unlock - unlock user privilege level.\n");
-	printf("\t--uptime - list uptime for all sandboxes\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");
 	printf("\n");

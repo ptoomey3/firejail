@@ -23,9 +23,6 @@ Execute command and exit.
 \fB\--chroot=dirname
 Chroot into dirname directory.
 .TP
-\fB\--cpu
-List CPU utilization for all sandboxes.
-.TP
 \fB\--csh
 Use /bin/csh as default user shell.
 .TP
@@ -46,9 +43,6 @@ Join the sandbox of the specified process.
 .TP
 \fB\--list
 List all sandboxed processes.
-.TP
-\fB\--mem
-List the memory consumed by each sandbox.
 .TP
 \fB\--name=name
 Set sandbox hostname.
@@ -79,9 +73,6 @@ Use a custom profile, see below.
 .TP
 \fB\--unlock
 Unlock user privilege level.
-.TP
-\fB\--uptime
-List uptime for all sandboxes.
 .TP
 \fB\--version
 Print program version and exit.

@@ -28,8 +28,8 @@ static unsigned long long sysuptime = 0;
 
 static char *get_header(void) {
 	char *rv;
-	if (asprintf(&rv, "%-5.5s %-9.9s %-10.10s %-11.11s %-6.6s %-9.9s %s",
-		"PID", "User", "RSS(KiB)", "Shared(KiB)", "CPU", "Uptime", "Command") == -1)
+	if (asprintf(&rv, "%-5.5s %-9.9s %-8.8s %-8.8s %-4.4s %-4.4s %-9.9s %s",
+		"PID", "User", "RES(KiB)", "SHR(KiB)", "CPU%", "Prcs", "Uptime", "Command") == -1)
 		errExit("asprintf");
 	
 	return rv;
@@ -37,7 +37,7 @@ static char *get_header(void) {
 
 
 // recursivity!!!
-char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigned *stime, unsigned itv, float *cpu) {
+static char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigned *stime, unsigned itv, float *cpu, int *cnt) {
 	char *rv = NULL;
 	
 	char procdir[20];
@@ -51,9 +51,10 @@ char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigned *stim
 		pgs_shared = 0;
 		*utime = 0;
 		*stime = 0;
-		
+		*cnt = 0;
 	}
 	
+	(*cnt)++;
 	pid_getmem(index, &pgs_rss, &pgs_shared);
 	unsigned utmp;
 	unsigned stmp;
@@ -65,7 +66,7 @@ char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigned *stim
 	int i;
 	for (i = index + 1; i < MAX_PIDS; i++) {
 		if (pids[i].parent == index)
-			print_top(i, index, utime, stime, itv, cpu);
+			print_top(i, index, utime, stime, itv, cpu, cnt);
 	}
 
 	if (pids[index].level == 1) {
@@ -126,13 +127,17 @@ char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigned *stim
 		float sd = (float) (*stime - pids[index].stime) / itv * 100;
 		float cd = ud + sd;
 		if (cd > 100)
-			cd = 100;
+			cd = 99.9;
 		*cpu = cd;
 		char cpu_str[10];
-		snprintf(cpu_str, 10, "%2.2f%%", cd);
+		snprintf(cpu_str, 10, "%2.1f", cd);
 
-		if (asprintf(&rv, "%-5.5s %-9.9s %-10.10s %-11.11s %-6.6s %-9.9s %s",
-		                 pidstr, ptruser, rss, shared, cpu_str, uptime_str, ptrcmd) == -1)
+		// process count
+		char prcs_str[10];
+		snprintf(prcs_str, 10, "%d", *cnt);
+		
+		if (asprintf(&rv, "%-5.5s %-9.9s %-8.8s %-8.8s %-4.4s %-4.4s %-9.9s %s",
+		                 pidstr, ptruser, rss, shared, cpu_str, prcs_str, uptime_str, ptrcmd) == -1)
 			errExit("asprintf");
 		
 		if (cmd)
@@ -281,7 +286,8 @@ void top(void) {
 		for (i = 0; i < MAX_PIDS; i++) {
 			if (pids[i].level == 1) {
 				float cpu = 0;
-				char *line = print_top(i, 0, &utime, &stime, itv, &cpu);
+				int cnt = 0; // process count
+				char *line = print_top(i, 0, &utime, &stime, itv, &cpu, &cnt);
 				if (line)
 					head_add(cpu, line);
 			}

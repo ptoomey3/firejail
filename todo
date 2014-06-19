@@ -18,3 +18,48 @@ http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
 https://github.com/google/lmctfy/
 
 * If the demands being placed on a running program cause it to request excessive resources from your server this can lead to poor performance and system instability.
+
+* sound devices
+/dev/dsp
+/dev/adsp
+/dev/audio
+/dev/sndstat
+/dev/mixer
+
+$ ls /dev/snd
+by-path  controlC0  pcmC0D0c  pcmC0D0p  pcmC0D1c  pcmC0D2p  seq  timer
+
+$ cat /dev/sndstat
+Sound Driver:3.8.1a-980706 (ALSA v1.0.24 emulation code)
+Kernel: Linux debian 3.2.0-4-amd64 #1 SMP Debian 3.2.57-3+deb7u2 x86_64
+Config options: 0
+
+Installed drivers: 
+Type 10: ALSA emulation
+
+Card config: 
+Intel ICH with ALC655 at irq 23
+
+Audio devices: NOT ENABLED IN CONFIG
+
+Synth devices: NOT ENABLED IN CONFIG
+
+Midi devices: NOT ENABLED IN CONFIG
+
+Timers:
+31: system timer
+
+Mixers: NOT ENABLED IN CONFIG
+
+$ lsmod | grep snd
+snd_intel8x0           30903  2 
+snd_ac97_codec        106942  1 snd_intel8x0
+snd_pcm                68083  2 snd_ac97_codec,snd_intel8x0
+snd_page_alloc         13003  2 snd_pcm,snd_intel8x0
+snd_timer              22917  1 snd_pcm
+snd                    52889  8 snd_timer,snd_pcm,snd_ac97_codec,snd_intel8x0
+ac97_bus               12510  1 snd_ac97_codec
+soundcore              13065  1 snd
+netblue@debian:~/work/firejail/trunk$ lspci | grep Audio
+00:10.2 Multimedia audio controller: NVIDIA Corporation MCP51 AC97 Audio Controller (rev a2)
+netblue@debian:~/work/firejail/trunk$ 

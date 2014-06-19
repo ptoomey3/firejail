@@ -374,6 +374,15 @@ void fs_etc_resolvconf(void) {
 				else
 					run_resolv_conf = 1;
 			}
+			else if (stat("/run/systemd/resolve/resolv.conf", &s) == 0) {
+				if (arg_debug)
+					printf("Found /run/systemd/resolve/resolv.conf\n");
+				int rv = copy_file("/run/systemd/resolve/resolv.conf", "/tmp/resolv.conf");
+				if (rv == -1)
+					fprintf(stderr,"Warning: /etc/resolv.conf not initialized\n");
+				else
+					run_resolv_conf = 1;
+			}
 			free(lnk);
 		}
 	}

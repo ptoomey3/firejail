@@ -285,7 +285,6 @@ void fs_basic_fs(void) {
 	fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
-	fs_etc_resolvconf();
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
@@ -441,7 +440,6 @@ void fs_overlayfs(void) {
 	fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
-	fs_etc_resolvconf();
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
@@ -502,7 +500,6 @@ void fs_chroot(const char *rootdir) {
 	fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
-// already done:	fs_etc_resolvconf();
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();

@@ -263,6 +263,9 @@ void fs_dev_shm(void) {
 }
 
 void fs_var_run(void) {
+	// create a temporary resolv.conf file
+	int resolv_err = copy_file("/etc/resolv.conf", "/tmp/resolv.conf");
+
 	if (is_dir("/var/run")) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/run\n");
@@ -293,7 +296,17 @@ void fs_var_run(void) {
 		else {
 			fprintf(stderr, "Warning: /var/run not mounted\n");
 			dbg_test_dir("/var/run");
+			return;
 		}
+	}
+	
+	// create /run directory where resolv.conf can reside
+	if (resolv_err == 0) {
+		mkdir("/run/resolvconf", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		mkdir("/run/systemd", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		mkdir("/run/systemd/resolve", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		copy_file("/tmp/resolv.conf", "/run/resolvconf/resolv.conf");
+		copy_file("/tmp/resolv.conf", "/run/systemd/resolve/resolv.conf");
 	}
 }
 

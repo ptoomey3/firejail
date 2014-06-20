@@ -60,12 +60,12 @@ struct seccomp_data {
 #define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
 int seccomp_filter(void) {
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0))
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: kernel module loading allowed for root user, your kernel does not have support for PR_CAPBSET_DROP");
 	else if (arg_debug)
 		printf("Kernel modules loading disabled\n");
 
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_BOOT, 0, 0, 0))
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_BOOT, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: system rebooting capability not removed, your kernel does not have support for PR_CAPBSET_DROP");
 	else if (arg_debug)
 		printf("System rebooting disabled\n");
@@ -83,7 +83,8 @@ int seccomp_filter(void) {
 	};
 
 	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog) || prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
-		fprintf(stderr, "Warning: user privilege locking was disabled. It requires a Linux kernel version 3.5 or newer.\n");
+		if (arg_debug)
+			fprintf(stderr, "Warning: user privilege locking was disabled. It requires a Linux kernel version 3.5 or newer.\n");
 		return 1;
 	}
 	else if (arg_debug) {

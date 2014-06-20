@@ -271,7 +271,7 @@ void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
 
 
 void pid_print_mem_header(void) {
-	printf("%-55.55s  %-10.10s %s\n", "PID:user:command", "RSS (KiB)", "Shared (Kib)");
+	printf("%-55.55s  %-10.10s %s\n", "PID:user:command", "RES (KiB)", "Shared (Kib)");
 }
 
 

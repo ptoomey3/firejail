@@ -22,10 +22,7 @@
 #include <sys/prctl.h>
 #include <signal.h>
 #include "firemon.h"
-static int arg_list = 0;
-static int arg_mem = 0;
-static int arg_cpu = 0;
-static int arg_uptime = 0;
+static int arg_top = 0;
 
 static struct termios tlocal;	// startup terminal setting
 static struct termios twait;		// no wait on key press
@@ -96,19 +93,11 @@ int main(int argc, char **argv) {
 			return 0;
 		}
 		
-		// list options
-		else if (strcmp(argv[i], "--list") == 0)
-			arg_list = 1;
-		else if (strcmp(argv[i], "--mem") == 0)
-			arg_mem = 1;
-		else if (strcmp(argv[i], "--cpu") == 0)
-			arg_cpu = 1;
-		else if (strcmp(argv[i], "--uptime") == 0)
-			arg_uptime = 1;
-		
 		// options without a pid argument
-		else if (strcmp(argv[i], "--top") == 0)
-			top();
+		else if (strcmp(argv[i], "--top") == 0) {
+			arg_top = 1;
+			break;
+		}
 		
 		// PID argument
 		else {
@@ -122,14 +111,8 @@ int main(int argc, char **argv) {
 	signal (SIGINT, my_handler);
 	signal (SIGTERM, my_handler);
 
-	if (arg_list)
-		list(pid); // never to return
-	else if (arg_mem)
-		list_mem(pid); // never to return
-	else if (arg_cpu)
-		list_cpu(pid); // never to return
-	else if (arg_uptime)
-		list_uptime(pid); // never to return
+	if (arg_top)
+		top(); // never to return
 	else
 		procevent((pid_t) pid); // never to return
 		

@@ -6,6 +6,8 @@ firejail (0.9.7-testing1) baseline; urgency=low
   * Added pid support for firemon
   * Added firemon --top option
   * bugfixes
+
+-- netblue30 <netblue30@yahoo.com>  Fri, 4 Jun 2014 07:35:00 -0500
   
 firejail (0.9.6) baseline; urgency=low
 

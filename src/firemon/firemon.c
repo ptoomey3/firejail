@@ -38,10 +38,10 @@ static void my_handler(int s){
 // drop privileges
 void firemon_drop_privs(void) {
 	// drop privileges
-	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
 }
 
 // sleep and wait for a key to be pressed

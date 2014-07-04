@@ -18,10 +18,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 	
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/mount.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <assert.h>
@@ -219,10 +221,10 @@ int sandbox(void* sandbox_arg) {
 		seccomp_filter();
 
 	// drop privileges
-	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
 	
 	// set prompt color to green
 	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '

@@ -1,3 +1,18 @@
+* re: patches
+Thank you for your patches. Regarding the last error, I've found a description of the problem here:
+
+https://www.securecoding.cert.org/confluence/display/seccode/POS36-C.+Observe+correct+revocation+order+while+relinquishing+privileges
+
+IT basically requires dropping group privileges before taking away the user-level privileges.I've changed the order of setgid and setuid calls in src/firejail/sandbox.c. The new code looks like this:
+
+(around line 217)
+	// drop privileges
+	if (setgid(getgid()) < 0)
+		errExit("setgid/getgid");
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
+
+
 * Investigate mounting /sys
 
 	/* Mount a version of /sys that describes the network namespace */

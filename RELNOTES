@@ -1,3 +1,5 @@
+firejail (0.9.7-testing1) baseline; urgency=low
+  * This is a test release, tracking some compilation problems on OpenSUSE
   * Implemented nowrap mode for firejail --list command option
   * User privilege level locking set as default. The feature requires a Linux kernel 3.5 or newer
   * Added --unlock option to allow user privilege escalation on Linux kernels 3.5 or newer

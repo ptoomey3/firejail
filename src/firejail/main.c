@@ -19,14 +19,12 @@
  */
 #define _GNU_SOURCE
 #include <sys/utsname.h>
-#include <stdio.h>
 #include <sched.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/mount.h>
 #include <sys/wait.h>
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
 #include <assert.h>
 #include <fcntl.h>
@@ -34,9 +32,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <limits.h>
-#ifdef USELOCK
 #include <sys/file.h>
-#endif
 #include <sys/prctl.h>
 #include <signal.h>
 

@@ -17,12 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/mount.h>
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
 #include <linux/limits.h>
 #include <glob.h>
@@ -206,7 +206,7 @@ void fs_var_cache(void) {
 	}			
 }
 
-static dbg_test_dir(const char *dir) {
+static void dbg_test_dir(const char *dir) {
 	if (arg_debug) {
 		if (is_dir(dir))
 			printf("%s is a directory\n", dir);

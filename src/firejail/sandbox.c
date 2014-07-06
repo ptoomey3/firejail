@@ -18,12 +18,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 	
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/mount.h>
 #include <sys/wait.h>
-#include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <assert.h>

@@ -40,7 +40,7 @@
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
 // clear screen
-static inline firemon_clrscr(void) {
+static inline void firemon_clrscr(void) {
 	printf("\033[2J\033[1;1H");
 	fflush(0);
 }

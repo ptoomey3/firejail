@@ -22,10 +22,10 @@
 
 static void drop_privs(void) {
 	// drop privileges
-	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
 }
 
 void list(void) {

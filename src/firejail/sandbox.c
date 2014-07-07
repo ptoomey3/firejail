@@ -27,7 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <assert.h>
-#include <linux/prctl.h>
+#include <sys/prctl.h>
 #include "firejail.h"
 
 #define BUFLEN 500 // generic read buffer

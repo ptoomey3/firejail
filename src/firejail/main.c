@@ -35,6 +35,7 @@
 #include <sys/file.h>
 #include <sys/prctl.h>
 #include <signal.h>
+#include <time.h>
 
 #include "firejail.h"
 #include "../include/pid.h"

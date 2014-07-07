@@ -26,7 +26,7 @@
 #include <sys/syscall.h>
 #include <errno.h>
 #include <unistd.h>
-#include <linux/prctl.h>
+#include <sys/prctl.h>
 #include <signal.h>
 #include "firejail.h"
 
@@ -96,6 +96,8 @@ void join(pid_t pid, const char *homedir) {
 		if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
 			errExit("setenv");
 		// drop privileges
+		if (setgid(getgid()) < 0)
+			errExit("setgid/getgid");
 		if (setuid(getuid()) < 0)
 			errExit("setuid/getuid");
 		// set prompt color to green

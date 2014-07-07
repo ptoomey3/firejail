@@ -39,7 +39,7 @@ void profile_find(const char *name, const char *dir) {
 	dp = opendir (dir);
 	if (dp != NULL) {
 		struct dirent *ep;
-		while (ep = readdir (dp)) {
+		while ((ep = readdir(dp)) != NULL) {
 			if (strcmp(ep->d_name, pname) == 0) {
 				if (arg_debug)
 					printf("Found %s profile in %s directory\n", name, dir);

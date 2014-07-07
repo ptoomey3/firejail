@@ -91,7 +91,7 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 			printf("Warning: %s is not a directory; cannot mount a tmpfs on top of it.\n", fname);
 	}
 	else
-		ASSERT(0);
+		assert(0);
 
 	if (lnk)
 		free(lnk);

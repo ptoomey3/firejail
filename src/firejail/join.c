@@ -96,10 +96,8 @@ void join(pid_t pid, const char *homedir) {
 		if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
 			errExit("setenv");
 		// drop privileges
-		if (setgid(getgid()) < 0)
-			errExit("setgid/getgid");
-		if (setuid(getuid()) < 0)
-			errExit("setuid/getuid");
+		drop_privs();
+
 		// set prompt color to green
 		//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
 		if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)

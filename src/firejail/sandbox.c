@@ -221,10 +221,7 @@ int sandbox(void* sandbox_arg) {
 		seccomp_filter();
 
 	// drop privileges
-	if (setgid(getgid()) < 0)
-		errExit("setgid/getgid");
-	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
+	drop_privs();
 	
 	// set prompt color to green
 	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '

@@ -20,8 +20,10 @@
 #include "firejail.h"
 #include "../include/pid.h"
 
-static void drop_privs(void) {
+void drop_privs(void) {
 	// drop privileges
+	if (setgroups(0, NULL) < 0)
+		errExit("setgroups");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
 	if (setuid(getuid()) < 0)

@@ -38,6 +38,8 @@ static void my_handler(int s){
 // drop privileges
 void firemon_drop_privs(void) {
 	// drop privileges
+	if (setgroups(0, NULL) < 0)
+		errExit("setgroups");
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
 	if (setuid(getuid()) < 0)

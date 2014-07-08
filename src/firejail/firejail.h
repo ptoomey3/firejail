@@ -165,6 +165,7 @@ void profile_read(const char *fname);
 
 // list.c
 void list(void);
+void drop_privs(void);
 
 // usage.c
 void usage(void);

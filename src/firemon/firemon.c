@@ -17,11 +17,15 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+#define _GNU_SOURCE
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
 #include <signal.h>
+#include <grp.h>
 #include "firemon.h"
 static int arg_top = 0;
 

@@ -12,20 +12,8 @@ these processes are also being monitored.
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
-\fB\--cpu
-Monitor CPU utilization for all sandboxes.
-.TP
-\fB\--list
-Monitor all sandboxed processes.
-.TP
-\fB\--mem
-Monitor the memory consumed by each sandbox.
-.TP
 \fB\--top
 Monitor the most CPU-intensive sandboxes.
-.TP
-\fB\--uptime
-Monitor uptime for all sandboxes.
 .TP
 \fB\--version
 Print program version and exit.

@@ -149,7 +149,7 @@ void fs_var_lib(void) {
 		}
 	}
 
-	if (stat("/var/lib/ngix", &s) == 0) {
+	if (stat("/var/lib/nginx", &s) == 0) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/lib/nginx\n");
 		if (mount("tmpfs", "/var/lib/nginx", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)

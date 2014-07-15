@@ -10,9 +10,6 @@
 		return -1;
 	}
 
-* Document PR_SET_NO_NEW_PRIVS; use https://lkml.org/lkml/2012/6/5/363
-kernel 3.5 or newer needed
-
 * container usage
 http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
 https://github.com/google/lmctfy/

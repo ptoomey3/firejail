@@ -51,7 +51,7 @@ int arg_command = 0;				  // -c
 int arg_overlay = 0;				  // --overlay
 int arg_zsh = 0;					// use zsh as default shell
 int arg_csh = 0;					// use csh as default shell
-int arg_unlock = 0;				 // unlock user privilege escalation
+int arg_lock = 0;				 // lock user privilege level
 
 int fds[2];					  // parent-child communication pipe
 char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell
@@ -309,8 +309,8 @@ int main(int argc, char **argv) {
 		//*************************************
 		// misc features
 		//*************************************
-		else if (strcmp(argv[i], "--unlock") == 0)
-			arg_unlock = 1;
+		else if (strcmp(argv[i], "--lock") == 0)
+			arg_lock = 1;
 		
 		//*************************************
 		// filesystem

@@ -267,12 +267,14 @@ void fs_dev_shm(void) {
 void fs_var_run(void) {
 	// create a temporary resolv.conf file
 	pid_t pid = getpid();
-	char *name_template;
-	if (asprintf(&name_template, "/tmp/resolv.conf-%u-XXXXXX", pid) == -1)
+	char *resolv_fname;
+	if (asprintf(&resolv_fname, "/tmp/resolv.conf-%u-XXXXXX", pid) == -1)
 		errExit("asprintf");
-	char *resolv_fname = mktemp(name_template);
-	if (resolv_fname == NULL)
-		errExit("mktemp");
+	int h = mkstemp(resolv_fname);
+	if (h == -1)
+		errExit("mkstemp");
+	// close the file and copy the content of resolv.conf into it
+	close(h);	
 	int resolv_err = copy_file("/etc/resolv.conf", resolv_fname);
 
 	if (is_dir("/var/run")) {

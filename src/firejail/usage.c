@@ -58,10 +58,37 @@ void usage(void) {
 	printf("\t\tto work)\n");    
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
+	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--unlock - unlock user privilege level.\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");
 	printf("\n");
+
+	printf("Option --list prints the tree of processes running in the sandbox. The format\n");
+	printf("for each process entry is as follows:\n\n");
+	printf("\tPID:USER:Command\n\n");
+
+	printf("Option --top is simillar to the UNIX top command, however it applies only to\n");
+	printf("sandboxes. Listed below are the available fields (columns) in alphabetical\n");
+	printf("order:\n\n");
+	printf("\tCommand - command used to start the sandbox.\n");
+	printf("\tCPU%% - CPU usage, the sandbox share of the elapsed CPU time since the\n");
+	printf("\t       last screen update\n");
+	printf("\tPID - Unique process ID for the task controlling the sandbox.\n");
+	printf("\tPrcs - number of processes running in sandbox, including the controlling\n");
+	printf("\t       process.\n");
+	printf("\tRES - Resident Memory Size (KiB), sandbox non-swapped physical memory.\n");
+	printf("\t      It is a sum of the RES values for all processes running in the\n");
+	printf("\t      sandbox.\n");
+	printf("\tSHR - Shared Memory Size (KiB), it reflects memory shared with other\n");
+	printf("\t      processes. It is a sum of the SHR values for all processes running\n");
+	printf("\t      in the sandbox, including the controlling process.\n");
+	printf("\t       process.\n");
+	printf("\tUptime - sandbox running time in hours:minutes:seconds format.\n");
+	printf("\tUser - The owner of the sandbox.\n");
+	printf("\n");
+	
+	
 	printf("Profile files\n\n");
 	printf("The profile files define a chroot filesystem built on top of the existing host\n");
 	printf("filesystem. Each line describes a file element that is removed from the\n");

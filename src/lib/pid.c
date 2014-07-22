@@ -142,7 +142,7 @@ char *pid_proc_cmdline(const pid_t pid) {
 	free(fname);
 
 	// read file
-	char buffer[PIDS_BUFLEN];
+	unsigned char buffer[PIDS_BUFLEN];
 	ssize_t len;
 	if ((len = read(fd, buffer, sizeof(buffer) - 1)) <= 0) {
 		close(fd);
@@ -153,12 +153,15 @@ char *pid_proc_cmdline(const pid_t pid) {
 
 	// clean data
 	int i;
-	for (i = 0; i < len; i++)
+	for (i = 0; i < len; i++) {
 		if (buffer[i] == '\0')
 			buffer[i] = ' ';
+		if (buffer[i] >= 0x80) // execv in progress!!!
+			return NULL;
+	}
 
 	// return a malloc copy of the command line
-	char *rv = strdup(buffer);
+	char *rv = strdup((char *) buffer);
 	if (strlen(rv) == 0) {
 		free(rv);
 		return NULL;

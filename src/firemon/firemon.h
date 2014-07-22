@@ -59,4 +59,7 @@ void usage(void);
 // top.c
 void top(void);
 
+// list.c
+void list(void);
+
 #endif

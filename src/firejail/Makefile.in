@@ -15,8 +15,8 @@ LDFLAGS:=-pie -Wl,-z,relro -Wl,-z,now -lpthread
 %.o : %.c $(H_FILE_LIST)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-firejail: $(OBJS) ../lib/pid.o ../lib/libnetlink.o
-	$(CXX)  $(LDFLAGS) -o $@ $(OBJS) ../lib/pid.o ../lib/libnetlink.o $(LIBS)
+firejail: $(OBJS) ../lib/libnetlink.o
+	$(CXX)  $(LDFLAGS) -o $@ $(OBJS) ../lib/libnetlink.o $(LIBS)
 
 firejail.1: man/firejail.txt
 	./mkman.sh $(VERSION) man/firejail.txt firejail.1

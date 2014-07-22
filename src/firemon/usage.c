@@ -27,12 +27,20 @@ void usage(void) {
 	printf("are also being monitored.\n\n");
 	printf("Options:\n");
 	printf("\t--help, -? - this help screen\n");
+	printf("\t--list - list all sandboxed processes\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--version - print program version and exit\n\n");
+
 	printf("Without any options, firemon monitors all fork, exec, id change, and exit events\n");
 	printf("in the sandbox. Monitoring a specific PID is also supported.\n\n");
-	printf("Listed below are firemon's available process fields (columns) for --top option,\n");
-	printf("in alphabetical order:\n\n");
+
+	printf("Option --list prints the tree of processes running in the sandbox. The format\n");
+	printf("for each process entry is as follows:\n\n");
+	printf("\tPID:USER:Command\n\n");
+
+	printf("Option --top is simillar to the UNIX top command, however it applies only to\n");
+	printf("sandboxes. Listed below are the available fields (columns) in alphabetical\n");
+	printf("order:\n\n");
 	printf("\tCommand - command used to start the sandbox.\n");
 	printf("\tCPU%% - CPU usage, the sandbox share of the elapsed CPU time since the\n");
 	printf("\t       last screen update\n");

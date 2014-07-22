@@ -165,6 +165,7 @@ void profile_read(const char *fname);
 
 // list.c
 void list(void);
+void top(void);
 void drop_privs(void);
 
 // usage.c
@@ -198,6 +199,7 @@ char *get_link(const char *fname);
 int is_dir(const char *fname);
 int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
+char *proc_cmdline(const pid_t pid);
 
 // atexit.c
 extern char *tmpdir; // temporary directory

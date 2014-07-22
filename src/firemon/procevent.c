@@ -247,8 +247,9 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 				lineptr += strlen(lineptr);
 			}
 			else {
-				if (!cmd)
+				if (!cmd) {
 					cmd = pid_proc_cmdline(pid);
+				}
 				if (cmd == NULL)
 					sprintf(lineptr, "\n");
 				else {

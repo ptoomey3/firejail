@@ -286,6 +286,10 @@ int main(int argc, char **argv) {
 			list();
 			exit(0);
 		}
+		else if (strcmp(argv[i], "--top") == 0) {
+			top();
+			exit(0);
+		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			char *endptr;
 			errno = 0;
@@ -299,8 +303,7 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: invalid process ID\n");
 				exit(1);
 			}
-
-			logmsg(pid_proc_cmdline(mypid));
+			logmsg(proc_cmdline(mypid));
 			join(pid, cfg.homedir);
 			// it will never get here!!!
 			exit(0);
@@ -429,13 +432,13 @@ int main(int argc, char **argv) {
 	}
 
 	// log command
-	logmsg(pid_proc_cmdline(mypid));
+	logmsg(proc_cmdline(mypid));
 	if (fullargc) {
 		int i;
 		int len = 0;
 		for (i = 1; i < fullargc; i++)
-						  // + ' '
-				len += strlen(fullargv[i]) + 1;
+			len += strlen(fullargv[i]) + 1;			// + ' '
+
 		char cmd[len + 50];
 		strcpy(cmd, "expanded args: ");
 		char *ptr = cmd + strlen(cmd);

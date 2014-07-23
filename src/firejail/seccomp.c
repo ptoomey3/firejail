@@ -60,6 +60,7 @@ struct seccomp_data {
 #define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
 int seccomp_filter(void) {
+	// drop capabilities
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: kernel module loading allowed for root user, your kernel does not have support for PR_CAPBSET_DROP");
 	else if (arg_debug)
@@ -69,7 +70,9 @@ int seccomp_filter(void) {
 		fprintf(stderr, "Warning: system rebooting capability not removed, your kernel does not have support for PR_CAPBSET_DROP");
 	else if (arg_debug)
 		printf("System rebooting disabled\n");
-		
+	
+	
+	// seccomp
 	struct sock_filter filter[] = {
 		BLACKLIST(SYS_mount),
 		BLACKLIST(SYS_umount2),
@@ -84,12 +87,11 @@ int seccomp_filter(void) {
 
 	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog) || prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
 		if (arg_debug)
-			fprintf(stderr, "Warning: user privilege locking was disabled. It requires a Linux kernel version 3.5 or newer.\n");
+			fprintf(stderr, "Warning: seccomp disabled, it requires a Linux kernel version 3.5 or newer.\n");
 		return 1;
 	}
 	else if (arg_debug) {
 		printf("mount, umount2 and ptrace system calls disabled\n");
-		printf("User privileges locked\n");
 	}
 	
 	return 0;

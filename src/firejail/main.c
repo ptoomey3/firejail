@@ -303,7 +303,7 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: invalid process ID\n");
 				exit(1);
 			}
-			logmsg(proc_cmdline(mypid));
+			logargs(argc, argv);
 			join(pid, cfg.homedir);
 			// it will never get here!!!
 			exit(0);
@@ -432,22 +432,8 @@ int main(int argc, char **argv) {
 	}
 
 	// log command
-	logmsg(proc_cmdline(mypid));
+	logargs(argc, argv);
 	if (fullargc) {
-		int i;
-		int len = 0;
-		for (i = 1; i < fullargc; i++)
-			len += strlen(fullargv[i]) + 1;			// + ' '
-
-		char cmd[len + 50];
-		strcpy(cmd, "expanded args: ");
-		char *ptr = cmd + strlen(cmd);
-		for (i = 1; i < fullargc; i++) {
-			sprintf(ptr, "%s ", fullargv[i]);
-			ptr += strlen(ptr);
-		}
-		logmsg(cmd);
-
 		char *msg;
 		if (asprintf(&msg, "user %s entering restricted shell", cfg.username) == -1)
 			errExit("asprintf");

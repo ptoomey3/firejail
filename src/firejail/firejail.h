@@ -193,13 +193,13 @@ int net_create_veth(const char *dev, const char *nsdev, unsigned pid);
 
 // util.c
 void logmsg(const char *msg);
+void logargs(int argc, char **argv) ;
 void logerr(const char *msg);
 int copy_file(const char *srcname, const char *destname);
 char *get_link(const char *fname);
 int is_dir(const char *fname);
 int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
-char *proc_cmdline(const pid_t pid);
 
 // atexit.c
 extern char *tmpdir; // temporary directory

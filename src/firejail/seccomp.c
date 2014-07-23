@@ -74,9 +74,27 @@ int seccomp_filter(void) {
 	
 	// seccomp
 	struct sock_filter filter[] = {
-		BLACKLIST(SYS_mount),
+		BLACKLIST(SYS_mount),  // mount/unmount filesystems
 		BLACKLIST(SYS_umount2),
-		BLACKLIST(SYS_ptrace),
+		
+		BLACKLIST(SYS_ptrace), // trace processes
+
+		BLACKLIST(SYS_kexec_load), // loading a different kernel
+
+		BLACKLIST(SYS_open_by_handle_at), // open by handle
+		
+		BLACKLIST(SYS_init_module), // kernel module handling
+#ifdef SYS_finit_module // introduced in 2013
+		BLACKLIST(SYS_finit_module),
+#endif
+		BLACKLIST(SYS_delete_module),
+		
+		BLACKLIST(SYS_iopl), // io permisions
+		BLACKLIST(SYS_ioperm),
+		
+		BLACKLIST(SYS_swapon), // swap on/off
+		BLACKLIST(SYS_swapoff),
+
 		RETURN_ALLOW
 	};
 	

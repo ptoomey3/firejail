@@ -63,6 +63,12 @@ then
 	./fs_overlay.exp
 fi
 
+echo "TESTING: seccomp su"
+./seccomp-su.exp
+
+echo "TESTING: seccomp ptrace"
+./seccomp-ptrace.exp
+
 echo "TESTING: chroot"
 ./fs_chroot.exp
 

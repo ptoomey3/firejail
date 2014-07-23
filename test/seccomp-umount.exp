@@ -10,20 +10,17 @@ expect {
 	"root"
 }
 
-send --  "firejail --net=br0 --ip=10.10.20.5\r"
+send --  "firejail --net=br0 --ip=10.10.20.5 --seccomp\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"Child process initialized"
 }
 sleep 2
 
-send -- "/etc/init.d/snmpd start"
-sleep 2
-
-send -- "ps aux; pwd\r"
+send -- "umount /proc\r"
 expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
-	"snmpd"
+	"Bad system call"
 }
 
 send -- "exit\r"

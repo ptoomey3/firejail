@@ -23,3 +23,10 @@ then
 	echo "TESTING: servers isc dhcp server"
 	./servers4.exp
 fi
+
+echo "TESTING: /proc/sysrq-trigger reset disabled"
+./sysrq-trigger.exp
+
+echo "TESTING: seccomp umount"
+./seccomp-umount.exp
+

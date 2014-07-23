@@ -71,14 +71,58 @@ Mount new /tmp, /root and /home/user directories.
 \fB\--profile=filename
 Use a custom profile, see below.
 .TP
-\fB\--unlock
-Unlock user privilege level.
+\fB\--seccomp
+Enable seccomp filter.
+.TP
+\fB\--top
+Monitor the most CPU-intensive sandboxes.
 .TP
 \fB\--version
 Print program version and exit.
 .TP
 \fB\--zsh
 Use /usr/bin/zsh as default user shell.
+
+.SH MONITORING
+Option --list prints the tree of processes running in the sandbox. The format
+for each process entry is as follows:
+
+	PID:USER:Command
+
+Option --top is simillar to the UNIX top command, however it applies only to
+sandboxes. Listed below are the available fields (columns) in alphabetical
+order:
+
+.TP
+Command
+Command used to start the sandbox.
+.TP
+CPU%
+CPU usage, the sandbox share of the elapsed CPU time since the
+last screen update
+.TP
+PID
+Unique process ID for the task controlling the sandbox.
+.TP
+Prcs
+Number of processes running in sandbox, including the controlling process.
+.TP
+RES
+Resident Memory Size (KiB), sandbox non-swapped physical memory.
+It is a sum of the RES values for all processes running in the sandbox.
+.TP
+SHR
+Shared Memory Size (KiB), it reflects memory shared with other
+processes. It is a sum of the SHR values for all processes running
+in the sandbox, including the controlling process.
+.TP
+Uptime
+Sandbox running time in hours:minutes:seconds format.
+.TP
+User
+The owner of the sandbox.
+
+
 .SH PROFILES
 The profile files define a chroot filesystem built on top of the existing
 host filesystem. Each line describes a file element that is removed from

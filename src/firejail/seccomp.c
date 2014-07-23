@@ -109,7 +109,7 @@ int seccomp_filter(void) {
 		return 1;
 	}
 	else if (arg_debug) {
-		printf("mount, umount2 and ptrace system calls disabled\n");
+		printf("seccomp enabled\n");
 	}
 	
 	return 0;

@@ -27,9 +27,8 @@ void usage(void) {
 	printf("Usage: firejail [options] [program and arguments]\n\n");
 	printf("Without any options, the sandbox consists of a filesystem chroot build from the\n");
 	printf("current system directories  mounted  read-only,  and  new PID and IPC\n");
-	printf("namespaces.\n\n");
-	printf("If no program is specified as an argument, /bin/bash is started by default in\n");
-	printf("the sandbox.\n\n");
+	printf("namespaces. If no program is specified as an argument, /bin/bash is started by\n");
+	printf("default in the sandbox.\n\n");
 	printf("Options:\n");
 	printf("\t-c - execute command and exit\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
@@ -58,12 +57,13 @@ void usage(void) {
 	printf("\t\tto work)\n");    
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
+	printf("\t--seccomp - enabled seccomp filter\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
-	printf("\t--unlock - unlock user privilege level.\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");
 	printf("\n");
 
+	printf("Monitoring\n\n");
 	printf("Option --list prints the tree of processes running in the sandbox. The format\n");
 	printf("for each process entry is as follows:\n\n");
 	printf("\tPID:USER:Command\n\n");
@@ -83,7 +83,6 @@ void usage(void) {
 	printf("\tSHR - Shared Memory Size (KiB), it reflects memory shared with other\n");
 	printf("\t      processes. It is a sum of the SHR values for all processes running\n");
 	printf("\t      in the sandbox, including the controlling process.\n");
-	printf("\t       process.\n");
 	printf("\tUptime - sandbox running time in hours:minutes:seconds format.\n");
 	printf("\tUser - The owner of the sandbox.\n");
 	printf("\n");

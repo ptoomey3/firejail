@@ -217,7 +217,7 @@ int sandbox(void* sandbox_arg) {
 		errExit("setenv");
 
 	// set seccomp
-	if (arg_lock == 1)
+	if (arg_seccomp == 1)
 		seccomp_filter();
 
 	// drop privileges

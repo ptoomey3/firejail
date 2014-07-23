@@ -53,7 +53,6 @@ void usage(void) {
 	printf("\tSHR - Shared Memory Size (KiB), it reflects memory shared with other\n");
 	printf("\t      processes. It is a sum of the SHR values for all processes running\n");
 	printf("\t      in the sandbox, including the controlling process.\n");
-	printf("\t       process.\n");
 	printf("\tUptime - sandbox running time in hours:minutes:seconds format.\n");
 	printf("\tUser - The owner of the sandbox.\n");
 	printf("\n");

@@ -79,6 +79,15 @@ void join(pid_t pid, const char *homedir) {
 	if (child < 0)
 		errExit("fork");
 	if (child == 0) {
+		// chroot into /proc/PID/root directory
+		char *rootdir;
+		if (asprintf(&rootdir, "/proc/%d/root", pid) == -1)
+			errExit("asprintf");
+			
+		int rv = chroot(rootdir); // this will fail for processes in sandboxes not started with --chroot option
+		if (rv == 0)
+			printf("changing root to %s\n", rootdir);
+		
 		prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0); // kill the child in case the parent died
 		if (chdir("/") < 0)
 			errExit("chdir");

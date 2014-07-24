@@ -10,7 +10,7 @@ expect {
 	"root"
 }
 
-send --  "firejail --net=br0 --ip=10.10.20.5\r"
+send --  "firejail --net=br0 --ip=10.10.20.5 --seccomp\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"Child process initialized"

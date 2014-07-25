@@ -88,7 +88,9 @@ int restricted_shell(const char *user) {
 			fprintf(stderr, "Error: too many program arguments in users.conf line %d\n", lineno);
 			exit(1);
 		}
-	}		 
+	}
+	fclose(fp);
+			 
 	return 0;   
 }
 

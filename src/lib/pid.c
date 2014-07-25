@@ -53,8 +53,10 @@ void pid_getmem(unsigned pid, unsigned *rss, unsigned *shared) {
 	free(file);
 	
 	unsigned a, b, c;
-	if (3 != fscanf(fp, "%u %u %u", &a, &b, &c))
+	if (3 != fscanf(fp, "%u %u %u", &a, &b, &c)) {
+		fclose(fp);
 		return;
+	}
 	*rss += b;
 	*shared += c;
 	fclose(fp);
@@ -84,13 +86,14 @@ void pid_get_cpu_time(unsigned pid, unsigned *utime, unsigned *stime) {
 			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
 				ptr++;
 			if (*ptr == '\0')
-				return;
+				goto myexit;
 			ptr++;
 		}
 		if (2 != sscanf(ptr, "%u %u", utime, stime))
-			return;
+			goto myexit;
 	}
-	
+
+myexit:	
 	fclose(fp);
 }
 
@@ -109,7 +112,7 @@ unsigned long long pid_get_start_time(unsigned pid) {
 	free(file);
 	
 	char line[PIDS_BUFLEN];
-	unsigned long long retval;
+	unsigned long long retval = 0;
 	if (fgets(line, PIDS_BUFLEN - 1, fp)) {
 		char *ptr = line;
 		// jump 21 fields
@@ -118,13 +121,14 @@ unsigned long long pid_get_start_time(unsigned pid) {
 			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
 				ptr++;
 			if (*ptr == '\0')
-				return 0;
+				goto myexit;
 			ptr++;
 		}
 		if (1 != sscanf(ptr, "%llu", &retval))
-			return 0;
+			goto myexit;
 	}
 	
+myexit:
 	fclose(fp);
 	return retval;
 }

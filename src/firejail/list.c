@@ -39,7 +39,7 @@ void top(void) {
 	arg[0] = "bash";
 	arg[1] = "-c";
 	arg[2] = "firemon --top";
-	arg[4] = NULL;
+	arg[3] = NULL;
 	execvp("/bin/bash", arg); 
 }
 
@@ -50,7 +50,7 @@ void list(void) {
 	arg[0] = "bash";
 	arg[1] = "-c";
 	arg[2] = "firemon --list";
-	arg[4] = NULL;
+	arg[3] = NULL;
 	execvp("/bin/bash", arg); 
 }
 

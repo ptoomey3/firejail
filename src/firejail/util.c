@@ -132,8 +132,10 @@ char *get_link(const char *fname) {
 	memset(linkname, 0, sb.st_size + 1);
 
 	r = readlink(fname, linkname, sb.st_size + 1);
-	if (r < 0)
+	if (r < 0) {
+		free(linkname);
 		return NULL;
+	}
 	return linkname;
 }
 

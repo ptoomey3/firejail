@@ -1,3 +1,8 @@
+firejail (0.9.8.1) baseline; urgency=low
+  * FIxed a number of bugs introduced in 0.9.8
+
+ -- netblue30 <netblue30@yahoo.com>  Fri, 25 Jul 2014 07:25:00 -0500
+  
 firejail (0.9.8) baseline; urgency=low
   * Implemented nowrap mode for firejail --list command option
   * Added --top option in both firejail and firemon

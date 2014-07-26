@@ -245,7 +245,7 @@ int main(int argc, char **argv) {
 #endif
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
-	const pid_t ppid = getppid();
+//	const pid_t ppid = getppid();
 	const pid_t mypid = getpid();
 
 	// is this a login shell?

@@ -477,7 +477,9 @@ void fs_chroot(const char *rootdir) {
 		errExit("asprintf");
 	if (!is_dir(rundir)) {
 		int rv = mkdir(rundir, S_IRWXU | S_IRWXG | S_IRWXO);
+		(void) rv;
 		rv = chown(rundir, 0, 0);
+		(void) rv;
 	}
 	
 	// copy /etc/resolv.conf in chroot directory

@@ -97,7 +97,7 @@ static void build_list(const char *srcdir) {
 	closedir(d);
 }
 
-static void build_dirs(viod) {
+static void build_dirs(void) {
 	// create directories under /var/log
 	DirData *ptr = dirlist;
 	while (ptr) {

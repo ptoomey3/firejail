@@ -284,8 +284,8 @@ void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *s
 		*stime = 0;
 	}
 	
-	unsigned utmp;
-	unsigned stmp;
+	unsigned utmp = 0;
+	unsigned stmp = 0;
 	pid_get_cpu_time(index, &utmp, &stmp);
 	*utime += utmp;
 	*stime += stmp;

@@ -281,6 +281,7 @@ void top(void) {
 		if (fp) {
 			float f;
 			int rv = fscanf(fp, "%f", &f);
+			(void) rv;
 			sysuptime = (unsigned long long) f;
 			fclose(fp);
 		}

@@ -75,6 +75,7 @@ void firemon_sleep(int st) {
 	ts.tv_usec = 0;
 
 	int ready = select(maxfd, &fds, (fd_set *) 0, (fd_set *) 0, &ts);
+	(void) ready;
 	if( FD_ISSET(0, &fds)) {
 		getchar();
 		tcsetattr(0, TCSANOW, &tlocal);

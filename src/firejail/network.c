@@ -244,4 +244,5 @@ void net_bridge_add_interface(const char *bridge, const char *dev) {
 		ifr.ifr_data = (char *) args;
 		err = ioctl(sock, SIOCDEVPRIVATE, &ifr);
 	}
+	(void) err;
 }

@@ -258,6 +258,7 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 				}
 				lineptr += strlen(lineptr);
 			}
+			(void) lineptr;
 			
 			// print the event
 			printf("%s", line);			

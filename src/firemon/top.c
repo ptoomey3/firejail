@@ -30,7 +30,7 @@ static unsigned long long sysuptime = 0;
 
 static char *get_header(void) {
 	char *rv;
-	if (asprintf(&rv, "%-5.5s %-9.9s %-8.8s %-8.8s %-4.4s %-4.4s %-9.9s %s",
+	if (asprintf(&rv, "%-5.5s %-9.9s %-8.8s %-8.8s %-5.5s %-4.4s %-9.9s %s",
 		"PID", "User", "RES(KiB)", "SHR(KiB)", "CPU%", "Prcs", "Uptime", "Command") == -1)
 		errExit("asprintf");
 	
@@ -128,8 +128,8 @@ static char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigne
 		float ud = (float) (*utime - pids[index].utime) / itv * 100;
 		float sd = (float) (*stime - pids[index].stime) / itv * 100;
 		float cd = ud + sd;
-		if (cd > 100)
-			cd = 99.9;
+//		if (cd > 100)
+//			cd = 99.9;
 		*cpu = cd;
 		char cpu_str[10];
 		snprintf(cpu_str, 10, "%2.1f", cd);
@@ -138,7 +138,7 @@ static char *print_top(unsigned index, unsigned parent, unsigned *utime, unsigne
 		char prcs_str[10];
 		snprintf(prcs_str, 10, "%d", *cnt);
 		
-		if (asprintf(&rv, "%-5.5s %-9.9s %-8.8s %-8.8s %-4.4s %-4.4s %-9.9s %s",
+		if (asprintf(&rv, "%-5.5s %-9.9s %-8.8s %-8.8s %-5.5s %-4.4s %-9.9s %s",
 		                 pidstr, ptruser, rss, shared, cpu_str, prcs_str, uptime_str, ptrcmd) == -1)
 			errExit("asprintf");
 		

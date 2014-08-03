@@ -44,6 +44,7 @@ char *pid_proc_cmdline(const pid_t pid);
 char *pid_get_user_name(uid_t uid);
 // print functions
 void pid_print_tree(unsigned index, unsigned parent, int nowrap);
+void pid_print_list(unsigned index, int nowrap);
 void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *stime);
 void pid_read(pid_t mon_pid);
 

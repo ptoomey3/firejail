@@ -1,3 +1,7 @@
+Fixed bug --top option CPU utilization calculation
+Introduced --tree option in firejail and firemon
+Preserve the current working directory if possible
+
 firejail (0.9.8.1) baseline; urgency=low
   * FIxed a number of bugs introduced in 0.9.8
 

@@ -89,6 +89,8 @@ static void extract_user_data(void) {
 		fprintf(stderr, "Error: user %s doesn't have a user directory assigned, aborting...\n", cfg.username);
 		exit(1);
 	}
+	
+	cfg.cwd = getcwd(NULL, 0);
 }
 
 
@@ -284,6 +286,10 @@ int main(int argc, char **argv) {
 		//*************************************
 		else if (strcmp(argv[i], "--list") == 0) {
 			list();
+			exit(0);
+		}
+		else if (strcmp(argv[i], "--tree") == 0) {
+			tree();
 			exit(0);
 		}
 		else if (strcmp(argv[i], "--top") == 0) {

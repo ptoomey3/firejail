@@ -276,6 +276,9 @@ void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
 	}
 }
 
+void pid_print_list(unsigned index, int nowrap) {
+	print_elem(index, nowrap);
+}
 
 // recursivity!!!
 void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *stime) {

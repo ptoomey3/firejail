@@ -39,7 +39,7 @@ void usage(void) {
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--ip=address - use this IP address in the new network namespace\n");
 	printf("\t--join=pid - join the sandbox of the specified process\n");
-	printf("\t--list - list all sandboxed processes\n");
+	printf("\t--list - list all sandboxes\n");
 	printf("\t--name=name - set sandbox hostname\n");
 	printf("\t--net=bridgename - enable network namespaces and connect to this bridge\n");
 	printf("\t\tdevice. Unless specified with option --ip and --defaultgw, an\n");
@@ -59,16 +59,22 @@ void usage(void) {
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--seccomp - enabled seccomp filter\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
+	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");
 	printf("\n");
 
 	printf("Monitoring\n\n");
-	printf("Option --list prints the tree of processes running in the sandbox. The format\n");
+
+	printf("Option --list prints a list of all sandboxes. The format for each entry is as\n");
+	printf("follows:\n\n");
+	printf("\tPID:USER:Command\n\n");
+
+	printf("Option --tree prints the tree of processes running in the sandbox. The format\n");
 	printf("for each process entry is as follows:\n\n");
 	printf("\tPID:USER:Command\n\n");
 
-	printf("Option --top is simillar to the UNIX top command, however it applies only to\n");
+	printf("Option --top is similar to the UNIX top command, however it applies only to\n");
 	printf("sandboxes. Listed below are the available fields (columns) in alphabetical\n");
 	printf("order:\n\n");
 	printf("\tCommand - command used to start the sandbox.\n");

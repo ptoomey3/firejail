@@ -13,21 +13,29 @@ these processes are also being monitored.
 Print options end exit.
 .TP
 \fB\--list
-List all sandboxed processes.
+List all sandboxes.
 .TP
 \fB\--top
 Monitor the most CPU-intensive sandboxes.
+.TP
+\fB\--tree
+Print a tree of all sandboxed processes.
 .TP
 \fB\--version
 Print program version and exit.
 
 .PP
-Option --list prints the tree of processes running in the sandbox. The format
+Option --list prints a list of all sandboxe. The format
+for each entry is as follows:
+
+	PID:USER:Command
+
+Option --tree prints the tree of processes running in the sandbox. The format
 for each process entry is as follows:
 
 	PID:USER:Command
 
-Option --top is simillar to the UNIX top command, however it applies only to
+Option --top is similar to the UNIX top command, however it applies only to
 sandboxes. Listed below are the available fields (columns) in alphabetical
 order:
 

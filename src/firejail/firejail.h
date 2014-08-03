@@ -88,6 +88,7 @@ typedef struct config_t {
 	// filesystem
 	char **custom_profile;	// loaded profile
 	char *chrootdir;		// chroot directory
+	char *cwd;	// current working directory
 
 	// networking
 	char *hostname;
@@ -165,6 +166,7 @@ void profile_read(const char *fname);
 
 // list.c
 void list(void);
+void tree(void);
 void top(void);
 void drop_privs(void);
 

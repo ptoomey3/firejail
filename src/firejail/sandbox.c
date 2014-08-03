@@ -197,15 +197,24 @@ int sandbox(void* sandbox_arg) {
 	// start executable
 	//****************************
 	prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0); // kill the child in case the parent died
-	if (chdir("/") < 0)
-		errExit("chdir");
-	if (cfg.homedir) {
-		struct stat s;
-		if (stat(cfg.homedir, &s) == 0) {
-			if (chdir(cfg.homedir) < 0)
-				errExit("chdir");
+	int cwd = 0;
+	if (cfg.cwd) {
+		if (chdir(cfg.cwd) == 0)
+			cwd = 1;
+	}
+	
+	if (!cwd) {
+		if (chdir("/") < 0)
+			errExit("chdir");
+		if (cfg.homedir) {
+			struct stat s;
+			if (stat(cfg.homedir, &s) == 0) {
+				if (chdir(cfg.homedir) < 0)
+					errExit("chdir");
+			}
 		}
 	}
+	
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
 		errExit("setenv");

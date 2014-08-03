@@ -30,7 +30,7 @@ void list(void) {
 	int i;
 	for (i = 0; i < MAX_PIDS; i++) {
 		if (pids[i].level == 1)
-			pid_print_tree(i, 0, 0);
+			pid_print_list(i, 0);
 	}
 }
 

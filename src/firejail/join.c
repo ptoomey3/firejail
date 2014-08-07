@@ -28,6 +28,8 @@
 #include <unistd.h>
 #include <sys/prctl.h>
 #include <signal.h>
+#include <dirent.h>
+#include <string.h>
 #include "firejail.h"
 
 void join_namespace(pid_t pid, char *type) {
@@ -51,7 +53,86 @@ void join_namespace(pid_t pid, char *type) {
 }
 
 
+#define BUFLEN 4096
+// find the first child for this parent; return 1 if error
+int find_child(pid_t parent, pid_t *child) {
+	*child = 0;	// use it to flag a found child
+
+	DIR *dir;
+	if (!(dir = opendir("/proc"))) {
+		// sleep 2 seconds and try again
+		sleep(2);
+		if (!(dir = opendir("/proc"))) {
+			fprintf(stderr, "Error: cannot open /proc directory\n");
+			exit(1);
+		}
+	}
+	
+	struct dirent *entry;
+	char *end;
+	while (*child == 0 && (entry = readdir(dir))) {
+		pid_t pid = strtol(entry->d_name, &end, 10);
+		if (end == entry->d_name || *end)
+			continue;
+		if (pid == parent)
+			continue;
+
+		// open stat file
+		char *file;
+		if (asprintf(&file, "/proc/%u/status", pid) == -1) {
+			perror("asprintf");
+			exit(1);
+		}
+		FILE *fp = fopen(file, "r");
+		if (!fp) {
+			free(file);
+			continue;
+		}
+
+		// look for firejail executable name
+		char buf[BUFLEN];
+		while (fgets(buf, BUFLEN - 1, fp)) {
+			if (strncmp(buf, "PPid:", 5) == 0) {
+				char *ptr = buf + 5;
+				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+					ptr++;
+				}
+				if (*ptr == '\0') {
+					fprintf(stderr, "Error: cannot read /proc file\n");
+					exit(1);
+				}
+				if (parent == atoi(ptr))
+					*child = pid;
+				break;	// stop reading the file
+			}
+		}
+		fclose(fp);
+		free(file);
+	}
+	closedir(dir);
+	
+	return (*child)? 0:1;	// 0 = found, 1 = not found
+}
+
+
 void join(pid_t pid, const char *homedir) {
+	// if the pid is that of a firejail  process, use the pid of a child process inside the sandbox
+	char *comm = pid_proc_comm(pid);
+	if (comm) {
+		// remove \n
+		char *ptr = strchr(comm, '\n');
+		if (ptr)
+			*ptr = '\0';
+		if (strcmp(comm, "firejail") == 0) {
+			pid_t child;
+			if (find_child(pid, &child) == 0) {
+				pid = child;
+				printf("Switching to pid %u, the first child process inside the sandbox\n", (unsigned) pid);
+			}
+		}
+		free(comm);
+	}
+
 	// check privileges for non-root users
 	uid_t uid = getuid();
 	if (uid != 0) {

@@ -205,3 +205,35 @@ char *line_remove_spaces(const char *buf) {
 
 	return rv;
 }
+
+#define BUFLEN 4096
+char *pid_proc_comm(const pid_t pid) {
+	// open /proc/pid/cmdline file
+	char *fname;
+	int fd;
+	if (asprintf(&fname, "/proc/%d//comm", pid) == -1)
+		return NULL;
+	if ((fd = open(fname, O_RDONLY)) < 0) {
+		free(fname);
+		return NULL;
+	}
+	free(fname);
+
+	// read file
+	unsigned char buffer[BUFLEN];
+	ssize_t len;
+	if ((len = read(fd, buffer, sizeof(buffer) - 1)) <= 0) {
+		close(fd);
+		return NULL;
+	}
+	buffer[len] = '\0';
+	close(fd);
+
+	// return a malloc copy of the command line
+	char *rv = strdup((char *) buffer);
+	if (strlen(rv) == 0) {
+		free(rv);
+		return NULL;
+	}
+	return rv;
+}

@@ -39,7 +39,7 @@ Print options end exit.
 Use this IP address in the new network namespace.
 .TP
 \fB\--join=pid
-Join the sandbox of the specified process.
+Join the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
 .TP
 \fB\--list
 List all sandboxes.
@@ -70,6 +70,9 @@ Mount new /tmp, /root and /home/user directories.
 .TP
 \fB\--profile=filename
 Use a custom profile, see below.
+.TP
+\fB\--shutdown=pid
+Shutdown the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
 .TP
 \fB\--seccomp
 Enable seccomp filter.

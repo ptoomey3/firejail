@@ -114,6 +114,57 @@ int find_child(pid_t parent, pid_t *child) {
 	return (*child)? 0:1;	// 0 = found, 1 = not found
 }
 
+void shut(pid_t pid) {
+	// if the pid is that of a firejail  process, use the pid of a child process inside the sandbox
+	char *comm = pid_proc_comm(pid);
+	if (comm) {
+		// remove \n
+		char *ptr = strchr(comm, '\n');
+		if (ptr)
+			*ptr = '\0';
+		if (strcmp(comm, "firejail") == 0) {
+			pid_t child;
+			if (find_child(pid, &child) == 0) {
+				pid = child;
+				printf("Switching to pid %u, the first child process inside the sandbox\n", (unsigned) pid);
+			}
+		}
+		free(comm);
+	}
+
+	// check privileges for non-root users
+	uid_t uid = getuid();
+	if (uid != 0) {
+		struct stat s;
+		char *dir;
+		if (asprintf(&dir, "/proc/%u/ns", pid) == -1)
+			errExit("asprintf");
+		if (stat(dir, &s) < 0)
+			errExit("stat");
+		if (s.st_uid != uid) {
+			fprintf(stderr, "Error: permission is denied to shutdown a sandbox created by a different user.\n");
+			exit(1);
+		}
+	}
+	
+	printf("Sending SIGTERM to %u\n", pid);
+	kill(pid, SIGTERM);
+	sleep(2);
+	
+	// if the process is still running, terminate it using SIGKILL
+	// try to open stat file
+	char *file;
+	if (asprintf(&file, "/proc/%u/status", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp)
+		return;
+	fclose(fp);
+	printf("Sending SIGKILL to %u\n", pid);
+	kill(pid, SIGKILL);
+}
 
 void join(pid_t pid, const char *homedir) {
 	// if the pid is that of a firejail  process, use the pid of a child process inside the sandbox

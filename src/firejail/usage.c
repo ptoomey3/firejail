@@ -57,6 +57,7 @@ void usage(void) {
 	printf("\t\tto work)\n");    
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
+	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
 	printf("\t--seccomp - enabled seccomp filter\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");

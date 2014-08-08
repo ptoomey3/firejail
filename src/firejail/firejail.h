@@ -175,6 +175,7 @@ void usage(void);
 
 // join.c
 void join(pid_t pid, const char *homedir);
+void shut(pid_t pid);
 
 // restricted_shell.c
 extern char *restricted_user;

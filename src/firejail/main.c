@@ -234,6 +234,21 @@ void check_default_gw(uint32_t defaultgw) {
 	exit(1);
 }
 
+static pid_t read_pid(char *str) {
+	char *endptr;
+	errno = 0;
+	pid_t pid = strtol(str, &endptr, 10);
+	if ((errno == ERANGE && (pid == LONG_MAX || pid == LONG_MIN))
+		|| (errno != 0 && pid == 0)) {
+		fprintf(stderr, "Error: invalid process ID\n");
+		exit(1);
+	}
+	if (endptr == str) {
+		fprintf(stderr, "Error: invalid process ID\n");
+		exit(1);
+	}
+	return pid;
+}
 
 //*******************************************
 // Main program
@@ -297,21 +312,16 @@ int main(int argc, char **argv) {
 			exit(0);
 		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
-			char *endptr;
-			errno = 0;
-			pid_t pid = strtol(argv[i] + 7, &endptr, 10);
-			if ((errno == ERANGE && (pid == LONG_MAX || pid == LONG_MIN))
-			|| (errno != 0 && pid == 0)) {
-				fprintf(stderr, "Error: invalid process ID\n");
-				exit(1);
-			}
-			if (endptr == argv[i]) {
-				fprintf(stderr, "Error: invalid process ID\n");
-				exit(1);
-			}
+			pid_t pid = read_pid(argv[i] + 7);			
 			logargs(argc, argv);
 			join(pid, cfg.homedir);
 			// it will never get here!!!
+			exit(0);
+		}
+		else if (strncmp(argv[i], "--shutdown=", 11) == 0) {
+			pid_t pid = read_pid(argv[i] + 11);			
+			logargs(argc, argv);
+			shut(pid);
 			exit(0);
 		}
 		

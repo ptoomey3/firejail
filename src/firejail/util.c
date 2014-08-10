@@ -237,3 +237,42 @@ char *pid_proc_comm(const pid_t pid) {
 	}
 	return rv;
 }
+char *pid_proc_cmdline(const pid_t pid) {
+	// open /proc/pid/cmdline file
+	char *fname;
+	int fd;
+	if (asprintf(&fname, "/proc/%d/cmdline", pid) == -1)
+		return NULL;
+	if ((fd = open(fname, O_RDONLY)) < 0) {
+		free(fname);
+		return NULL;
+	}
+	free(fname);
+
+	// read file
+	unsigned char buffer[BUFLEN];
+	ssize_t len;
+	if ((len = read(fd, buffer, sizeof(buffer) - 1)) <= 0) {
+		close(fd);
+		return NULL;
+	}
+	buffer[len] = '\0';
+	close(fd);
+
+	// clean data
+	int i;
+	for (i = 0; i < len; i++) {
+		if (buffer[i] == '\0')
+			buffer[i] = ' ';
+		if (buffer[i] >= 0x80) // execv in progress!!!
+			return NULL;
+	}
+
+	// return a malloc copy of the command line
+	char *rv = strdup((char *) buffer);
+	if (strlen(rv) == 0) {
+		free(rv);
+		return NULL;
+	}
+	return rv;
+}

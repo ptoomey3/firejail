@@ -175,7 +175,9 @@ void usage(void);
 
 // join.c
 void join(pid_t pid, const char *homedir);
+void join_name(const char *name, const char *homedir);
 void shut(pid_t pid);
+void shut_name(const char *name);
 
 // restricted_shell.c
 extern char *restricted_user;
@@ -204,6 +206,7 @@ int is_dir(const char *fname);
 int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
 char *pid_proc_comm(const pid_t pid);
+char *pid_proc_cmdline(const pid_t pid);
 
 
 // atexit.c

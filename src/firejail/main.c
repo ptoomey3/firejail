@@ -234,20 +234,20 @@ void check_default_gw(uint32_t defaultgw) {
 	exit(1);
 }
 
-static pid_t read_pid(char *str) {
+// return 1 if error, 0 if a valid pid was found
+static int read_pid(char *str, pid_t *pid) {
 	char *endptr;
 	errno = 0;
-	pid_t pid = strtol(str, &endptr, 10);
-	if ((errno == ERANGE && (pid == LONG_MAX || pid == LONG_MIN))
-		|| (errno != 0 && pid == 0)) {
-		fprintf(stderr, "Error: invalid process ID\n");
-		exit(1);
+	pid_t pidtmp = strtol(str, &endptr, 10);
+	if ((errno == ERANGE && (pidtmp == LONG_MAX || pidtmp == LONG_MIN))
+		|| (errno != 0 && pidtmp == 0)) {
+		return 1;
 	}
 	if (endptr == str) {
-		fprintf(stderr, "Error: invalid process ID\n");
-		exit(1);
+		return 1;
 	}
-	return pid;
+	*pid = pidtmp;
+	return 0;
 }
 
 //*******************************************
@@ -312,16 +312,24 @@ int main(int argc, char **argv) {
 			exit(0);
 		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
-			pid_t pid = read_pid(argv[i] + 7);			
 			logargs(argc, argv);
-			join(pid, cfg.homedir);
+
+			pid_t pid;
+			if (read_pid(argv[i] + 7, &pid) == 0)		
+				join(pid, cfg.homedir);
+			else
+				join_name(argv[i] + 7, cfg.homedir);
 			// it will never get here!!!
 			exit(0);
 		}
 		else if (strncmp(argv[i], "--shutdown=", 11) == 0) {
-			pid_t pid = read_pid(argv[i] + 11);			
 			logargs(argc, argv);
-			shut(pid);
+			
+			pid_t pid;
+			if (read_pid(argv[i] + 11, &pid) == 0)
+				shut(pid);
+			else
+				shut_name(argv[i] + 11);
 			exit(0);
 		}
 		

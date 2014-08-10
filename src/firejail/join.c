@@ -55,7 +55,7 @@ void join_namespace(pid_t pid, char *type) {
 
 #define BUFLEN 4096
 // find the first child for this parent; return 1 if error
-int find_child(pid_t parent, pid_t *child) {
+static int find_child(pid_t parent, pid_t *child) {
 	*child = 0;	// use it to flag a found child
 
 	DIR *dir;
@@ -114,6 +114,84 @@ int find_child(pid_t parent, pid_t *child) {
 	return (*child)? 0:1;	// 0 = found, 1 = not found
 }
 
+// return 1 if error
+static int name2pid(const char *name, pid_t *pid) {
+	pid_t parent = getpid();
+	
+	DIR *dir;
+	if (!(dir = opendir("/proc"))) {
+		// sleep 2 seconds and try again
+		sleep(2);
+		if (!(dir = opendir("/proc"))) {
+			fprintf(stderr, "Error: cannot open /proc directory\n");
+			exit(1);
+		}
+	}
+	
+	struct dirent *entry;
+	char *end;
+	while ((entry = readdir(dir))) {
+		pid_t newpid = strtol(entry->d_name, &end, 10);
+		if (end == entry->d_name || *end)
+			continue;
+		if (newpid == parent)
+			continue;
+
+		// check if this is a firejail executable
+		char *comm = pid_proc_comm(newpid);
+		if (comm) {
+			// remove \n
+			char *ptr = strchr(comm, '\n');
+			if (ptr)
+				*ptr = '\0';
+			if (strcmp(comm, "firejail")) {
+				free(comm);
+				continue;
+			}
+			free(comm);
+		}
+		
+		char *cmd = pid_proc_cmdline(newpid);
+		if (cmd) {
+			// mark the end of the name
+			char *ptr = strstr(cmd, "--name=");
+			char *start = ptr;
+			if (!ptr) {
+				free(cmd);
+				continue;
+			}
+			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
+				ptr++;
+			*ptr = '\0';
+			int rv = strcmp(start + 7, name);
+			if (rv == 0) {
+				free(cmd);
+				*pid = newpid;
+				closedir(dir);
+				return 0;
+			}
+			free(cmd);
+		}
+	}
+	closedir(dir);
+	return 1;
+}
+
+void shut_name(const char *name) {
+	if (!name || strlen(name) == 0) {
+		fprintf(stderr, "Error: invalid sandbox name\n");
+		exit(1);
+	}
+	
+	pid_t pid;
+	if (name2pid(name, &pid)) {
+		fprintf(stderr, "Error: cannot find sandbox %s\n", name);
+		exit(1);
+	}
+
+	shut(pid);
+}
+
 void shut(pid_t pid) {
 	// if the pid is that of a firejail  process, use the pid of a child process inside the sandbox
 	char *comm = pid_proc_comm(pid);
@@ -164,6 +242,20 @@ void shut(pid_t pid) {
 	fclose(fp);
 	printf("Sending SIGKILL to %u\n", pid);
 	kill(pid, SIGKILL);
+}
+
+void join_name(const char *name, const char *homedir) {
+	if (!name || strlen(name) == 0) {
+		fprintf(stderr, "Error: invalid sandbox name\n");
+		exit(1);
+	}
+	pid_t pid;
+	if (name2pid(name, &pid)) {
+		fprintf(stderr, "Error: cannot find sandbox %s\n", name);
+		exit(1);
+	}
+
+	join(pid, homedir);
 }
 
 void join(pid_t pid, const char *homedir) {

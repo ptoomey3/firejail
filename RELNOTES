@@ -1,3 +1,5 @@
+disable /proc/kcore
+
 Fixed bug --top option CPU utilization calculation
 Introduced --tree option in firejail and firemon
 Preserve the current working directory if possible

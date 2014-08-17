@@ -128,10 +128,9 @@ static void expand_path(OPERATION op, const char *path, const char *fname, const
 	globbing(op, newname, emptydir, emptyfile);
 }
 
-// blacklist files or directoies by mounting empty files on top of them
-void fs_blacklist(char **blacklist, const char *homedir) {
+
+static char *create_empty_dir(void) {
 	char *emptydir;
-	char *emptyfile;
 	assert(tmpdir);
 
 	// create read-only root directory
@@ -140,6 +139,13 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 	mkdir(emptydir, S_IRWXU);
 	if (chown(emptydir, 0, 0) < 0)
 		errExit("chown");
+
+	return emptydir;
+}
+
+static char *create_empty_file(void) {
+	char *emptyfile;
+	assert(tmpdir);
 
 	// create read-only root file
 	if (asprintf(&emptyfile, "%s/firejail.ro.file", tmpdir) == -1)
@@ -152,6 +158,13 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 		errExit("chown");
 	if (chmod(emptyfile, S_IRUSR) < 0)
 		errExit("chown");
+	return emptyfile;
+}
+
+// blacklist files or directoies by mounting empty files on top of them
+void fs_blacklist(char **blacklist, const char *homedir) {
+	char *emptydir = create_empty_dir();
+	char *emptyfile = create_empty_file();
 
 	int i = 0;
 	while (blacklist[i]) {
@@ -266,6 +279,9 @@ void fs_proc_sys(void) {
 	// disable hotplug and uevent_helper
 	fs_rdonly_noexit("/proc/sys/kernel/hotplug");
 	fs_rdonly_noexit("/sys/kernel/uevent_helper");
+	
+	// disable /proc/kcore
+	disable_file(BLACKLIST_FILE, "/proc/kcore", "not used", "/dev/null");
 }
 
 

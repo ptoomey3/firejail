@@ -15,6 +15,9 @@ echo "TESTING: man"
 echo "TESTING: list"
 ./option_list.exp
 
+echo "TESTING: tree"
+./option_list.exp
+
 echo "TESTING: zsh"
 ./shell_zsh.exp
 

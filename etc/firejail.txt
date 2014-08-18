@@ -38,6 +38,9 @@ Print options end exit.
 \fB\--ip=address
 Use this IP address in the new network namespace.
 .TP
+\fB\--join=name
+Join the sandbox started using --name option.
+.TP
 \fB\--join=pid
 Join the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
 .TP
@@ -70,6 +73,9 @@ Mount new /tmp, /root and /home/user directories.
 .TP
 \fB\--profile=filename
 Use a custom profile, see below.
+.TP
+\fB\--shutdown=name
+Shutdown the sandbox started using --name option.
 .TP
 \fB\--shutdown=pid
 Shutdown the sandbox specified by pid. Use --list option to get a list of all active sandboxes.

@@ -38,6 +38,7 @@ void usage(void) {
 	printf("\t\tnetwork namespace\n");
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--ip=address - use this IP address in the new network namespace\n");
+	printf("\t--join=name - join the sandbox started using --name option\n");
 	printf("\t--join=pid - join the sandbox of the specified process\n");
 	printf("\t--list - list all sandboxes\n");
 	printf("\t--name=name - set sandbox hostname\n");
@@ -57,6 +58,7 @@ void usage(void) {
 	printf("\t\tto work)\n");    
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
+	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
 	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
 	printf("\t--seccomp - enabled seccomp filter\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");

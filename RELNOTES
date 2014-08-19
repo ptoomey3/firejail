@@ -6,6 +6,7 @@ firejail (0.9.10) baseline; urgency=low
   * Implemented --shutdown option
   * Preserve the current working directory if possible
   * Cppcheck and clang errors cleanup
+  * Added a Chromium web browser profile
 
  -- netblue30 <netblue30@yahoo.com>  Mon, 18 Aug 2014 08:00:00 -0500
 

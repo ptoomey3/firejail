@@ -117,9 +117,9 @@ int sandbox(void* sandbox_arg) {
 		fs_private(cfg.homedir);
 		
 	//****************************
-	// update /proc directory
+	// update /proc, /dev, /boot directory
 	//****************************
-	fs_proc_sys();
+	fs_proc_sys_dev_boot();
 	
 	//****************************
 	// networking

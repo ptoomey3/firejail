@@ -1,5 +1,5 @@
 firejail (0.9.10) baseline; urgency=low
-  * Disable /proc/kcore
+  * Disable /proc/kcore, /proc/kallsyms, /dev/port, /boot
   * Fixed bug --top option CPU utilization calculation
   * Introduced --tree option in firejail and firemon
   * Implemented --join=name option

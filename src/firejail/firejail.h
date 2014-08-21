@@ -148,7 +148,7 @@ void fs_blacklist(char **blacklist, const char *homedir);
 // remount a directory read-only
 void fs_rdonly(const char *dir);
 // mount /proc and /sys directories
-void fs_proc_sys(void);
+void fs_proc_sys_dev_boot(void);
 // build a basic read-only filesystem
 void fs_basic_fs(void);
 // private mode: mount tmpfs over /home and /tmp

@@ -254,7 +254,7 @@ void fs_rdonly_noexit(const char *dir) {
 }
 
 // mount /proc and /sys directories
-void fs_proc_sys(void) {
+void fs_proc_sys_dev_boot(void) {
 	if (arg_debug)
 		printf("Remounting /proc and /proc/sys filesystems\n");
 	if (mount("proc", "/proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_REC, NULL) < 0)
@@ -274,27 +274,55 @@ void fs_proc_sys(void) {
 	// # echo 1 > /proc/sys/kernel/sysrq
 	// #echo b > /proc/sysrq-trigger
 	// for more information see https://www.kernel.org/doc/Documentation/sysrq.txt
+	if (arg_debug)
+		printf("Disable /proc/sysrq-trigger\n");
 	fs_rdonly_noexit("/proc/sysrq-trigger");
 	
 	// disable hotplug and uevent_helper
+	if (arg_debug)
+		printf("Disable /proc/sys/kernel/hotplug\n");
 	fs_rdonly_noexit("/proc/sys/kernel/hotplug");
+	if (arg_debug)
+		printf("Disable /sys/kernel/uevent_helper\n");
 	fs_rdonly_noexit("/sys/kernel/uevent_helper");
 	
 	// disable /proc/kcore
+	if (arg_debug)
+		printf("Disable /proc/kcore\n");
 	disable_file(BLACKLIST_FILE, "/proc/kcore", "not used", "/dev/null");
+
+	// disable /proc/kallsyms
+	if (arg_debug)
+		printf("Disable /proc/kallsyms\n");
+	disable_file(BLACKLIST_FILE, "/proc/kallsyms", "not used", "/dev/null");
+	
+	// disable /boot
+	struct stat s;
+	if (stat("/boot", &s) == 0) {
+		if (arg_debug)
+			printf("Mounting a new /boot directory\n");
+		if (mount("tmpfs", "/boot", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting /boot directory");
+	}
+	
+	// disable /dev/port
+	if (stat("/dev/port", &s) == 0) {
+		if (arg_debug)
+			printf("Disable /dev/port\n");
+		disable_file(BLACKLIST_FILE, "/dev/port", "not used", "/dev/null");
+	}
 }
 
 
 // build a basic read-only filesystem
 void fs_basic_fs(void) {
 	if (arg_debug)
-		printf("Mounting read-only /bin, /sbin, /lib, /lib64, /usr, /boot, /etc, /var\n");
+		printf("Mounting read-only /bin, /sbin, /lib, /lib64, /usr, /etc, /var\n");
 	fs_rdonly("/bin");
 	fs_rdonly("/sbin");
 	fs_rdonly("/lib");
 	fs_rdonly("/lib64");
 	fs_rdonly("/usr");
-	fs_rdonly("/boot");
 	fs_rdonly("/etc");
 	fs_rdonly("/var");
 

@@ -3,7 +3,6 @@
 # system directories	
 blacklist /sbin
 blacklist /usr/sbin
-blacklist /boot
 
 # system management
 blacklist ${PATH}/umount

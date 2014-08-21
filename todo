@@ -1,3 +1,12 @@
+* syscalls
+/usr/include/x86_64-linux-gnu/bits/syscall.h
+strace -f -c iceweasel
+
+* Disable /dev/port
+ioperm and iopl already disabled by seccomp
+see http://www.tldp.org/HOWTO/IO-Port-Programming-2.html
+
+
 * Investigate mounting /sys
 
 	/* Mount a version of /sys that describes the network namespace */

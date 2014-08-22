@@ -1,6 +1,6 @@
 firejail (0.9.10) baseline; urgency=low
   * Disable /proc/kcore, /proc/kallsyms, /dev/port, /boot
-  * Fixed bug --top option CPU utilization calculation
+  * Fixed --top option CPU utilization calculation
   * Introduced --tree option in firejail and firemon
   * Implemented --join=name option
   * Implemented --shutdown option
@@ -8,7 +8,7 @@ firejail (0.9.10) baseline; urgency=low
   * Cppcheck and clang errors cleanup
   * Added a Chromium web browser profile
 
- -- netblue30 <netblue30@yahoo.com>  Mon, 18 Aug 2014 08:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Mon, 22 Aug 2014 08:00:00 -0500
 
 firejail (0.9.8.1) baseline; urgency=low
   * FIxed a number of bugs introduced in 0.9.8

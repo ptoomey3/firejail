@@ -72,10 +72,11 @@ expect {
 }
 sleep 1
 
+set timeout 2
 send -- "env | grep MALLOC;pwd\r"
 expect {
 	timeout {puts "\nTESTING: MALLOC_PERTURB_ disabled\n"}
-	"MALLOC" {puts "\nTESTING: MALLOC_PERTURB_ enabled\n"}
+	"MALLOC_PERTURB_" {puts "\nTESTING: MALLOC_PERTURB_ enabled\n"}
 }
 expect {
 	timeout {puts "TESTING ERROR 5\n";exit}

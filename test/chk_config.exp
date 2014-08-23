@@ -64,5 +64,23 @@ expect {
 	"home"
 }
 
-puts "\n"
+# start a sandbox and check MALLOC_PERTURB
+send -- "firejail\r"
+expect {
+	timeout {puts "TESTING ERROR 4\n";exit}
+	"Child process initialized"
+}
+sleep 1
+
+send -- "env | grep MALLOC;pwd\r"
+expect {
+	timeout {puts "\nTESTING: MALLOC_PERTURB_ disabled\n"}
+	"MALLOC" {puts "\nTESTING: MALLOC_PERTURB_ enabled\n"}
+}
+expect {
+	timeout {puts "TESTING ERROR 5\n";exit}
+	"home"
+}
+
+puts "*********************************TESTING sysetm configuration END***\n"
 

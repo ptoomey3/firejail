@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "*** TESTING system configuration ***"
+echo "*********************************TESTING system configuration START***"
 ./chk_config.exp
 
 echo "TESTING: version"

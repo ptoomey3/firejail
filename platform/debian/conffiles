@@ -4,3 +4,4 @@
 /etc/firejail/evince.profile
 /etc/firejail/midori.profile
 /etc/firejail/chromium-browser.profile
+/etc/firejail/chromium.profile

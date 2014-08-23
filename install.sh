@@ -23,6 +23,7 @@ install -c -m 0644 etc/firefox.profile /etc/firejail/iceweasel.profile
 install -c -m 0644 etc/midori.profile /etc/firejail/.
 install -c -m 0644 etc/evince.profile /etc/firejail/.
 install -c -m 0644 etc/chromium-browser.profile /etc/firejail/.
+install -c -m 0644 etc/chromium.profile /etc/firejail/.
 if [ ! -f /etc/firejail/login.users ]
 then
 	install -c -m 0644 etc/login.users /etc/firejail/.

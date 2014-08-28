@@ -65,7 +65,7 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 	// modify the file
 	if (op == BLACKLIST_FILE) {
 		if (arg_debug)
-			printf("Disabling %s\n", fname);
+			printf("Disabe %s\n", fname);
 		if (S_ISDIR(s.st_mode)) {
 			if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
 				errExit("disable file");
@@ -287,13 +287,9 @@ void fs_proc_sys_dev_boot(void) {
 	fs_rdonly_noexit("/sys/kernel/uevent_helper");
 	
 	// disable /proc/kcore
-	if (arg_debug)
-		printf("Disable /proc/kcore\n");
 	disable_file(BLACKLIST_FILE, "/proc/kcore", "not used", "/dev/null");
 
 	// disable /proc/kallsyms
-	if (arg_debug)
-		printf("Disable /proc/kallsyms\n");
 	disable_file(BLACKLIST_FILE, "/proc/kallsyms", "not used", "/dev/null");
 	
 	// disable /boot
@@ -307,8 +303,6 @@ void fs_proc_sys_dev_boot(void) {
 	
 	// disable /dev/port
 	if (stat("/dev/port", &s) == 0) {
-		if (arg_debug)
-			printf("Disable /dev/port\n");
 		disable_file(BLACKLIST_FILE, "/dev/port", "not used", "/dev/null");
 	}
 }

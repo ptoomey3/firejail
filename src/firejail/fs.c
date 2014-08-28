@@ -65,7 +65,7 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 	// modify the file
 	if (op == BLACKLIST_FILE) {
 		if (arg_debug)
-			printf("Disabe %s\n", fname);
+			printf("Disable %s\n", fname);
 		if (S_ISDIR(s.st_mode)) {
 			if (mount(emptydir, fname, "none", MS_BIND, "mode=400,gid=0") < 0)
 				errExit("disable file");

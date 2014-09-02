@@ -14,6 +14,32 @@ strace -f -c iceweasel
 		return -1;
 	}
 
+* lxc description:
+Linux containers offer:
+- chroot
+- network isolation
+- Shared memory isolation
+- hostname/domainname per-container
+- PID isolation (many container can see PID number 314 in each of them, however these are different PIDs on the host machine
+- user mappings (map UID 433 on the host as UID 15 or UID 0 in the container)
+- resource limit isolation
+- CPU, Memory and I/O limits per-group
+- Device isolation per-group
+- there is a mechanism in the kernel to freeze/unfreeze all processes inside a container with a single command
+- Fine grained capabilities per-container
+- Tools: Docker, LXC and a lot of others.
+- Live migration - CRIU. If certain rules are met, you can even live migrate a linux container to another physical machine.
+
+* lxc-freeze and lxc-clone - using btrfs to take a snapshot of a frozen container and cloning it
+https://blogs.oracle.com/OTNGarage/entry/linux_container_lxc_part_2
+
+* https://www.stgraber.org/2013/12/21/lxc-1-0-your-second-container/
+In such cases, “sudo lxc-freeze -n <container name>” can be used. That very simply freezes all the processes in the container
+so they won’t get any time allocated by the scheduler. However the processes will still exist and will still use whatever memory
+they used to.
+
+Once you need the service again, just call “sudo lxc-unfreeze -n <container name>” and all the processes will be restarted.
+
 * container usage
 http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
 https://github.com/google/lmctfy/

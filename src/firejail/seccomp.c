@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <sys/syscall.h>
 #include <linux/capability.h>
+#include <linux/audit.h>
 #include "firejail.h"
 
 #include <sys/prctl.h>
@@ -50,9 +51,24 @@ struct seccomp_data {
 };
 #endif
 
+#if defined(__i386__)
+# define ARCH_NR	AUDIT_ARCH_I386
+#elif defined(__x86_64__)
+# define ARCH_NR	AUDIT_ARCH_X86_64
+#else
+# warning "Platform does not support seccomp filter yet"
+# define ARCH_NR	0
+#endif
+
+
+#define VALIDATE_ARCHITECTURE \
+     BPF_STMT(BPF_LD+BPF_W+BPF_ABS, (offsetof(struct seccomp_data, arch))), \
+     BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, ARCH_NR, 1, 0), \
+     BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
+
+#define EXAMINE_SYSCALL BPF_STMT(BPF_LD+BPF_W+BPF_ABS,	\
+		 (offsetof(struct seccomp_data, nr)))
 #define BLACKLIST(syscall_nr)	\
-	BPF_STMT(BPF_LD+BPF_W+BPF_ABS,	\
-		 (offsetof(struct seccomp_data, nr))),	\
 	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, syscall_nr, 0, 1),	\
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL) //	\
 //		 SECCOMP_RET_ERRNO|(SECCOMP_RET_DATA))
@@ -74,6 +90,8 @@ int seccomp_filter(void) {
 	
 	// seccomp
 	struct sock_filter filter[] = {
+		VALIDATE_ARCHITECTURE,
+		EXAMINE_SYSCALL,
 		BLACKLIST(SYS_mount),  // mount/unmount filesystems
 		BLACKLIST(SYS_umount2),
 		

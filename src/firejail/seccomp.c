@@ -75,19 +75,54 @@ struct seccomp_data {
 
 #define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
-int seccomp_filter(void) {
+void caps_print(void) {
+	cap_user_header_t       hdr;
+	cap_user_data_t         data;
+	hdr = malloc(sizeof(*hdr));
+	data = malloc(sizeof(*data));
+	memset(hdr, 0, sizeof(*hdr));
+	hdr->version = _LINUX_CAPABILITY_VERSION;
+
+	if (capget(hdr, data) < 0) {
+		perror("capget");
+		goto doexit;
+	}
+	
+	printf("effective\t%x\n", data->effective);
+	printf("permitted\t%x\n", data->permitted);
+	printf("inheritable\t%x\n", data->inheritable);
+
+doexit:
+	free(hdr);
+	free(data);
+}
+
+
+// enabled by default 
+int caps_filter(void) {
 	// drop capabilities
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: kernel module loading allowed for root user, your kernel does not have support for PR_CAPBSET_DROP");
+		fprintf(stderr, "Warning: kernel module loading allowed for root user, your kernel does not have support for CAP_SYS_MODULE");
 	else if (arg_debug)
 		printf("Kernel modules loading disabled\n");
 
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_RAWIO, 0, 0, 0) && arg_debug)
+		fprintf(stderr, "Warning: ioperm/iopl calls allowed for root user, your kernel does not have support for CAP_SYS_RAWIO");
+	else if (arg_debug)
+		printf("ioperm/iopl calls disabled\n");
+
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_BOOT, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: system rebooting capability not removed, your kernel does not have support for PR_CAPBSET_DROP");
+		fprintf(stderr, "Warning: system rebooting capability not removed, your kernel does not have support for CAP_SYS_BOOT");
 	else if (arg_debug)
 		printf("System rebooting disabled\n");
-	
-	
+
+	return 0;
+}
+
+
+
+// enabled only for --seccomp option
+int seccomp_filter(void) {
 	// seccomp
 	struct sock_filter filter[] = {
 		VALIDATE_ARCHITECTURE,
@@ -133,20 +168,3 @@ int seccomp_filter(void) {
 	return 0;
 }
 
-#if 0
-void printcaps(void) {
-	cap_user_header_t       hdr;
-	cap_user_data_t         data;
-	hdr = malloc(sizeof(*hdr));
-	data = malloc(sizeof(*data));
-	memset(hdr, 0, sizeof(*hdr));
-	hdr->version = _LINUX_CAPABILITY_VERSION;
-	if (capget(hdr, data) < 0)
-		perror("capget");
-	printf("effective\t%x\n", data->effective);
-	printf("permitted\t%x\n", data->permitted);
-	printf("inheritable\t%x\n", data->inheritable);
-	free(hdr);
-	free(data);
-}
-#endif

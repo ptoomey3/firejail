@@ -223,7 +223,9 @@ void fs_var_run(void);
 void fs_var_lock(void);
 void fs_var_tmp(void);
 
-// seccomp.h
+// seccomp.c
 int seccomp_filter(void);
+int caps_filter(void);
+void caps_print(void);
 
 #endif

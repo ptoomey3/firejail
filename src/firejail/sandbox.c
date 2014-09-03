@@ -225,6 +225,9 @@ int sandbox(void* sandbox_arg) {
 	if (arg_csh && setenv("SHELL", "/bin/csh", 1) < 0)
 		errExit("setenv");
 
+	// set capabilities
+	caps_filter();
+
 	// set seccomp
 	if (arg_seccomp == 1)
 		seccomp_filter();

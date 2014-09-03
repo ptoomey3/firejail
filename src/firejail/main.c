@@ -299,6 +299,10 @@ int main(int argc, char **argv) {
 		//*************************************
 		// independent commands - the program will exit!
 		//*************************************
+		else if (strcmp(argv[i], "--debug-caps") == 0) {
+			caps_print();
+			exit(0);
+		}
 		else if (strcmp(argv[i], "--list") == 0) {
 			list();
 			exit(0);

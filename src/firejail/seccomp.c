@@ -102,20 +102,40 @@ doexit:
 int caps_filter(void) {
 	// drop capabilities
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: kernel module loading allowed for root user, your kernel does not have support for CAP_SYS_MODULE");
+		fprintf(stderr, "Warning: cannot drop CAP_SYS_MODULE");
 	else if (arg_debug)
-		printf("Kernel modules loading disabled\n");
+		printf("Drop CAP_SYS_MODULE\n");
 
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_RAWIO, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: ioperm/iopl calls allowed for root user, your kernel does not have support for CAP_SYS_RAWIO");
+		fprintf(stderr, "Warning: cannot drop CAP_SYS_RAWIO");
 	else if (arg_debug)
-		printf("ioperm/iopl calls disabled\n");
+		printf("Drop CAP_SYS_RAWIO\n");
 
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_BOOT, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: system rebooting capability not removed, your kernel does not have support for CAP_SYS_BOOT");
+		fprintf(stderr, "Warning: cannot drop CAP_SYS_BOOT");
 	else if (arg_debug)
-		printf("System rebooting disabled\n");
+		printf("Drop CAP_SYS_BOOT\n");
 
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_NICE, 0, 0, 0) && arg_debug)
+		fprintf(stderr, "Warning: cannot drop CAP_SYS_NICE");
+	else if (arg_debug)
+		printf("Drop CAP_SYS_NICE\n");
+
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_TTY_CONFIG, 0, 0, 0) && arg_debug)
+		fprintf(stderr, "Warning: cannot drop CAP_SYS_TTY_CONFIG");
+	else if (arg_debug)
+		printf("Drop CAP_SYS_TTY_CONFIG\n");
+
+	if (prctl(PR_CAPBSET_DROP, CAP_SYSLOG, 0, 0, 0) && arg_debug)
+		fprintf(stderr, "Warning: cannot drop CAP_SYSLOG");
+	else if (arg_debug)
+		printf("Drop CAP_SYSLOG\n");
+		
+	if (prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0) && arg_debug)
+		fprintf(stderr, "Warning: cannot drop CAP_SYS_ADMIN");
+	else if (arg_debug)
+		printf("Drop CAP_SYS_ADMIN\n");
+	
 	return 0;
 }
 
@@ -164,7 +184,7 @@ int seccomp_filter(void) {
 	else if (arg_debug) {
 		printf("seccomp enabled\n");
 	}
-	
+
 	return 0;
 }
 

@@ -266,8 +266,8 @@ void fs_proc_sys_dev_boot(void) {
 	if (mount(NULL, "/proc/sys", NULL, MS_BIND | MS_REMOUNT | MS_RDONLY | MS_REC, NULL) < 0)
 		errExit("mounting /proc/sys");
 
-	//	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
-	//		errExit("/sys");
+//	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
+//		errExit("mounting /sys");
 
 	// Disable SysRq
 	// a linux box can be shut down easilliy using the following commands (as root):
@@ -285,6 +285,14 @@ void fs_proc_sys_dev_boot(void) {
 	if (arg_debug)
 		printf("Disable /sys/kernel/uevent_helper\n");
 	fs_rdonly_noexit("/sys/kernel/uevent_helper");
+	
+	// read-only /proc/irq and /proc/bus
+	if (arg_debug)
+		printf("Disable /proc/irq\n");
+	fs_rdonly_noexit("/proc/irq");
+	if (arg_debug)
+		printf("Disable /proc/bus\n");
+	fs_rdonly_noexit("/proc/bus");
 	
 	// disable /proc/kcore
 	disable_file(BLACKLIST_FILE, "/proc/kcore", "not used", "/dev/null");

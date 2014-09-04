@@ -111,13 +111,14 @@ static inline int any_bridge_configured(void) {
 }
 extern int arg_private;		// mount private /home and /tmp directory
 extern int arg_debug;		// print debug messages
-extern int arg_nonetwork;		// --net=none
+extern int arg_nonetwork;	// --net=none
 extern int arg_noip;		// --ip=none
-extern int arg_command;		// -c
+extern int arg_command;	// -c
 extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
-extern int arg_seccomp;		// enable seccomp filter
+extern int arg_seccomp;	// enable seccomp filter
+extern int arg_caps;		// enable capabilities filter
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)

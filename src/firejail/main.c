@@ -41,20 +41,21 @@
 #include "../include/pid.h"
 
 #define STACK_SIZE (1024 * 1024)
-static char child_stack[STACK_SIZE];		  // space for child's stack
-Config cfg;					  // configuration
-int arg_private = 0;				  // mount private /home and /tmp directoryu
-int arg_debug = 0;				  // print debug messages
-int arg_nonetwork = 0;				  // --net=none
-int arg_noip = 0;				  	// --ip=none
-int arg_command = 0;				  // -c
-int arg_overlay = 0;				  // --overlay
-int arg_zsh = 0;					// use zsh as default shell
-int arg_csh = 0;					// use csh as default shell
-int arg_seccomp = 0;				 // enable seccomp filter
+static char child_stack[STACK_SIZE];		// space for child's stack
+Config cfg;					// configuration
+int arg_private = 0;				// mount private /home and /tmp directoryu
+int arg_debug = 0;				// print debug messages
+int arg_nonetwork = 0;				// --net=none
+int arg_noip = 0;				// --ip=none
+int arg_command = 0;				// -c
+int arg_overlay = 0;				// --overlay
+int arg_zsh = 0;				// use zsh as default shell
+int arg_csh = 0;				// use csh as default shell
+int arg_seccomp = 0;				// enable seccomp filter
+int arg_caps = 0;				// enable capabilities filter
 
-int fds[2];					  // parent-child communication pipe
-char *fullargv[MAX_ARGS];			  // expanded argv for restricted shell
+int fds[2];					// parent-child communication pipe
+char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
 int fullargc = 0;
 static pid_t child = 0;
 
@@ -338,10 +339,12 @@ int main(int argc, char **argv) {
 		}
 		
 		//*************************************
-		// misc features
+		// filtering
 		//*************************************
 		else if (strcmp(argv[i], "--seccomp") == 0)
 			arg_seccomp = 1;
+		else if (strcmp(argv[i], "--caps") == 0)
+			arg_caps = 1;
 		
 		//*************************************
 		// filesystem

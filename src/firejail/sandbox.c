@@ -226,7 +226,8 @@ int sandbox(void* sandbox_arg) {
 		errExit("setenv");
 
 	// set capabilities
-	caps_filter();
+	if (arg_caps == 1)
+		caps_filter();
 
 	// set seccomp
 	if (arg_seccomp == 1)

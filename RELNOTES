@@ -1,3 +1,5 @@
+added --caps and --debug-caps options
+
 firejail (0.9.10) baseline; urgency=low
   * Disable /proc/kcore, /proc/kallsyms, /dev/port, /boot
   * Fixed --top option CPU utilization calculation

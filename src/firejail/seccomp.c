@@ -168,6 +168,8 @@ int seccomp_filter(void) {
 		
 		BLACKLIST(SYS_swapon), // swap on/off
 		BLACKLIST(SYS_swapoff),
+		
+		BLACKLIST(SYS_syslog), // kernel printk control
 
 		RETURN_ALLOW
 	};

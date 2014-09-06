@@ -257,9 +257,9 @@ static void print_elem(unsigned index, int nowrap) {
 	}
 	else {
 		if (pids[index].zombie)
-			printf("%u: (zombie)\n", index);
+			printf("%s%u: (zombie)\n", indent, index);
 		else
-			printf("%u:\n", index);
+			printf("%s%u:\n", indent, index);
 	}
 	if (allocated)
 		free(allocated);

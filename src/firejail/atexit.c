@@ -43,7 +43,7 @@ static void unlink_walker(void) {
 		if(strcmp( dir->d_name, "." ) == 0 || strcmp( dir->d_name, ".." ) == 0 )
 			continue;
 
-		if (dir->d_type == DT_DIR ) {
+		if (dir->d_type == DT_DIR ||  strcmp(dir->d_name, "firejail.ro.dir") == 0) {
 			if (chdir(dir->d_name) == 0)
 				unlink_walker();
 			else
@@ -55,8 +55,14 @@ static void unlink_walker(void) {
 		}
 		else {
 			if (dir->d_type == DT_UNKNOWN) {
-				fprintf(stderr, "Error: cannot remove temporary directory %s - unknown filesystem type\n", tmpdir);
-				return;
+				if ( strcmp(dir->d_name, "firejail.ro.file") == 0) {
+		                        if (unlink(dir->d_name) != 0)
+                		                return;
+				}
+				else {
+					fprintf(stderr, "Error: cannot remove temporary directory %s - unknown filesystem type\n", tmpdir);
+					return;
+				}
 			}
 			if (unlink(dir->d_name) != 0)
 				return;

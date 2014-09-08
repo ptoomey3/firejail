@@ -31,6 +31,7 @@ void usage(void) {
 	printf("default in the sandbox.\n\n");
 	printf("Options:\n");
 	printf("\t-c - execute command and exit\n");
+	printf("\t--caps - enable Linux capabilities filter\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
 	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
@@ -60,7 +61,7 @@ void usage(void) {
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
 	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
-	printf("\t--seccomp - enabled seccomp filter\n");
+	printf("\t--seccomp - enable seccomp filter\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--version - print program version and exit\n");

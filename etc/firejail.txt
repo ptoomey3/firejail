@@ -20,6 +20,9 @@ If no program is specified as an argument, /bin/bash is started by default in th
 \fB\-c
 Execute command and exit.
 .TP
+\fB\--caps
+Enable Linux capabilities filter
+.TP
 \fB\--chroot=dirname
 Chroot into dirname directory.
 .TP

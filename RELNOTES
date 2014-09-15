@@ -1,4 +1,9 @@
-added --caps and --debug-caps options
+firejail (0.9.12) baseline; urgency=low
+  * Added capabilities support
+  * Added support for CentOS 7
+  * bugfixes
+
+ -- netblue30 <netblue30@yahoo.com>  Mon, 15 Sept 2014 10:00:00 -0500
 
 firejail (0.9.10) baseline; urgency=low
   * Disable /proc/kcore, /proc/kallsyms, /dev/port, /boot

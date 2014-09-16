@@ -31,6 +31,9 @@ install -m 644 /etc/firejail/midori.profile firejail-$VERSION/etc/firejail/midor
 install -m 644 /etc/chromium-browser.profile firejail-$VERSION/etc/firejail/.
 install -m 644 /etc/chromium.profile firejail-$VERSION/etc/firejail/.
 install -m 644 /etc/firejail/login.users firejail-$VERSION/etc/firejail/login.users
+install -m 644 /etc/firejail/chromium.profile firejail-$VERSION/etc/firejail/chromium.profile
+install -m 644 /etc/firejail/chromium-browser.profile firejail-$VERSION/etc/firejail/chromium-browser.profile
+
 
 mkdir -p firejail-$VERSION/usr/share/bash-completion/completions
 install -m 644 /usr/share/bash-completion/completions/firejail  firejail-$VERSION/usr/share/bash-completion/completions/.
@@ -93,40 +96,10 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
-* Sat Jun 7 2014  netblue30 <netblue30@yahoo.com> 0.9.6-1
- - Mounting tmpfs on top of /var/log, required by several server programs
- - Server fixes for /var/lib and /var/cache
- - Private mode fixes
- - csh and zsh default shell support
- - Chroot mode fixes
- - Added support for lighttpd, isc-dhcp-server, apache2, nginx, snmpd,
-
-* Sun May 5 2014  netblue30 <netblue30@yahoo.com> 0.9.4-1
- - Fixed resolv.conf on Ubuntu systems using DHCP
- - Fixed resolv.conf on Debian systems using resolvconf package
- - Fixed /var/lock directory
- - Fixed /var/tmp directory
- - Fixed symbolic links in profile files
- - Added profiles for evince, midori
-
-* Fri Apr 25 2014  netblue30 <netblue30@yahoo.com> 0.9.2-1
-- Checking IP address passed with --ip option using ARP; exit if the address
-   is already present
-- Using a lock file during ARP address assignment in order to removed a race
-   condition.
-- Several fixes to --private option; it also mounts a tmpfs filesystem on top
-   of /tmp
-- Added user access check for profile file
-- Added --defaultgw option
-- Added support of --noip option; it is necessary for DHCP setups
-- Added syslog support
-- Added support for "tmpfs" and "read-only" profile commands
-- Added an expect-based testing framework for the project
-- Added bash completion support
-- Added support for multiple networks
-
-* Sat Apr 12 2014  netblue30 <netblue30@yahoo.com> 0.9-1
-- First Build
+* Tue Sep 16 2014 netblue30 <netblue30@yahoo.com> 0.9.12-1
+ - Added capabilities support
+ - Added support for CentOS 7
+ - bugfixes
 
 EOF
 

@@ -150,7 +150,8 @@ int seccomp_filter(void) {
 		EXAMINE_SYSCALL,
 		BLACKLIST(SYS_mount),  // mount/unmount filesystems
 		BLACKLIST(SYS_umount2),
-		
+
+//todo: find a way to disable this in order to run strace		
 		BLACKLIST(SYS_ptrace), // trace processes
 
 		BLACKLIST(SYS_kexec_load), // loading a different kernel

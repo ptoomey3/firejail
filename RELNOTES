@@ -1,3 +1,6 @@
+Added firemon support to print the ARP table for each sandbox
+Added firemon support to print the route table for each sandbox
+
 firejail (0.9.12) baseline; urgency=low
   * Added capabilities support
   * Added support for CentOS 7

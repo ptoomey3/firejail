@@ -4,6 +4,11 @@
 /usr/include/x86_64-linux-gnu/bits/syscall.h
 strace -f -c iceweasel
 
+Trace files being opened by firefox
+firejail strace -f -e open -o strace.out firefox
+
+
+
 * Investigate mounting /sys
 
 	/* Mount a version of /sys that describes the network namespace */

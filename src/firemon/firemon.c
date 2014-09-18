@@ -29,6 +29,8 @@
 #include "firemon.h"
 static int arg_top = 0;
 static int arg_list = 0;
+static int arg_route = 0;
+static int arg_arp = 0;
 static int arg_tree = 0;
 
 static struct termios tlocal;	// startup terminal setting
@@ -112,6 +114,14 @@ int main(int argc, char **argv) {
 			arg_list = 1;
 			break;
 		}
+		else if (strcmp(argv[i], "--route") == 0) {
+			arg_route = 1;
+			break;
+		}
+		else if (strcmp(argv[i], "--arp") == 0) {
+			arg_arp = 1;
+			break;
+		}
 		else if (strcmp(argv[i], "--tree") == 0) {
 			arg_tree = 1;
 			break;
@@ -133,6 +143,10 @@ int main(int argc, char **argv) {
 		top(); // never to return
 	else if (arg_list)
 		list();
+	else if (arg_route)
+		route();
+	else if (arg_arp)
+		arp();
 	else if (arg_tree)
 		tree();
 	else

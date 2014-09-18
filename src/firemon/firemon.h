@@ -33,11 +33,30 @@
 #include <linux/connector.h>
 #include <linux/netlink.h>
 #include <linux/cn_proc.h>
+#include <stdint.h>
 #include "../include/pid.h"
 
 #define BUFLEN 4096
 
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
+
+#define PRINT_IP(A) \
+((int) (((A) >> 24) & 0xFF)),  ((int) (((A) >> 16) & 0xFF)), ((int) (((A) >> 8) & 0xFF)), ((int) ( (A) & 0xFF))
+
+static inline uint8_t mask2bits(uint32_t mask) {
+	uint32_t tmp = 0x80000000;
+	int i;
+	uint8_t rv = 0;
+
+	for (i = 0; i < 32; i++, tmp >>= 1) {
+		if (tmp & mask)
+			rv++;
+		else
+			break;
+	}
+	return rv;
+}
+
 
 // clear screen
 static inline void firemon_clrscr(void) {

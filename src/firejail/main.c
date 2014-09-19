@@ -59,10 +59,17 @@ char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
 int fullargc = 0;
 static pid_t child = 0;
 
+static void myexit(int rv) {
+	logmsg("exiting...");
+	bye_parent();
+	exit(rv); 
+}
+
 static void my_handler(int s){
 	printf("\nSignal %d caught, shutting down the child process\n", s);
+	logsignal(s);
 	kill(child, SIGKILL);
-	exit(1); 
+	myexit(1);
 }
 
 static void extract_user_data(void) {
@@ -594,7 +601,6 @@ int main(int argc, char **argv) {
 	
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
-	logmsg("exiting...");
-	bye_parent();
+	myexit(0);
 	return 0;
 }

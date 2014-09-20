@@ -9,11 +9,17 @@ Without a PID specified, all processes started by Firejail are monitored. Descen
 these processes are also being monitored.
 .SH OPTIONS
 .TP
+\fB\--arp
+Print ARP table for each sandbox.
+.TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
 \fB\--list
 List all sandboxes.
+.TP
+\fB\--route
+Print route table for each sandbox.
 .TP
 \fB\--top
 Monitor the most CPU-intensive sandboxes.

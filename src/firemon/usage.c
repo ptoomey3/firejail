@@ -26,8 +26,10 @@ void usage(void) {
 	printf("all processes started by Firejail are monitored. Descendants of these processes\n");
 	printf("are also being monitored.\n\n");
 	printf("Options:\n");
+	printf("\t--arp - print ARP table for each sandbox\n");
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--list - list all sandboxes\n");
+	printf("\t--route - print route table for each sandbox\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--version - print program version and exit\n\n");

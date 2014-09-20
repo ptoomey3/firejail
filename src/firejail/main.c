@@ -493,7 +493,7 @@ int main(int argc, char **argv) {
 		cfg.command_name = "bash";
 	}
 	else {
-		set_exit = 1;
+//		set_exit = 1;
 
 		// calculate the length of the command
 		int i;

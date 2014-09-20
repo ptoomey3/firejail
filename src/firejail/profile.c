@@ -92,6 +92,24 @@ static void check_line(char *ptr, int lineno) {
 		check_file_name(ptr, lineno);
 }
 
+// add a profile entry in cfg.profile list
+void profile_add(char *str) {
+	ProfileEntry *prf = malloc(sizeof(ProfileEntry));
+	if (!prf)
+		errExit("malloc");
+	prf->next = NULL;
+	prf->data = str;	
+
+	// add prf to the list
+	if (cfg.profile == NULL) {
+		cfg.profile = prf;
+		return;
+	}
+	ProfileEntry *ptr = cfg.profile;
+	while (ptr->next != NULL)
+		ptr = ptr->next;
+	ptr->next = prf;
+}
 
 // read a profile file
 void profile_read(const char *fname) {
@@ -137,38 +155,6 @@ void profile_read(const char *fname) {
 		// verify syntax, exit in case of error
 		check_line(ptr, lineno);
 
-		// populate the linked list
-		assert(mptr);
-		mptr->line = ptr;
-		mptr->next = malloc(sizeof(struct mylist));
-		if (mptr->next == NULL)
-			errExit("malloc");
-		mptr = mptr->next;
-		mptr->line = NULL;
-		mptr->next = NULL;
-		mylist_cnt++;
-	}
-
-	// build blacklist array
-	cfg.custom_profile  = malloc(sizeof(char *) * mylist_cnt);
-	if (!cfg.custom_profile)
-		errExit("malloc");
-	mptr = &m;
-	lineno = 0;
-	while (mptr->next != NULL) {
-		assert(mptr->line);
-		cfg.custom_profile[lineno] = mptr->line;
-		mptr = mptr->next;
-		lineno++;
-	}
-	cfg.custom_profile[lineno] = NULL;
-	
-	// free the list
-	mptr = &m;
-	mptr = mptr->next;
-	while (mptr) {
-		struct mylist *next = mptr->next;
-		free(mptr);
-		mptr = next;
+		profile_add(ptr);
 	}
 }

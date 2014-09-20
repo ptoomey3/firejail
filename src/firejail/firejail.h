@@ -82,6 +82,11 @@ typedef struct bridge_t {
 	unsigned char configured;
 }  Bridge;
 
+typedef struct profile_entry_t {
+	struct profile_entry_t *next;
+	char *data;
+}ProfileEntry;
+
 typedef struct config_t {
 	// user data
 	char *username;
@@ -89,6 +94,7 @@ typedef struct config_t {
 	
 	// filesystem
 	char **custom_profile;	// loaded profile
+	ProfileEntry *profile;
 	char *chrootdir;		// chroot directory
 	char *cwd;	// current working directory
 
@@ -147,7 +153,8 @@ void net_bridge_add_interface(const char *bridge, const char *dev);
 
 // fs.c
 // blacklist files or directoies by mounting empty files on top of them
-void fs_blacklist(char **blacklist, const char *homedir);
+void fs_blacklist(const char *homedir);
+//void fs_blacklist(char **blacklist, const char *homedir);
 // remount a directory read-only
 void fs_rdonly(const char *dir);
 // mount /proc and /sys directories

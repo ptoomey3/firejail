@@ -157,34 +157,35 @@ static void expand_path(OPERATION op, const char *path, const char *fname, const
 	globbing(op, newname, emptydir, emptyfile);
 }
 
-
-
 // blacklist files or directoies by mounting empty files on top of them
-void fs_blacklist(char **blacklist, const char *homedir) {
+void fs_blacklist(const char *homedir) {
+	ProfileEntry *entry = cfg.profile;
+	if (!entry)
+		return;
+		
 	char *emptydir = create_empty_dir();
 	char *emptyfile = create_empty_file();
 
-	int i = 0;
-	while (blacklist[i]) {
+	while (entry) {
 		OPERATION op = OPERATION_MAX;
 		char *ptr;
 		
 		// process blacklist command
-		if (strncmp(blacklist[i], "blacklist", 9) == 0)  {
-			ptr = blacklist[i] + 10;
+		if (strncmp(entry->data, "blacklist", 9) == 0)  {
+			ptr = entry->data + 10;
 			op = BLACKLIST_FILE;
 		}
-		else if (strncmp(blacklist[i], "read-only", 9) == 0) {
-			ptr = blacklist[i] + 10;
+		else if (strncmp(entry->data, "read-only", 9) == 0) {
+			ptr = entry->data + 10;
 			op = MOUNT_READONLY;
 		}			
-		else if (strncmp(blacklist[i], "tmpfs", 5) == 0) {
-			ptr = blacklist[i] + 6;
+		else if (strncmp(entry->data, "tmpfs", 5) == 0) {
+			ptr = entry->data + 6;
 			op = MOUNT_TMPFS;
 		}			
 		else {
-			fprintf(stderr, "Error: invalid profile line %s\n", blacklist[i]);
-			i++;
+			fprintf(stderr, "Error: invalid profile line %s\n", entry->data);
+			entry = entry->next;
 			continue;
 		}
 
@@ -207,9 +208,8 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 			globbing(op, ptr, emptydir, emptyfile);
 		if (new_name)
 			free(new_name);
-		i++;
+		entry = entry->next;
 	}
-
 }
 
 //***********************************************

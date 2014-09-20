@@ -61,7 +61,6 @@ static pid_t child = 0;
 
 static void myexit(int rv) {
 	logmsg("exiting...");
-//	bye_parent();
 	if (!arg_command)
 		printf("\nparent is shutting down, bye...\n");
 	exit(rv); 
@@ -266,13 +265,10 @@ static int read_pid(char *str, pid_t *pid) {
 int main(int argc, char **argv) {
 	int i;
 	int prog_index = -1;			  // index in argv where the program command starts
-//	int set_exit = 0;
 #ifdef USELOCK
 	int lockfd = -1;
 #endif
 
-	create_empty_dir();
-	create_empty_file();
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
 //	const pid_t ppid = getppid();
@@ -363,7 +359,6 @@ int main(int argc, char **argv) {
 		//*************************************
 		else if (strcmp(argv[i], "--overlay") == 0) {
 			arg_overlay = 1;
-//			set_exit = 1;
 		}
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
@@ -374,7 +369,6 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			profile_read(argv[i] + 10);
-//			set_exit = 1;
 		}
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
 			// extract chroot dirname
@@ -498,8 +492,6 @@ int main(int argc, char **argv) {
 		cfg.command_name = "bash";
 	}
 	else {
-//		set_exit = 1;
-
 		// calculate the length of the command
 		int i;
 		int len = 0;
@@ -516,6 +508,21 @@ int main(int argc, char **argv) {
 			sprintf(ptr, "%s ", argv[i + prog_index]);
 			ptr += strlen(ptr);
 		}
+	}
+	
+	// load the profile
+	{
+		assert(cfg.command_name);
+		if (!cfg.custom_profile) {
+			// look for a profile in ~/.config/firejail directory
+			char *usercfgdir;
+			if (asprintf(&usercfgdir, "%s/.config/firejail", cfg.homedir) == -1)
+				errExit("asprintf");
+			profile_find(cfg.command_name, usercfgdir);
+		}
+		if (!cfg.custom_profile)
+			// look for a user profile in /etc/firejail directory
+			profile_find(cfg.command_name, "/etc/firejail");
 	}
 
 	// check and assign an IP address
@@ -544,9 +551,6 @@ int main(int argc, char **argv) {
 	// create the parrent-child communication pipe
 	if (pipe(fds) < 0)
 		errExit("pipe");
-
-//	if (set_exit)
-//		set_exit_parent(getpid(), arg_overlay);
 
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;

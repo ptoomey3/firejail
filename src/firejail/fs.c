@@ -41,6 +41,35 @@ typedef enum {
 	OPERATION_MAX
 } OPERATION;
 
+
+static char *create_empty_dir(void) {
+	struct stat s;
+	
+	if (stat(RO_DIR, &s)) {
+		mkdir(RO_DIR, S_IRWXU);
+		if (chown(RO_DIR, 0, 0) < 0)
+			errExit("chown");
+	}
+	
+	return RO_DIR;
+}
+
+static char *create_empty_file(void) {
+	struct stat s;
+	if (stat(RO_FILE, &s)) {
+		FILE *fp = fopen(RO_FILE, "w");
+		if (!fp)
+			errExit("fopen");
+		fclose(fp);
+		if (chown(RO_FILE, 0, 0) < 0)
+			errExit("chown");
+		if (chmod(RO_FILE, S_IRUSR) < 0)
+			errExit("chown");
+	}
+	
+	return RO_FILE;
+}
+
 static void disable_file(OPERATION op, const char *fname, const char *emptydir, const char *emptyfile) {
 	assert(fname);
 	assert(emptydir);
@@ -129,33 +158,6 @@ static void expand_path(OPERATION op, const char *path, const char *fname, const
 }
 
 
-char *create_empty_dir(void) {
-	struct stat s;
-	
-	if (stat(RO_DIR, &s)) {
-		mkdir(RO_DIR, S_IRWXU);
-		if (chown(RO_DIR, 0, 0) < 0)
-			errExit("chown");
-	}
-	
-	return RO_DIR;
-}
-
-char *create_empty_file(void) {
-	struct stat s;
-	if (stat(RO_FILE, &s)) {
-		FILE *fp = fopen(RO_FILE, "w");
-		if (!fp)
-			errExit("fopen");
-		fclose(fp);
-		if (chown(RO_FILE, 0, 0) < 0)
-			errExit("chown");
-		if (chmod(RO_FILE, S_IRUSR) < 0)
-			errExit("chown");
-	}
-	
-	return RO_FILE;
-}
 
 // blacklist files or directoies by mounting empty files on top of them
 void fs_blacklist(char **blacklist, const char *homedir) {

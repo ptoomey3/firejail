@@ -146,9 +146,6 @@ void net_ifprint(void);
 void net_bridge_add_interface(const char *bridge, const char *dev);
 
 // fs.c
-// create read-only files in /tmp directory
-char *create_empty_dir(void);
-char *create_empty_file(void);
 // blacklist files or directoies by mounting empty files on top of them
 void fs_blacklist(char **blacklist, const char *homedir);
 // remount a directory read-only
@@ -214,12 +211,6 @@ int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
 char *pid_proc_comm(const pid_t pid);
 char *pid_proc_cmdline(const pid_t pid);
-
-
-// atexit.c
-extern char *tmpdir; // temporary directory
-void set_exit_parent(pid_t pid, int nocleanup);
-void bye_parent(void);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log

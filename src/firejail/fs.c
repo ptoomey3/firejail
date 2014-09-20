@@ -129,36 +129,32 @@ static void expand_path(OPERATION op, const char *path, const char *fname, const
 }
 
 
-static char *create_empty_dir(void) {
-	char *emptydir;
-	assert(tmpdir);
-
-	// create read-only root directory
-	if (asprintf(&emptydir, "%s/firejail.ro.dir", tmpdir) == -1)
-		errExit("asprintf");
-	mkdir(emptydir, S_IRWXU);
-	if (chown(emptydir, 0, 0) < 0)
-		errExit("chown");
-
-	return emptydir;
+char *create_empty_dir(void) {
+	struct stat s;
+	
+	if (stat(RO_DIR, &s)) {
+		mkdir(RO_DIR, S_IRWXU);
+		if (chown(RO_DIR, 0, 0) < 0)
+			errExit("chown");
+	}
+	
+	return RO_DIR;
 }
 
-static char *create_empty_file(void) {
-	char *emptyfile;
-	assert(tmpdir);
-
-	// create read-only root file
-	if (asprintf(&emptyfile, "%s/firejail.ro.file", tmpdir) == -1)
-		errExit("asprintf");
-	FILE *fp = fopen(emptyfile, "w");
-	if (!fp)
-		errExit("fopen");
-	fclose(fp);
-	if (chown(emptyfile, 0, 0) < 0)
-		errExit("chown");
-	if (chmod(emptyfile, S_IRUSR) < 0)
-		errExit("chown");
-	return emptyfile;
+char *create_empty_file(void) {
+	struct stat s;
+	if (stat(RO_FILE, &s)) {
+		FILE *fp = fopen(RO_FILE, "w");
+		if (!fp)
+			errExit("fopen");
+		fclose(fp);
+		if (chown(RO_FILE, 0, 0) < 0)
+			errExit("chown");
+		if (chmod(RO_FILE, S_IRUSR) < 0)
+			errExit("chown");
+	}
+	
+	return RO_FILE;
 }
 
 // blacklist files or directoies by mounting empty files on top of them
@@ -212,8 +208,6 @@ void fs_blacklist(char **blacklist, const char *homedir) {
 		i++;
 	}
 
-	free(emptydir);
-	free(emptyfile);
 }
 
 //***********************************************
@@ -436,6 +430,7 @@ void fs_private(const char *homedir) {
 
 // mount overlayfs on top of / directory
 void fs_overlayfs(void) {
+#if 0 // todo - rework it
 	assert(tmpdir);
 
 	// build overlay directory
@@ -497,6 +492,7 @@ void fs_overlayfs(void) {
 	free(root);
 	free(overlay);
 	free(dev);
+#endif	
 }
 
 // chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf

@@ -25,6 +25,8 @@
 #include <assert.h>
 
 #define USELOCK
+#define RO_DIR "/tmp/firejail.ro.dir"
+#define RO_FILE "/tmp/firejail.ro.file"
 
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
@@ -144,6 +146,9 @@ void net_ifprint(void);
 void net_bridge_add_interface(const char *bridge, const char *dev);
 
 // fs.c
+// create read-only files in /tmp directory
+char *create_empty_dir(void);
+char *create_empty_file(void);
 // blacklist files or directoies by mounting empty files on top of them
 void fs_blacklist(char **blacklist, const char *homedir);
 // remount a directory read-only

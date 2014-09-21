@@ -357,6 +357,30 @@ int main(int argc, char **argv) {
 		//*************************************
 		// filesystem
 		//*************************************
+		else if (strncmp(argv[i], "--tmpfs=", 8) == 0) {
+			char *line;
+			if (asprintf(&line, "tmpfs %s", argv[i] + 8) == -1)
+				errExit("asprintf");
+			
+			profile_check_line(line, 0);	// will exit if something wrong
+			profile_add(line);
+		}
+		else if (strncmp(argv[i], "--blacklist=", 12) == 0) {
+			char *line;
+			if (asprintf(&line, "blacklist %s", argv[i] + 12) == -1)
+				errExit("asprintf");
+			
+			profile_check_line(line, 0);	// will exit if something wrong
+			profile_add(line);
+		}
+		else if (strncmp(argv[i], "--read-only=", 12) == 0) {
+			char *line;
+			if (asprintf(&line, "read-only %s", argv[i] + 12) == -1)
+				errExit("asprintf");
+			
+			profile_check_line(line, 0);	// will exit if something wrong
+			profile_add(line);
+		}
 		else if (strcmp(argv[i], "--overlay") == 0) {
 			arg_overlay = 1;
 		}

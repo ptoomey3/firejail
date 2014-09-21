@@ -113,8 +113,11 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 		if (S_ISDIR(s.st_mode)) {
 			if (arg_debug)
 				printf("Mounting tmpfs on %s\n", fname);
-			if (mount("tmpfs", fname, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755") < 0)
+			// preserve owner and mode for the directory
+			if (mount("tmpfs", fname, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  0) < 0)
 				errExit("mounting tmpfs");
+			if (chown(fname, s.st_uid, s.st_gid) == -1)
+				errExit("mounting tmpfs chmod");
 		}
 		else
 			printf("Warning: %s is not a directory; cannot mount a tmpfs on top of it.\n", fname);

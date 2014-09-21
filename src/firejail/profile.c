@@ -65,13 +65,17 @@ static void check_file_name(char *ptr, int lineno) {
 	int len = strlen(ptr);
 	// file globbing ('*') is allowed
 	if (strcspn(ptr, "\\&!?\"'<>%^(){}[];, ") != len) {
-		fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
+		if (lineno == 0)
+			fprintf(stderr, "Error: \"%s\" is an invalid filename\n", ptr);
+		else
+			fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
 		exit(1);
 	}
 }
 
 
-static void check_line(char *ptr, int lineno) {
+// check profile line; if line == 0, this was generated from a command line option
+void profile_check_line(char *ptr, int lineno) {
 	if (strncmp(ptr, "blacklist ", 10) == 0)
 		ptr += 10;
 	else if (strncmp(ptr, "read-only ", 10) == 0)
@@ -79,7 +83,10 @@ static void check_line(char *ptr, int lineno) {
 	else if (strncmp(ptr, "tmpfs ", 6) == 0)
 		ptr += 6;
 	else {
-		fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
+		if (lineno == 0)
+			fprintf(stderr, "Error: \"%s\" as a command line option is invalid\n", ptr);
+		else
+			fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
 		exit(1);
 	}
 
@@ -92,7 +99,7 @@ static void check_line(char *ptr, int lineno) {
 		check_file_name(ptr, lineno);
 }
 
-// add a profile entry in cfg.profile list
+// add a profile entry in cfg.profile list; use str to populate the list
 void profile_add(char *str) {
 	ProfileEntry *prf = malloc(sizeof(ProfileEntry));
 	if (!prf)
@@ -153,7 +160,7 @@ void profile_read(const char *fname) {
 			continue;
 
 		// verify syntax, exit in case of error
-		check_line(ptr, lineno);
+		profile_check_line(ptr, lineno);
 
 		profile_add(ptr);
 	}

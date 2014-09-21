@@ -173,6 +173,10 @@ void fs_chroot(const char *rootdir);
 void profile_find(const char *name, const char *dir);
 // read a profile file
 void profile_read(const char *fname);
+// check profile line; if line == 0, this was generated from a command line option
+void profile_check_line(char *ptr, int lineno);
+// add a profile entry in cfg.profile list; use str to populate the list
+void profile_add(char *str);
 
 // list.c
 void list(void);

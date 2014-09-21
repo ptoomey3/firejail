@@ -357,6 +357,14 @@ int main(int argc, char **argv) {
 		//*************************************
 		// filesystem
 		//*************************************
+		else if (strncmp(argv[i], "--bind=", 7) == 0) {
+			char *line;
+			if (asprintf(&line, "bind %s", argv[i] + 7) == -1)
+				errExit("asprintf");
+			
+			profile_check_line(line, 0);	// will exit if something wrong
+			profile_add(line);
+		}
 		else if (strncmp(argv[i], "--tmpfs=", 8) == 0) {
 			char *line;
 			if (asprintf(&line, "tmpfs %s", argv[i] + 8) == -1)

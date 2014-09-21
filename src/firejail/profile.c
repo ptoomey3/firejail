@@ -62,6 +62,11 @@ void profile_find(const char *name, const char *dir) {
 // run-time profiles
 //***************************************************
 static void check_file_name(char *ptr, int lineno) {
+	if (strncmp(ptr, "${HOME}", 7) == 0)
+		ptr += 7;
+	else if (strncmp(ptr, "${PATH}", 7) == 0)
+		ptr += 7;
+
 	int len = strlen(ptr);
 	// file globbing ('*') is allowed
 	if (strcspn(ptr, "\\&!?\"'<>%^(){}[];, ") != len) {
@@ -76,6 +81,24 @@ static void check_file_name(char *ptr, int lineno) {
 
 // check profile line; if line == 0, this was generated from a command line option
 void profile_check_line(char *ptr, int lineno) {
+	if (strncmp(ptr, "bind ", 5) == 0) {
+		// extract two directories
+		char *dname1 = ptr + 5;
+		char *dname2 = split_colon(dname1); // this inserts a '0 to separate the two dierctories
+		if (dname2 == NULL) {
+			fprintf(stderr, "Error: mising second directory for bind\n");
+			exit(1);
+		}
+		
+		// check directories
+		check_file_name(dname1, lineno);
+		check_file_name(dname2, lineno);
+		
+		// insert colon back
+		*(dname2 - 1) = ':';
+		return;
+	}
+
 	if (strncmp(ptr, "blacklist ", 10) == 0)
 		ptr += 10;
 	else if (strncmp(ptr, "read-only ", 10) == 0)
@@ -91,12 +114,7 @@ void profile_check_line(char *ptr, int lineno) {
 	}
 
 	// some characters just don't belong in filenames
-	if (strncmp(ptr, "${HOME}", 7) == 0)
-		check_file_name(ptr + 7, lineno);
-	else if (strncmp(ptr, "${PATH}", 7) == 0)
-		check_file_name(ptr + 7, lineno);
-	else
-		check_file_name(ptr, lineno);
+	check_file_name(ptr, lineno);
 }
 
 // add a profile entry in cfg.profile list; use str to populate the list

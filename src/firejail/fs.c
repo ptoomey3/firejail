@@ -172,7 +172,43 @@ void fs_blacklist(const char *homedir) {
 	while (entry) {
 		OPERATION op = OPERATION_MAX;
 		char *ptr;
-		
+
+		// process blacklist command
+		if (strncmp(entry->data, "bind", 4) == 0)  {
+			char *dname1 = entry->data + 5;
+			char *dname2 = split_colon(dname1);
+			if (dname2 == NULL) {
+				fprintf(stderr, "Error: second directory missing in bind command\n");
+				entry = entry->next;
+				continue;
+			}
+			struct stat s;
+			if (stat(dname1, &s) == -1) {
+				fprintf(stderr, "Error: cannot find directories for bind command\n");
+				entry = entry->next;
+				continue;
+			}
+			if (stat(dname2, &s) == -1) {
+				fprintf(stderr, "Error: cannot find directories for bind command\n");
+				entry = entry->next;
+				continue;
+			}
+			
+			// mount --bind olddir newdir
+			if (arg_debug)
+				printf("Mount-bind %s on top of %s\n", dname1, dname2);
+			// preserve dname2 mode and ownership
+			if (mount(dname1, dname2, NULL, MS_BIND|MS_REC, NULL) < 0)
+				errExit("mount bind");
+			if (chown(dname2, s.st_uid, s.st_gid) == -1)
+				errExit("mount-bind chown");
+			if (chmod(dname2, s.st_mode) == -1)
+				errExit("mount-bind chmod");
+				
+			entry = entry->next;
+			continue;
+		}
+
 		// process blacklist command
 		if (strncmp(entry->data, "blacklist", 9) == 0)  {
 			ptr = entry->data + 10;
@@ -209,6 +245,7 @@ void fs_blacklist(const char *homedir) {
 		}
 		else
 			globbing(op, ptr, emptydir, emptyfile);
+
 		if (new_name)
 			free(new_name);
 		entry = entry->next;

@@ -222,6 +222,7 @@ int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
 char *pid_proc_comm(const pid_t pid);
 char *pid_proc_cmdline(const pid_t pid);
+char *split_colon(char *str);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log

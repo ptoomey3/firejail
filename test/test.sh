@@ -29,6 +29,10 @@ if [ "$?" -eq 0 ];
 then
 	echo "TESTING: firefox"
 	./firefox.exp
+	echo "TESTING: midori"
+	./midori.exp
+	echo "TESTING: chromium"
+	./chromium.exp
 fi
 
 echo "TESTING: PID"

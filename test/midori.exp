@@ -4,7 +4,7 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
-send -- "firejail --caps firefox www.gentoo.org\r"
+send -- "firejail --seccomp midori www.gentoo.org\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"Child process initialized"
@@ -19,7 +19,7 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 3.1\n";exit}
-	"firefox"
+	"midori"
 }
 sleep 1
 

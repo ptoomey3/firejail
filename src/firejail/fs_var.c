@@ -264,67 +264,6 @@ void fs_dev_shm(void) {
 	}
 }
 
-void fs_var_run(void) {
-	// create a temporary resolv.conf file
-	pid_t pid = getpid();
-	char *resolv_fname;
-	if (asprintf(&resolv_fname, "/tmp/resolv.conf-%u-XXXXXX", pid) == -1)
-		errExit("asprintf");
-	int h = mkstemp(resolv_fname);
-	if (h == -1)
-		errExit("mkstemp");
-	// close the file and copy the content of resolv.conf into it
-	close(h);	
-	int resolv_err = copy_file("/etc/resolv.conf", resolv_fname);
-
-	if (is_dir("/var/run")) {
-		if (arg_debug)
-			printf("Mounting tmpfs on /var/run\n");
-		if (mount("tmpfs", "/var/run", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mounting /var/tmp");
-	}
-	else if (is_link("/var/run")) {
-		char *lnk = get_link("/var/run");
-		if (lnk) {
-			// convert a link such as "../run" into "/run"
-			char *lnk2 = lnk;
-			int cnt = 0;
-			while (strncmp(lnk2, "../", 3) == 0) {
-				cnt++;
-				lnk2 = lnk2 + 3;
-			}
-			if (cnt != 0)
-				lnk2 = lnk + (cnt - 1) * 3 + 2;
-
-			if (is_dir(lnk2)) {
-				if (arg_debug)
-					printf("Mounting tmpfs on %s directory on behalf of /var/run\n", lnk2);
-				if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-					errExit("mounting tmpfs");
-			}
-			free(lnk);
-		}
-		else {
-			fprintf(stderr, "Warning: /var/run not mounted\n");
-			dbg_test_dir("/var/run");
-			unlink(resolv_fname);
-			free(resolv_fname);
-			return;
-		}
-	}
-	
-	// create /run directory where resolv.conf can reside
-	if (resolv_err == 0) {
-		mkdir("/run/resolvconf", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		mkdir("/run/systemd", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		mkdir("/run/systemd/resolve", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		copy_file(resolv_fname, "/run/resolvconf/resolv.conf");
-		copy_file(resolv_fname, "/run/systemd/resolve/resolv.conf");
-	}
-	unlink(resolv_fname);
-	free(resolv_fname);
-}
-
 void fs_var_lock(void) {
 
 	if (is_dir("/var/lock")) {

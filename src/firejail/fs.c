@@ -365,7 +365,6 @@ void fs_basic_fs(void) {
 	fs_rdonly("/var");
 
 	// update /var directory in order to support multiple sandboxes running on the same root directory
-	fs_var_run();
 	fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
@@ -521,7 +520,6 @@ void fs_overlayfs(void) {
 		errExit("chroot");
 
 	// update /var directory in order to support multiple sandboxes running on the same root directory
-	fs_var_run();
 	fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
@@ -553,6 +551,7 @@ void fs_chroot(const char *rootdir) {
 	if (mount("/dev", newdev, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mounting /dev");
 	
+#if 0
 	// some older distros don't have a /run directory
 	// create one by default
 	// no exit on error, let the user deal with any problems
@@ -565,6 +564,7 @@ void fs_chroot(const char *rootdir) {
 		rv = chown(rundir, 0, 0);
 		(void) rv;
 	}
+#endif
 	
 	// copy /etc/resolv.conf in chroot directory
 	// if resolv.conf in chroot is a symbolic link, this will fail
@@ -584,7 +584,6 @@ void fs_chroot(const char *rootdir) {
 		errExit("chroot");
 
 	// update /var directory in order to support multiple sandboxes running on the same root directory
-	fs_var_run();
 	fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();

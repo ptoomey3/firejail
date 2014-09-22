@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="0.9.12"
+VERSION="0.9.12.1"
 rm -fr ~/rpmbuild
 rm -f firejail-$VERSION-1.x86_64.rpm
 

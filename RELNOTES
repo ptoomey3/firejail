@@ -1,4 +1,4 @@
-firejail (0.9.12) baseline; urgency=low
+firejail (0.9.12.1) baseline; urgency=low
   * Fix for pulseaudio problems
   * --overlay option was temporarily disabled in this build
 

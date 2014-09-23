@@ -165,8 +165,10 @@ static int find_child(int id) {
 }
 
 void interface(void) {
-	if (getuid() == 0)
-		firemon_drop_privs();
+	if (getuid() != 0) {
+		fprintf(stderr, "Error: you need to be root to run this command\n");
+		exit(1);
+	}
 	
 	pid_read(0);	// include all processes
 	

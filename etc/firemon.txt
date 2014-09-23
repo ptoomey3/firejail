@@ -15,6 +15,9 @@ Print ARP table for each sandbox.
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
+\fB\--interface
+Print network interface information for each sandbox.
+.TP
 \fB\--list
 List all sandboxes.
 .TP

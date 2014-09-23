@@ -2,6 +2,7 @@
 
 Added firemon support to print the ARP table for each sandbox
 Added firemon support to print the route table for each sandbox
+Added firemon support to print network interface information for each sandbox
 Added --tmpfs, --balcklist, --read-only options - to do help and man
 Added --bind option - to do help and man
 Bug: when exiting the main sandbox process because of CTRL-C, logging the exit doesn't go in syslog

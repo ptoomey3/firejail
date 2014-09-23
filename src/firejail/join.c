@@ -39,11 +39,13 @@ void join_namespace(pid_t pid, char *type) {
 	
 	int fd = open(path, O_RDONLY);
 	if (fd < 0) {
+		free(path);
 		fprintf(stderr, "Error: cannot open /proc/%u/ns/%s.\n", pid, type);
 		exit(1);
 	}
 
 	if (syscall(__NR_setns, fd, 0) < 0) {
+		free(path);
 		fprintf(stderr, "Error: cannot join namespace.\n");
 		exit(1);
 	}

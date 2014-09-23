@@ -81,4 +81,8 @@ void top(void);
 // list.c
 void list(void);
 
+// interface.c
+void interface(void);
+
+
 #endif

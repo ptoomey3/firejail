@@ -31,6 +31,7 @@ static void print_arp(const char *fname) {
 	if (!fp)
 		return;
 	
+	printf("  ARP Table:\n");
 	char buf[MAXBUF];
 	while (fgets(buf, MAXBUF, fp)) {
 		// remove blanks, \n
@@ -66,10 +67,10 @@ static void print_arp(const char *fname) {
 			continue;
 		uint32_t destip = a * 0x1000000 + b * 0x10000 + c * 0x100 + d;
 		if (strcmp(flags, "0x0") == 0)
-			printf("  %d.%d.%d.%d dev %s FAILED\n",
+			printf("     %d.%d.%d.%d dev %s FAILED\n",
 				PRINT_IP(destip), device);
 		else
-			printf("  %d.%d.%d.%d dev %s lladdr %s REACHABLE\n",
+			printf("     %d.%d.%d.%d dev %s lladdr %s REACHABLE\n",
 				PRINT_IP(destip), device, mac);
 	}
 	
@@ -89,11 +90,11 @@ static int find_child(int id) {
 }
 
 
-void arp(void) {
+void arp(pid_t pid) {
 	if (getuid() == 0)
 		firemon_drop_privs();
 	
-	pid_read(0);	// include all processes
+	pid_read(pid);
 	
 	// print processes
 	int i;

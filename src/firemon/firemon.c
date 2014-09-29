@@ -27,11 +27,8 @@
 #include <signal.h>
 #include <grp.h>
 #include "firemon.h"
-static int arg_top = 0;
-static int arg_list = 0;
 static int arg_route = 0;
 static int arg_arp = 0;
-static int arg_tree = 0;
 static int arg_interface = 0;
 
 static struct termios tlocal;	// startup terminal setting
@@ -94,6 +91,10 @@ int main(int argc, char **argv) {
 	unsigned pid = 0;
 	int i;
 
+	// handle CTRL-C
+	signal (SIGINT, my_handler);
+	signal (SIGTERM, my_handler);
+
 	for (i = 1; i < argc; i++) {
 		// default options
 		if (strcmp(argv[i], "--help") == 0 ||
@@ -108,55 +109,53 @@ int main(int argc, char **argv) {
 		
 		// options without a pid argument
 		else if (strcmp(argv[i], "--top") == 0) {
-			arg_top = 1;
-			break;
+			top(); // never to return
 		}
 		else if (strcmp(argv[i], "--list") == 0) {
-			arg_list = 1;
-			break;
+			list();
+			return 0;
 		}
+		else if (strcmp(argv[i], "--tree") == 0) {
+			tree();
+			return 0;
+		}
+
+		// cumulative options with or without a pid argument
 		else if (strcmp(argv[i], "--interface") == 0) {
 			arg_interface = 1;
-			break;
 		}
 		else if (strcmp(argv[i], "--route") == 0) {
 			arg_route = 1;
-			break;
 		}
 		else if (strcmp(argv[i], "--arp") == 0) {
 			arg_arp = 1;
-			break;
-		}
-		else if (strcmp(argv[i], "--tree") == 0) {
-			arg_tree = 1;
-			break;
 		}
 		
 		// PID argument
 		else {
 			// this should be a pid number
+			char *ptr = argv[i];
+			while (*ptr != '\0') {
+				if (!isdigit(*ptr)) {
+					fprintf(stderr, "Error: not a valid PID number\n");
+					exit(1);
+				}
+				ptr++;
+			}
+
 			sscanf(argv[i], "%u", &pid);
 			break;
 		}
 	}
 
-	// handle CTRL-C
-	signal (SIGINT, my_handler);
-	signal (SIGTERM, my_handler);
-
-	if (arg_top)
-		top(); // never to return
-	else if (arg_list)
-		list();
-	else if (arg_route)
-		route();
-	else if (arg_arp)
-		arp();
-	else if (arg_interface)
-		interface();
-	else if (arg_tree)
-		tree();
-	else
+	if (arg_route)
+		route((pid_t) pid);
+	if (arg_arp)
+		arp((pid_t) pid);
+	if (arg_interface)
+		interface((pid_t) pid);
+	
+	if (!arg_route && !arg_arp && !arg_interface)
 		procevent((pid_t) pid); // never to return
 		
 	return 0;

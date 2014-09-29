@@ -82,7 +82,12 @@ void top(void);
 void list(void);
 
 // interface.c
-void interface(void);
+void interface(pid_t pid);
 
+// arp.c
+void arp(pid_t pid);
+
+// route.c
+void route(pid_t pid);
 
 #endif

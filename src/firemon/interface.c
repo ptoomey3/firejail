@@ -62,7 +62,7 @@ void net_ifprint(void) {
 		errExit("getifaddrs");
 
 	// walk through the linked list
-	printf("   Link status:\n");
+	printf("  Link status:\n");
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
@@ -71,20 +71,20 @@ void net_ifprint(void) {
 			if (ifa->ifa_flags & IFF_RUNNING && ifa->ifa_flags & IFF_UP) {
 				if (ifa->ifa_data != NULL) {
 					struct rtnl_link_stats *stats = ifa->ifa_data;
-					printf("      %s UP - tx/rx: %u/%u packets,  %u/%u bytes\n",
+					printf("     %s UP - tx/rx: %u/%u packets,  %u/%u bytes\n",
 						ifa->ifa_name, 
 						stats->tx_packets, stats->rx_packets,
 						stats->tx_bytes, stats->rx_bytes);
 				}
 			}
 			else
-				printf("      %s DOWN\n", ifa->ifa_name);
+				printf("     %s DOWN\n", ifa->ifa_name);
 		}			
 	}
 
 
 	// walk through the linked list
-	printf("   IPv4 status:\n");
+	printf("  IPv4 status:\n");
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
@@ -101,14 +101,14 @@ void net_ifprint(void) {
 			else
 				status = "DOWN";
 
-			printf("      %s %s, %d.%d.%d.%d/%u\n",
+			printf("     %s %s, %d.%d.%d.%d/%u\n",
 				ifa->ifa_name, status, PRINT_IP(ip), mask2bits(mask));
 		}
 	}
 
 
 	// walk through the linked list
-	printf("   IPv6 status:\n");
+	printf("  IPv6 status:\n");
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
 			continue;
@@ -127,7 +127,7 @@ void net_ifprint(void) {
 				else
 					status = "DOWN";
 
-				printf("      %s %s, %s\n", ifa->ifa_name, status, host);
+				printf("     %s %s, %s\n", ifa->ifa_name, status, host);
 			}
 		}
 	}
@@ -164,13 +164,13 @@ static int find_child(int id) {
 	return -1;
 }
 
-void interface(void) {
+void interface(pid_t pid) {
 	if (getuid() != 0) {
 		fprintf(stderr, "Error: you need to be root to run this command\n");
 		exit(1);
 	}
 	
-	pid_read(0);	// include all processes
+	pid_read(pid); // a pid of 0 will include all processes
 	
 	// print processes
 	int i;

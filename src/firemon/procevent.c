@@ -213,7 +213,7 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 			if (pids[pid].level < 0)	// not a firejail process
 				continue;
 			else if (pids[pid].level == 0) { // new porcess, do we have track it?
-				if (pid_is_firejail(pid)) {
+				if (pid_is_firejail(pid) && mypid == 0) {
 					pids[pid].level = 1;
 					add_new = 1;
 				}
@@ -237,6 +237,7 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 			}
 			
 
+			int sandbox_closed = 0; // exit sandbox flag
 			char *cmd = pids[pid].cmd;
 			if (add_new) {
 				sprintf(lineptr, " NEW SANDBOX\n");
@@ -245,6 +246,8 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 			else if (proc_ev->what == PROC_EVENT_EXIT && pids[pid].level == 1) {
 				sprintf(lineptr, " EXIT SANDBOX\n");
 				lineptr += strlen(lineptr);
+				if (mypid == pid)
+					sandbox_closed = 1;
 			}
 			else {
 				if (!cmd) {
@@ -291,6 +294,9 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 				pids[pid].user = 0;
 				pids[pid].uid = pid_get_uid(pid); 
 			}
+			
+			if (sandbox_closed)
+				exit(0);
 		}
 	}
 	return 0;

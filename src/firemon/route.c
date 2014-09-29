@@ -119,6 +119,7 @@ static void print_route(const char *fname) {
 	if (!fp)
 		return;
 	
+	printf("  Route table:\n");
 	char buf[MAXBUF];
 	while (fgets(buf, MAXBUF, fp)) {
 		// remove blanks, \n
@@ -163,7 +164,7 @@ static void print_route(const char *fname) {
 		
 //		printf("#%s# #%s# #%s# #%s# #%s# #%s# #%s# #%s#\n", ifname, destination, gateway, flags, refcnt, use, metric, mask);
 		if (gw != 0)
-			printf("  %u.%u.%u.%u/%u via %u.%u.%u.%u, dev %s, metric %s\n",
+			printf("     %u.%u.%u.%u/%u via %u.%u.%u.%u, dev %s, metric %s\n",
 				PRINT_IP(destip), mask2bits(destmask),
 				PRINT_IP(gw),
 				ifname,
@@ -171,13 +172,11 @@ static void print_route(const char *fname) {
 		else { // this is an interface
 			IfList *ifentry = list_find(destip, destmask);
 			if (ifentry) {
-				printf("  %u.%u.%u.%u/%u, dev %s, scope link src %d.%d.%d.%d\n",
+				printf("     %u.%u.%u.%u/%u, dev %s, scope link src %d.%d.%d.%d\n",
 					PRINT_IP(destip), mask2bits(destmask),
 					ifname,
 					PRINT_IP(ifentry->ip));
 			}
-			else
-				printf("here %d\n", __LINE__);
 		}
 	}
 	
@@ -197,11 +196,11 @@ static int find_child(int id) {
 }
 
 
-void route(void) {
+void route(pid_t pid) {
 	if (getuid() == 0)
 		firemon_drop_privs();
 	
-	pid_read(0);	// include all processes
+	pid_read(pid);
 	
 	// print processes
 	int i;

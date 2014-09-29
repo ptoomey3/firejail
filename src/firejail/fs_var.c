@@ -210,7 +210,7 @@ static void dbg_test_dir(const char *dir) {
 	if (arg_debug) {
 		if (is_dir(dir))
 			printf("%s is a directory\n", dir);
-		if (is_link("/dev/shm")) {
+		if (is_link(dir)) {
 			char *lnk = get_link(dir);
 			if (lnk) {
 				printf("%s is a symbolic link to %s\n", dir, lnk);
@@ -221,7 +221,10 @@ static void dbg_test_dir(const char *dir) {
 }
 
 void fs_dev_shm(void) {
-	
+	uid_t uid = getuid(); // set a new shm only if we started as root
+	if (uid)
+		return;
+
 	if (is_dir("/dev/shm")) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /dev/shm\n");

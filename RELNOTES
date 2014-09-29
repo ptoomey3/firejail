@@ -1,3 +1,9 @@
+firejail (0.9.12.2) baseline; urgency=low
+  * Fix for pulseaudio problems
+  * --overlay option was temporarily disabled in this build
+
+ -- netblue30 <netblue30@yahoo.com>  Mon, 29 Sept 2014 07:00:00 -0500
+
 firejail (0.9.12.1) baseline; urgency=low
   * Fix for pulseaudio problems
   * --overlay option was temporarily disabled in this build

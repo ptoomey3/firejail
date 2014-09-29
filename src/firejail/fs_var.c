@@ -206,7 +206,7 @@ void fs_var_cache(void) {
 	}			
 }
 
-static void dbg_test_dir(const char *dir) {
+void dbg_test_dir(const char *dir) {
 	if (arg_debug) {
 		if (is_dir(dir))
 			printf("%s is a directory\n", dir);
@@ -220,52 +220,6 @@ static void dbg_test_dir(const char *dir) {
 	}
 }
 
-void fs_dev_shm(void) {
-	uid_t uid = getuid(); // set a new shm only if we started as root
-	if (uid)
-		return;
-
-	if (is_dir("/dev/shm")) {
-		if (arg_debug)
-			printf("Mounting tmpfs on /dev/shm\n");
-		if (mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-			errExit("mounting /dev/shm");
-	}
-	else {
-		char *lnk = get_link("/dev/shm");
-		if (lnk) {
-			// convert a link such as "../shm" into "/shm"
-			char *lnk2 = lnk;
-			int cnt = 0;
-			while (strncmp(lnk2, "../", 3) == 0) {
-				cnt++;
-				lnk2 = lnk2 + 3;
-			}
-			if (cnt != 0)
-				lnk2 = lnk + (cnt - 1) * 3 + 2;
-
-			if (!is_dir(lnk2)) {
-				// create directory
-				if (mkdir(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
-					errExit("mkdir");
-				if (chown(lnk2, 0, 0))
-					errExit("chown");
-				if (chmod(lnk2, S_IRWXU|S_IRWXG|S_IRWXO))
-					errExit("chmod");
-			}
-			if (arg_debug)
-				printf("Mounting tmpfs on %s on behalf of /dev/shm\n", lnk2);
-			if (mount("tmpfs", lnk2, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-				errExit("mounting /var/tmp");
-			free(lnk);
-		}
-		else {
-			fprintf(stderr, "Warning: /dev/shm not mounted\n");
-			dbg_test_dir("/dev/shm");
-		}
-			
-	}
-}
 
 void fs_var_lock(void) {
 

@@ -32,29 +32,6 @@
 #include <string.h>
 #include "firejail.h"
 
-void join_namespace(pid_t pid, char *type) {
-	char *path;
-	if (asprintf(&path, "/proc/%u/ns/%s", pid, type) == -1)
-		errExit("asprintf");
-	
-	int fd = open(path, O_RDONLY);
-	if (fd < 0) {
-		free(path);
-		fprintf(stderr, "Error: cannot open /proc/%u/ns/%s.\n", pid, type);
-		exit(1);
-	}
-
-	if (syscall(__NR_setns, fd, 0) < 0) {
-		free(path);
-		fprintf(stderr, "Error: cannot join namespace.\n");
-		exit(1);
-	}
-
-	close(fd);
-	free(path);
-}
-
-
 #define BUFLEN 4096
 // find the first child for this parent; return 1 if error
 static int find_child(pid_t parent, pid_t *child) {
@@ -116,68 +93,6 @@ static int find_child(pid_t parent, pid_t *child) {
 	return (*child)? 0:1;	// 0 = found, 1 = not found
 }
 
-// return 1 if error
-static int name2pid(const char *name, pid_t *pid) {
-	pid_t parent = getpid();
-	
-	DIR *dir;
-	if (!(dir = opendir("/proc"))) {
-		// sleep 2 seconds and try again
-		sleep(2);
-		if (!(dir = opendir("/proc"))) {
-			fprintf(stderr, "Error: cannot open /proc directory\n");
-			exit(1);
-		}
-	}
-	
-	struct dirent *entry;
-	char *end;
-	while ((entry = readdir(dir))) {
-		pid_t newpid = strtol(entry->d_name, &end, 10);
-		if (end == entry->d_name || *end)
-			continue;
-		if (newpid == parent)
-			continue;
-
-		// check if this is a firejail executable
-		char *comm = pid_proc_comm(newpid);
-		if (comm) {
-			// remove \n
-			char *ptr = strchr(comm, '\n');
-			if (ptr)
-				*ptr = '\0';
-			if (strcmp(comm, "firejail")) {
-				free(comm);
-				continue;
-			}
-			free(comm);
-		}
-		
-		char *cmd = pid_proc_cmdline(newpid);
-		if (cmd) {
-			// mark the end of the name
-			char *ptr = strstr(cmd, "--name=");
-			char *start = ptr;
-			if (!ptr) {
-				free(cmd);
-				continue;
-			}
-			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
-				ptr++;
-			*ptr = '\0';
-			int rv = strcmp(start + 7, name);
-			if (rv == 0) {
-				free(cmd);
-				*pid = newpid;
-				closedir(dir);
-				return 0;
-			}
-			free(cmd);
-		}
-	}
-	closedir(dir);
-	return 1;
-}
 
 void shut_name(const char *name) {
 	if (!name || strlen(name) == 0) {
@@ -294,12 +209,16 @@ void join(pid_t pid, const char *homedir) {
 	}
 
 	// join namespaces
-	join_namespace(pid, "ipc");
-	join_namespace(pid, "net");
-	join_namespace(pid, "pid");
-	join_namespace(pid, "uts");
-	join_namespace(pid, "mnt");
-	
+	if (join_namespace(pid, "ipc"))
+		exit(1);
+	if (join_namespace(pid, "net"))
+		exit(1);
+	if (join_namespace(pid, "pid"))
+		exit(1);
+	if (join_namespace(pid, "uts"))
+		exit(1);
+	if (join_namespace(pid, "mnt"))
+		exit(1);
 
 	pid_t child = fork();
 	if (child < 0)

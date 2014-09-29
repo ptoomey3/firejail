@@ -27,11 +27,11 @@
 #include <pwd.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include "../include/common.h"
 #include "../include/pid.h"
 
 #define PIDS_BUFLEN 4096
 Process pids[MAX_PIDS];
-#define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 static unsigned long long sysuptime = 0;
 static unsigned clocktick = 0;
 static unsigned pgs_rss = 0;
@@ -131,46 +131,6 @@ unsigned long long pid_get_start_time(unsigned pid) {
 myexit:
 	fclose(fp);
 	return retval;
-}
-
-char *pid_proc_cmdline(const pid_t pid) {
-	// open /proc/pid/cmdline file
-	char *fname;
-	int fd;
-	if (asprintf(&fname, "/proc/%d/cmdline", pid) == -1)
-		return NULL;
-	if ((fd = open(fname, O_RDONLY)) < 0) {
-		free(fname);
-		return NULL;
-	}
-	free(fname);
-
-	// read file
-	unsigned char buffer[PIDS_BUFLEN];
-	ssize_t len;
-	if ((len = read(fd, buffer, sizeof(buffer) - 1)) <= 0) {
-		close(fd);
-		return NULL;
-	}
-	buffer[len] = '\0';
-	close(fd);
-
-	// clean data
-	int i;
-	for (i = 0; i < len; i++) {
-		if (buffer[i] == '\0')
-			buffer[i] = ' ';
-		if (buffer[i] >= 0x80) // execv in progress!!!
-			return NULL;
-	}
-
-	// return a malloc copy of the command line
-	char *rv = strdup((char *) buffer);
-	if (strlen(rv) == 0) {
-		free(rv);
-		return NULL;
-	}
-	return rv;
 }
 
 char *pid_get_user_name(uid_t uid) {

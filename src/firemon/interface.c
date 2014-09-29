@@ -26,34 +26,9 @@
 #include <net/route.h>
 #include <linux/if_bridge.h>
 #include <linux/if_link.h>
-#include "../include/pid.h"
-
-// return 0 if ok, -1 if error
-int join_namespace(pid_t pid, char *type) {
-	char *path;
-	if (asprintf(&path, "/proc/%u/ns/%s", pid, type) == -1)
-		errExit("asprintf");
-	
-	int fd = open(path, O_RDONLY);
-	if (fd < 0) {
-		free(path);
-		fprintf(stderr, "Error: cannot open /proc/%u/ns/%s.\n", pid, type);
-		return -1;
-	}
-
-	if (syscall(__NR_setns, fd, 0) < 0) {
-		free(path);
-		fprintf(stderr, "Error: cannot join %s namespace.\n", type);
-		return -1;
-	}
-
-	close(fd);
-	free(path);
-	return 0;
-}
 
 // print IP addresses for all interfaces
-void net_ifprint(void) {
+static void net_ifprint(void) {
 	uint32_t ip;
 	uint32_t mask;
 	struct ifaddrs *ifaddr, *ifa;

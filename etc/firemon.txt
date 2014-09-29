@@ -21,6 +21,9 @@ Print network interface information for each sandbox.
 \fB\--list
 List all sandboxes.
 .TP
+\fB\--name=name
+Print information only about named sandbox.
+.TP
 \fB\--route
 Print route table for each sandbox.
 .TP

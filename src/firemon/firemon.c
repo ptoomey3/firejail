@@ -32,7 +32,7 @@ static int arg_arp = 0;
 static int arg_interface = 0;
 
 static struct termios tlocal;	// startup terminal setting
-static struct termios twait;		// no wait on key press
+static struct termios twait;	// no wait on key press
 static int terminal_set = 0;
 
 static void my_handler(int s){
@@ -129,6 +129,14 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--arp") == 0) {
 			arg_arp = 1;
+		}
+
+		else if (strncmp(argv[i], "--name=", 7) == 0) {
+			char *name = argv[i] + 7;
+			if (name2pid(name, &pid)) {
+				fprintf(stderr, "Error: cannot find sandbox %s\n", name);
+				return 1;
+			}
 		}
 		
 		// PID argument

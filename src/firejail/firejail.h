@@ -23,55 +23,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../include/common.h"
 
 #define USELOCK
 #define RO_DIR "/tmp/firejail.ro.dir"
 #define RO_FILE "/tmp/firejail.ro.file"
 
-#define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s %s %d", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
-#define PRINT_IP(A) \
-((int) (((A) >> 24) & 0xFF)),  ((int) (((A) >> 16) & 0xFF)), ((int) (((A) >> 8) & 0xFF)), ((int) ( (A) & 0xFF))
-
-#define PRINT_MAC(A) \
-((unsigned) (*(A)) & 0xff), ((unsigned) (*((A) + 1) & 0xff)), ((unsigned) (*((A) + 2) & 0xff)), \
-((unsigned) (*((A) + 3)) & 0xff), ((unsigned) (*((A) + 4) & 0xff)), ((unsigned) (*((A) + 5)) & 0xff)
-
-// the number of bits set in the mask
-static inline uint8_t mask2bits(uint32_t mask) {
-	uint32_t tmp = 0x80000000;
-	int i;
-	uint8_t rv = 0;
-
-	for (i = 0; i < 32; i++, tmp >>= 1) {
-		if (tmp & mask)
-			rv++;
-		else
-			break;
-	}
-	return rv;
-}
-
-// read an IPv4 address and convert it to uint32_t
-static inline int atoip(const char *str, uint32_t *ip) {
-	unsigned a, b, c, d;
-
-	if (sscanf(str, "%u.%u.%u.%u", &a, &b, &c, &d) != 4 || a > 255 || b > 255 || c > 255 || d > 255)
-		return 1;
-		
-	*ip = a * 0x1000000 + b * 0x10000 + c * 0x100 + d;
-	return 0;
-}
-
-static inline char *in_netrange(uint32_t ip, uint32_t ifip, uint32_t ifmask) {
-	if ((ip & ifmask) != (ifip & ifmask))
-		return "Error: the IP address is not in the interface range\n";
-	else if ((ip & ifmask) == ip)
-		return "Error: the IP address is a network address\n";
-	else if ((ip | ~ifmask) == ip)
-		return "Error: the IP address is a network address\n";
-	return NULL;
-}
 
 // main.c
 typedef struct bridge_t {
@@ -161,8 +119,6 @@ void fs_rdonly(const char *dir);
 void fs_proc_sys_dev_boot(void);
 // build a basic read-only filesystem
 void fs_basic_fs(void);
-// private mode: mount tmpfs over /home and /tmp
-void fs_private(const char *homedir);
 // mount overlayfs on top of / directory
 void fs_overlayfs(void);
 // chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf
@@ -220,18 +176,24 @@ char *get_link(const char *fname);
 int is_dir(const char *fname);
 int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
-char *pid_proc_comm(const pid_t pid);
-char *pid_proc_cmdline(const pid_t pid);
 char *split_colon(char *str);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log
 void fs_var_lib(void);	// various other fixes for software in /var directory
 void fs_var_cache(void); // various other fixes for software in /var/cache directory
-void fs_dev_shm(void);
 void fs_var_run(void);
 void fs_var_lock(void);
 void fs_var_tmp(void);
+void dbg_test_dir(const char *dir);
+
+// fs_dev.c
+void fs_dev_shm(void);
+
+// fs_home.c
+// private mode: mount tmpfs over /home and /tmp
+void fs_private(const char *homedir);
+
 
 // seccomp.c
 int seccomp_filter(void);

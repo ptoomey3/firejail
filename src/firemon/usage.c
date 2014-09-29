@@ -30,6 +30,7 @@ void usage(void) {
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--interface - print network interface information for each sandbox\n");
 	printf("\t--list - list all sandboxes\n");
+	printf("\t--name=name - print information only about named sandbox\n");
 	printf("\t--route - print route table for each sandbox\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");

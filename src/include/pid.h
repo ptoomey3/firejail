@@ -40,7 +40,6 @@ void pid_getmem(unsigned pid, unsigned *rss, unsigned *shared);
 void pid_get_cpu_time(unsigned pid, unsigned *utime, unsigned *stime);
 unsigned long long pid_get_start_time(unsigned pid);
 uid_t pid_get_uid(pid_t pid);
-char *pid_proc_cmdline(const pid_t pid);
 char *pid_get_user_name(uid_t uid);
 // print functions
 void pid_print_tree(unsigned index, unsigned parent, int nowrap);

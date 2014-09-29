@@ -151,7 +151,7 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 
 			(void)time(&now);
 			(void)localtime_r(&now, &tm);
-			char line[BUFLEN];
+			char line[PIDS_BUFLEN];
 			char *lineptr = line;
 			sprintf(lineptr, "%2.2d:%2.2d:%2.2d", tm.tm_hour, tm.tm_min, tm.tm_sec);
 			lineptr += strlen(lineptr);

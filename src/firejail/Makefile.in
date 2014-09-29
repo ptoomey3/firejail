@@ -18,9 +18,6 @@ LDFLAGS:=-pie -Wl,-z,relro -Wl,-z,now -lpthread
 firejail: $(OBJS) ../lib/libnetlink.o ../lib/common.o
 	$(CXX)  $(LDFLAGS) -o $@ $(OBJS) ../lib/libnetlink.o ../lib/common.o $(LIBS)
 
-firejail.1: man/firejail.txt
-	./mkman.sh $(VERSION) man/firejail.txt firejail.1
-
 clean:; rm -f *.o firejail firejail.1 firejail.1.gz
 
 distclean: clean

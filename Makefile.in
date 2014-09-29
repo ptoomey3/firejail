@@ -16,10 +16,10 @@ apps: $(APPS)
 $(APPS): $(MYLIBS)
 	$(MAKE) -C $@
 
-firejail.1: etc/firejail.txt
-	./mkman.sh $(VERSION) etc/firejail.txt firejail.1
-firemon.1: etc/firemon.txt
-	./mkman.sh $(VERSION) etc/firemon.txt firemon.1
+firejail.1: src/man/firejail.txt
+	./mkman.sh $(VERSION) src/man/firejail.txt firejail.1
+firemon.1: src/man/firemon.txt
+	./mkman.sh $(VERSION) src/man/firemon.txt firemon.1
 
 clean:;
 	for dir in $(APPS); do \

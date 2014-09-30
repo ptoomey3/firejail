@@ -29,6 +29,7 @@
 #include <linux/capability.h>
 #include <linux/audit.h>
 #include "firejail.h"
+#include <assert.h>
 
 #include <sys/prctl.h>
 #ifndef PR_SET_NO_NEW_PRIVS
@@ -76,108 +77,204 @@ struct seccomp_data {
 
 #define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
-void caps_print(void) {
-	cap_user_header_t       hdr;
-	cap_user_data_t         data;
-	hdr = malloc(sizeof(*hdr));
-	data = malloc(sizeof(*data));
-	memset(hdr, 0, sizeof(*hdr));
-	hdr->version = _LINUX_CAPABILITY_VERSION;
+#define SECSIZE 128 // initial filter size
+static struct sock_filter *sfilter = NULL;
+static int sfilter_alloc_size = 0;
+static int sfilter_index = 0;
 
-	if (capget(hdr, data) < 0) {
-		perror("capget");
-		goto doexit;
+// debug filter
+void filter_debug(void) {
+	// start filter
+	struct sock_filter filter[] = {
+		VALIDATE_ARCHITECTURE,
+		EXAMINE_SYSCALL
+	};
+
+	// print sizes
+	printf("sfilter alloc index %d\n", sfilter_alloc_size);	
+	printf("sfilter index %d\n", sfilter_index);
+	if (sfilter == NULL) {
+		printf("SECCOMP filter not allocated\n");
+		return;
+	}
+	if (sfilter_index < 4)
+		return;
+	
+	// test the start of the filter
+	if (memcmp(sfilter, filter, sizeof(filter)) == 0) {
+		printf("  VALIDATE_ARCHITECTURE\n");
+		printf("  EXAMINE_SYSCAL\n");
 	}
 	
-	printf("effective\t%x\n", data->effective);
-	printf("permitted\t%x\n", data->permitted);
-	printf("inheritable\t%x\n", data->inheritable);
-
-doexit:
-	free(hdr);
-	free(data);
+	// loop trough blacklists
+	int i = 4;
+	while (i < sfilter_index) {
+		// minimal parsing!
+		unsigned char *ptr = (unsigned char *) &sfilter[i];
+		if (*ptr	== 0x15) {
+			printf("  BLACKLIST %u\n", *(ptr + 4));
+			i += 2;
+		}
+		else if (*ptr == 0x06) {
+			printf("  RETURN_ALLOW\n");
+			i++;
+		}
+		else {
+			printf("  UNKNOWN ENTRY!!!\n");
+			i++;
+		}
+	}
 }
 
+// initialize filter
+static void filter_init(void) {
+	if (sfilter) {
+		assert(0);
+		return;
+	}
 
-// enabled by default 
-int caps_filter(void) {
-	// drop capabilities
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: cannot drop CAP_SYS_MODULE");
-	else if (arg_debug)
-		printf("Drop CAP_SYS_MODULE\n");
-
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_RAWIO, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: cannot drop CAP_SYS_RAWIO");
-	else if (arg_debug)
-		printf("Drop CAP_SYS_RAWIO\n");
-
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_BOOT, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: cannot drop CAP_SYS_BOOT");
-	else if (arg_debug)
-		printf("Drop CAP_SYS_BOOT\n");
-
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_NICE, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: cannot drop CAP_SYS_NICE");
-	else if (arg_debug)
-		printf("Drop CAP_SYS_NICE\n");
-
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_TTY_CONFIG, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: cannot drop CAP_SYS_TTY_CONFIG");
-	else if (arg_debug)
-		printf("Drop CAP_SYS_TTY_CONFIG\n");
-
-	if (prctl(PR_CAPBSET_DROP, CAP_SYSLOG, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: cannot drop CAP_SYSLOG");
-	else if (arg_debug)
-		printf("Drop CAP_SYSLOG\n");
-		
-	if (prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0) && arg_debug)
-		fprintf(stderr, "Warning: cannot drop CAP_SYS_ADMIN");
-	else if (arg_debug)
-		printf("Drop CAP_SYS_ADMIN\n");
+	if (arg_debug)
+		printf("Initialize seccomp filter\n");	
+	// allocate a filter of SECSIZE
+	sfilter = malloc(sizeof(struct sock_filter) * SECSIZE);
+	if (!sfilter)
+		errExit("malloc");
+	memset(sfilter, 0, sizeof(struct sock_filter) * SECSIZE);
+	sfilter_alloc_size = SECSIZE;
 	
-	return 0;
+	// copy the start entries
+	struct sock_filter filter[] = {
+		VALIDATE_ARCHITECTURE,
+		EXAMINE_SYSCALL
+	};
+	sfilter_index = sizeof(filter) / sizeof(struct sock_filter);	
+	memcpy(sfilter, filter, sizeof(filter));
 }
 
+static void filter_realloc(void) {
+	assert(sfilter);
+	assert(sfilter_alloc_size);
+	assert(sfilter_index);
+	if (arg_debug)
+		printf("Allocating more seccomp filter entries\n");
+	
+	// allocate the new memory
+	struct sock_filter *old = sfilter;
+	sfilter = malloc(sizeof(struct sock_filter) * (sfilter_alloc_size + SECSIZE));
+	if (!sfilter)
+		errExit("malloc");
+	memset(sfilter, 0, sizeof(struct sock_filter) *  (sfilter_alloc_size + SECSIZE));
+	
+	// copy old filter
+	memcpy(sfilter, old, sizeof(struct sock_filter) *  sfilter_alloc_size);
+	sfilter_alloc_size += SECSIZE;
+}
 
+static void filter_add(unsigned syscall) {
+	assert(sfilter);
+	assert(sfilter_alloc_size);
+	assert(sfilter_index);
+	if (arg_debug)
+		printf("Blacklisting syscall %u\n", syscall);
+	
+	if ((sfilter_index + 2) > sfilter_alloc_size)
+		filter_realloc();
+	
+	struct sock_filter filter[] = {
+		BLACKLIST(syscall)
+	};
+#if 0
+{
+	int i;
+	unsigned char *ptr = (unsigned char *) &filter[0];
+	for (i = 0; i < sizeof(filter); i++, ptr++)
+		printf("%x, ", (*ptr) & 0xff);
+	printf("\n");
+}
+#endif
+	memcpy(&sfilter[sfilter_index], filter, sizeof(filter));
+	sfilter_index += sizeof(filter) / sizeof(struct sock_filter);	
+}
+
+static void filter_end(void) {
+	assert(sfilter);
+	assert(sfilter_alloc_size);
+	assert(sfilter_index);
+	if (arg_debug)
+		printf("Ending syscall filter\n");
+
+	if ((sfilter_index + 2) > sfilter_alloc_size)
+		filter_realloc();
+	
+	struct sock_filter filter[] = {
+		RETURN_ALLOW
+	};
+#if 0	
+{
+	int i;
+	unsigned char *ptr = (unsigned char *) &filter[0];
+	for (i = 0; i < sizeof(filter); i++, ptr++)
+		printf("%x, ", (*ptr) & 0xff);
+	printf("\n");
+}
+#endif
+	memcpy(&sfilter[sfilter_index], filter, sizeof(filter));
+	sfilter_index += sizeof(filter) / sizeof(struct sock_filter);	
+}
 
 // enabled only for --seccomp option
 int seccomp_filter(void) {
+	filter_init();
+	filter_add(SYS_mount);
+	filter_add(SYS_umount2);
+	filter_add(SYS_ptrace);
+	filter_add(SYS_kexec_load);
+	filter_add(SYS_open_by_handle_at);
+	filter_add(SYS_init_module);
+#ifdef SYS_finit_module // introduced in 2013
+	filter_add(SYS_finit_module);
+#endif
+	filter_add(SYS_delete_module);
+	filter_add(SYS_iopl);
+	filter_add(SYS_ioperm);
+	filter_add(SYS_swapon);
+	filter_add(SYS_swapoff);
+	filter_add(SYS_syslog);
+	filter_end();
+	filter_debug();
+
+#if 0
 	// seccomp
 	struct sock_filter filter[] = {
 		VALIDATE_ARCHITECTURE,
 		EXAMINE_SYSCALL,
 		BLACKLIST(SYS_mount),  // mount/unmount filesystems
 		BLACKLIST(SYS_umount2),
-
-//todo: find a way to disable this in order to run strace		
 		BLACKLIST(SYS_ptrace), // trace processes
-
 		BLACKLIST(SYS_kexec_load), // loading a different kernel
-
 		BLACKLIST(SYS_open_by_handle_at), // open by handle
-		
 		BLACKLIST(SYS_init_module), // kernel module handling
 #ifdef SYS_finit_module // introduced in 2013
 		BLACKLIST(SYS_finit_module),
 #endif
 		BLACKLIST(SYS_delete_module),
-		
 		BLACKLIST(SYS_iopl), // io permisions
 		BLACKLIST(SYS_ioperm),
-		
 		BLACKLIST(SYS_swapon), // swap on/off
 		BLACKLIST(SYS_swapoff),
-		
 		BLACKLIST(SYS_syslog), // kernel printk control
-
 		RETURN_ALLOW
 	};
+#endif
+	
+//if (memcmp(filter, sfilter, sizeof(filter)) == 0)
+//printf("MATCHING %u/%u!!!\n", sfilter_index * sizeof(struct sock_filter), sizeof(filter));	
 	
 	struct sock_fprog prog = {
-		.len = (unsigned short)(sizeof(filter)/sizeof(filter[0])),
-		.filter = filter,
+//		.len = (unsigned short)(sizeof(filter)/sizeof(filter[0])),
+//		.filter = filter,
+		.len = sfilter_index,
+		.filter = sfilter,
 	};
 
 	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog) || prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {

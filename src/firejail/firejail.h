@@ -197,6 +197,8 @@ void fs_private(const char *homedir);
 
 // seccomp.c
 int seccomp_filter(void);
+
+// caps.c
 int caps_filter(void);
 void caps_print(void);
 

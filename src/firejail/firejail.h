@@ -85,6 +85,7 @@ extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
 extern int arg_seccomp;	// enable seccomp filter
 extern int arg_caps;		// enable capabilities filter
+extern int arg_debug_strace;	// allow strace debugging
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
@@ -201,5 +202,9 @@ int seccomp_filter(void);
 // caps.c
 int caps_filter(void);
 void caps_print(void);
+
+// syscall.c
+const char *syscall_find_nr(unsigned nr);
+
 
 #endif

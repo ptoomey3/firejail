@@ -32,6 +32,9 @@ Use /bin/csh as default user shell.
 \fB\--debug\fR
 Print debug messages.
 .TP
+\fB\--debug-strace\fR
+Allow strace debugging. ptrace system call is not enabled in seccomp filter.
+.TP
 \fB\--defaultgw=address
 Use this address as default gateway in the new network namespace.
 .TP

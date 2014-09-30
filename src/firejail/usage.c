@@ -35,6 +35,7 @@ void usage(void) {
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
 	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
+	printf("\t--debug-strace - allow strace debugging\n");
 	printf("\t--defaultgw=address - use this address as default gateway in the new\n");
 	printf("\t\tnetwork namespace\n");
 	printf("\t--help, -? - this help screen\n");

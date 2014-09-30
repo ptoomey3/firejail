@@ -18,6 +18,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+/* default seccomp filter
+	// seccomp
+	struct sock_filter filter[] = {
+		VALIDATE_ARCHITECTURE,
+		EXAMINE_SYSCALL,
+		BLACKLIST(SYS_mount),  // mount/unmount filesystems
+		BLACKLIST(SYS_umount2),
+		BLACKLIST(SYS_ptrace), // trace processes
+		BLACKLIST(SYS_kexec_load), // loading a different kernel
+		BLACKLIST(SYS_open_by_handle_at), // open by handle
+		BLACKLIST(SYS_init_module), // kernel module handling
+#ifdef SYS_finit_module // introduced in 2013
+		BLACKLIST(SYS_finit_module),
+#endif
+		BLACKLIST(SYS_delete_module),
+		BLACKLIST(SYS_iopl), // io permisions
+		BLACKLIST(SYS_ioperm),
+		BLACKLIST(SYS_swapon), // swap on/off
+		BLACKLIST(SYS_swapoff),
+		BLACKLIST(SYS_syslog), // kernel printk control
+		RETURN_ALLOW
+	};
+*/
+
 #include <errno.h>
 #include <linux/filter.h>
 #include <unistd.h>
@@ -91,8 +115,7 @@ void filter_debug(void) {
 	};
 
 	// print sizes
-	printf("sfilter alloc index %d\n", sfilter_alloc_size);	
-	printf("sfilter index %d\n", sfilter_index);
+	printf("SECCOMP Filter: %d entries\n", sfilter_index);
 	if (sfilter == NULL) {
 		printf("SECCOMP filter not allocated\n");
 		return;
@@ -112,7 +135,7 @@ void filter_debug(void) {
 		// minimal parsing!
 		unsigned char *ptr = (unsigned char *) &sfilter[i];
 		if (*ptr	== 0x15) {
-			printf("  BLACKLIST %u\n", *(ptr + 4));
+			printf("  BLACKLIST %s\n", syscall_find_nr(*(ptr + 4)));
 			i += 2;
 		}
 		else if (*ptr == 0x06) {
@@ -175,7 +198,7 @@ static void filter_add(unsigned syscall) {
 	assert(sfilter_alloc_size);
 	assert(sfilter_index);
 	if (arg_debug)
-		printf("Blacklisting syscall %u\n", syscall);
+		printf("Blacklisting syscall %s\n", syscall_find_nr(syscall));
 	
 	if ((sfilter_index + 2) > sfilter_alloc_size)
 		filter_realloc();
@@ -227,7 +250,8 @@ int seccomp_filter(void) {
 	filter_init();
 	filter_add(SYS_mount);
 	filter_add(SYS_umount2);
-	filter_add(SYS_ptrace);
+	if (!arg_debug_strace)
+		filter_add(SYS_ptrace);
 	filter_add(SYS_kexec_load);
 	filter_add(SYS_open_by_handle_at);
 	filter_add(SYS_init_module);
@@ -241,38 +265,10 @@ int seccomp_filter(void) {
 	filter_add(SYS_swapoff);
 	filter_add(SYS_syslog);
 	filter_end();
-	filter_debug();
+	if (arg_debug)
+		filter_debug();
 
-#if 0
-	// seccomp
-	struct sock_filter filter[] = {
-		VALIDATE_ARCHITECTURE,
-		EXAMINE_SYSCALL,
-		BLACKLIST(SYS_mount),  // mount/unmount filesystems
-		BLACKLIST(SYS_umount2),
-		BLACKLIST(SYS_ptrace), // trace processes
-		BLACKLIST(SYS_kexec_load), // loading a different kernel
-		BLACKLIST(SYS_open_by_handle_at), // open by handle
-		BLACKLIST(SYS_init_module), // kernel module handling
-#ifdef SYS_finit_module // introduced in 2013
-		BLACKLIST(SYS_finit_module),
-#endif
-		BLACKLIST(SYS_delete_module),
-		BLACKLIST(SYS_iopl), // io permisions
-		BLACKLIST(SYS_ioperm),
-		BLACKLIST(SYS_swapon), // swap on/off
-		BLACKLIST(SYS_swapoff),
-		BLACKLIST(SYS_syslog), // kernel printk control
-		RETURN_ALLOW
-	};
-#endif
-	
-//if (memcmp(filter, sfilter, sizeof(filter)) == 0)
-//printf("MATCHING %u/%u!!!\n", sfilter_index * sizeof(struct sock_filter), sizeof(filter));	
-	
 	struct sock_fprog prog = {
-//		.len = (unsigned short)(sizeof(filter)/sizeof(filter[0])),
-//		.filter = filter,
 		.len = sfilter_index,
 		.filter = sfilter,
 	};

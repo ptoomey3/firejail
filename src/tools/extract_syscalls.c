@@ -77,7 +77,9 @@ int main(int argc, char **argv) {
 			ptr3++;
 			
 			printf("#ifdef %s\n", ptr1);
+			printf("#ifdef %s\n", ptr2);
 			printf("\t{\"%s\", %s},\n", ptr3, ptr2);
+			printf("#endif\n");			
 			printf("#endif\n");			
 		}
 	}

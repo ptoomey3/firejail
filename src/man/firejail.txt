@@ -194,6 +194,12 @@ Start a regular /bin/bash session in sandbox.
 \f\firejail firefox
 Start Mozilla Firefox.
 .TP
+\f\firejail --seccomp firefox
+Start Mozilla Firefox in a seccomp sandbox.
+.TP
+\f\firejail --caps firefox
+Start Mozilla Firefox in a Linux capabilities sandbox.
+.TP
 \f\firejail --debug firefox
 Debug Firefox sandbox.
 .TP

@@ -41,7 +41,7 @@
 		RETURN_ALLOW
 	};
 */
-
+#ifdef HAVE_SECCOMP
 #include <errno.h>
 #include <linux/filter.h>
 #include <unistd.h>
@@ -292,4 +292,5 @@ int seccomp_filter(void) {
 
 	return 0;
 }
+#endif // HAVE_SECCOMP
 

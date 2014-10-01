@@ -221,8 +221,10 @@ int sandbox(void* sandbox_arg) {
 		caps_filter();
 
 	// set seccomp
+#ifdef HAVE_SECCOMP
 	if (arg_seccomp == 1)
 		seccomp_filter();
+#endif
 
 	// drop privileges
 	drop_privs();

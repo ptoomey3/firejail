@@ -4983,5 +4983,5 @@ fi
 
 echo "Configuration options:"
 echo "   seccomp: $HAVE_SECCOMP"
-echo "   linux/seccomp.h: $HAVE_SECCOMP_H"
+echo "   <linux/seccomp.h>: $HAVE_SECCOMP_H"
 echo

@@ -61,7 +61,11 @@ void usage(void) {
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
 	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
+#ifdef HAVE_SECCOMP
 	printf("\t--seccomp - enable seccomp filter\n");
+	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter and use the\n");
+	printf("\t\tcomma-separated list of syscalls\n");
+#endif
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--version - print program version and exit\n");
@@ -131,6 +135,10 @@ void usage(void) {
 	printf("          start a regular /bin/bash session in sandbox\n");
 	printf("   $ firejail firefox\n");
 	printf("          start Mozilla Firefox\n");
+	printf("   $ firejail --seccomp firefox\n");
+	printf("          start Mozilla Firefox in a seccomp sandbox\n");
+	printf("   $ firejail --caps firefox\n");
+	printf("          start Mozilla Firefox in a Linux capabilities sandbox\n");
 	printf("   $ firejail --debug firefox\n");
 	printf("          debug Firefox sandbox\n");
 	printf("   $ firejail --private\n");

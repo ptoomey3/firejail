@@ -28,5 +28,5 @@ AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile)
 
 echo "Configuration options:"
 echo "   seccomp: $HAVE_SECCOMP"
-echo "   linux/seccomp.h: $HAVE_SECCOMP_H"
+echo "   <linux/seccomp.h>: $HAVE_SECCOMP_H"
 echo

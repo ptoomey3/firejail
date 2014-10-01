@@ -18,6 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#ifdef HAVE_SECCOMP
 #include <sys/syscall.h>
 #include <string.h>
 #include "firejail.h"
@@ -2997,3 +2998,4 @@ int syscall_check_list(const char *slist, void (*callback)(int)) {
 	
 	return 0;
 }
+#endif // HAVE_SECCOMP

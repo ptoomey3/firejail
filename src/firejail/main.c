@@ -350,6 +350,7 @@ int main(int argc, char **argv) {
 		//*************************************
 		// filtering
 		//*************************************
+#ifdef HAVE_SECCOMP
 		else if (strcmp(argv[i], "--seccomp") == 0)
 			arg_seccomp = 1;
 		else if (strncmp(argv[i], "--seccomp=", 10) == 0) {
@@ -361,6 +362,7 @@ int main(int argc, char **argv) {
 			if (syscall_check_list(arg_seccomp_list, NULL))
 				return 1;
 		}
+#endif		
 		else if (strcmp(argv[i], "--caps") == 0)
 			arg_caps = 1;
 		

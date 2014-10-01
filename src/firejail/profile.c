@@ -142,7 +142,7 @@ void profile_read(const char *fname) {
 		fprintf(stderr, "Error: invalid profile file\n");
 		exit(1);
 	}
-
+int a = fname;
 	// open profile file:
 	FILE *fp = fopen(fname, "r");
 	if (fp == NULL) {
@@ -182,4 +182,5 @@ void profile_read(const char *fname) {
 
 		profile_add(ptr);
 	}
+	fclose(fp);
 }

@@ -110,6 +110,7 @@ void shut_name(const char *name) {
 }
 
 void shut(pid_t pid) {
+	pid_t parent = pid;
 	// if the pid is that of a firejail  process, use the pid of a child process inside the sandbox
 	char *comm = pid_proc_comm(pid);
 	if (comm) {
@@ -157,8 +158,14 @@ void shut(pid_t pid) {
 	if (!fp)
 		return;
 	fclose(fp);
+	
+	// kill the process and also the parent
 	printf("Sending SIGKILL to %u\n", pid);
 	kill(pid, SIGKILL);
+	if (parent != pid) {
+		printf("Sending SIGKILL to %u\n", parent);
+		kill(parent, SIGKILL);
+	}
 }
 
 void join_name(const char *name, const char *homedir) {

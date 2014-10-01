@@ -193,7 +193,7 @@ static void filter_realloc(void) {
 	sfilter_alloc_size += SECSIZE;
 }
 
-static void filter_add(unsigned syscall) {
+static void filter_add(int syscall) {
 	assert(sfilter);
 	assert(sfilter_alloc_size);
 	assert(sfilter_index);
@@ -250,8 +250,7 @@ int seccomp_filter(void) {
 	filter_init();
 	filter_add(SYS_mount);
 	filter_add(SYS_umount2);
-	if (!arg_debug_strace)
-		filter_add(SYS_ptrace);
+	filter_add(SYS_ptrace);
 	filter_add(SYS_kexec_load);
 	filter_add(SYS_open_by_handle_at);
 	filter_add(SYS_init_module);
@@ -264,6 +263,15 @@ int seccomp_filter(void) {
 	filter_add(SYS_swapon);
 	filter_add(SYS_swapoff);
 	filter_add(SYS_syslog);
+	
+	if (arg_seccomp_list) {
+		if (syscall_check_list(arg_seccomp_list, filter_add)) {
+			fprintf(stderr, "Error: cannot load seccomp filter\n");
+			exit(1);
+		}
+	}
+	
+	
 	filter_end();
 	if (arg_debug)
 		filter_debug();

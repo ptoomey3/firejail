@@ -19,11 +19,12 @@
 */
 
 #include <sys/syscall.h>
+#include <string.h>
 #include "firejail.h"
 
 typedef struct {
 	char *name;
-	unsigned nr;
+	int nr;
 } SyscallEntry;
 
 static SyscallEntry syslist[] = {
@@ -2935,7 +2936,7 @@ static SyscallEntry syslist[] = {
 //
 }; // end of syslist
 
-const char *syscall_find_nr(unsigned nr) {
+const char *syscall_find_nr(int nr) {
 	int i;
 	int elems = sizeof(syslist) / sizeof(syslist[0]);
 	for (i = 0; i < elems; i++) {
@@ -2944,4 +2945,55 @@ const char *syscall_find_nr(unsigned nr) {
 	}
 	
 	return "unknown";
+}
+
+// return -1 if error, or syscall number
+static int syscall_find_name(const char *name) {
+	int i;
+	int elems = sizeof(syslist) / sizeof(syslist[0]);
+	for (i = 0; i < elems; i++) {
+		if (strcmp(name, syslist[i].name) == 0)
+			return syslist[i].nr;
+	}
+	
+	return -1;
+}
+
+// return 1 if error, 0 if OK
+int syscall_check_list(const char *slist, void (*callback)(int)) {
+	// work on a copy of the string
+	char *str = strdup(slist);
+	if (!str)
+		errExit("strdup");
+
+	char *ptr = str;
+	char *start = str;
+	while (*ptr != '\0') {
+		if (islower(*ptr) || isdigit(*ptr) || *ptr == '_')
+			;
+		else if (*ptr == ',') {
+			*ptr = '\0';
+			int nr = syscall_find_name(start);
+			if (nr == -1) {
+				fprintf(stderr, "Error: syscall %s not found\n", start);
+				return -1;
+			}
+			else if (callback != NULL)
+				callback(nr);
+				
+			start = ptr + 1;
+		}
+		ptr++;
+	}
+	if (*start != '\0') {
+		int nr = syscall_find_name(start);
+		if (nr == -1) {
+			fprintf(stderr, "Error: syscall %s not found\n", start);
+			return -1;
+		}
+		else if (callback != NULL)
+			callback(nr);
+	}
+	
+	return 0;
 }

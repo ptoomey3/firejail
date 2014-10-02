@@ -12,7 +12,7 @@ Bug: preseve mode and owner when mounting tmpfs
 Bug: exit firemon if the monitored sandbox has closed
 Bug: kill also the parent in --shutdown
 
-
+todo: add usage and manpages for --debug-caps and --debug-syscalls
 
 
 

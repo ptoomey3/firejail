@@ -30,3 +30,9 @@ echo "TESTING: /proc/sysrq-trigger reset disabled"
 echo "TESTING: seccomp umount"
 ./seccomp-umount.exp
 
+echo "TESTING: seccomp chmod (seccomp lists)"
+./seccomp-chmod.exp
+
+echo "TESTING: seccomp chown (seccomp lists)"
+./seccomp-chown.exp
+

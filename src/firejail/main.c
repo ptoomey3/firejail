@@ -313,6 +313,12 @@ int main(int argc, char **argv) {
 			caps_print();
 			exit(0);
 		}
+#ifdef HAVE_SECCOMP
+		else if (strcmp(argv[i], "--debug-syscalls") == 0) {
+			syscall_print();
+			exit(0);
+		}
+#endif
 		else if (strcmp(argv[i], "--list") == 0) {
 			list();
 			exit(0);

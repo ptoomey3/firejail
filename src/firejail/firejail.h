@@ -207,6 +207,8 @@ void caps_print(void);
 const char *syscall_find_nr(int nr);
 // return -1 if error, 0 if no error
 int syscall_check_list(const char *slist, void (*callback)(int));
+// print all available syscalls
+void syscall_print(void);
 
 
 #endif

@@ -50,6 +50,8 @@ int main(int argc, char **argv) {
 		// parsing
 		if (strncmp(start, "#endif", 6) == 0)
 			printf("%s\n", start);
+		if (strncmp(start, "#endif", 6) == 0)
+			printf("%s\n", start);
 		else if (strncmp(start, "#if", 3) == 0)
 			printf("%s\n", start);
 		else if (strncmp(start, "#define", 7) == 0) {

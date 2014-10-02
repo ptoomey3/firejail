@@ -76,6 +76,9 @@ echo "TESTING: seccomp su"
 echo "TESTING: seccomp ptrace"
 ./seccomp-ptrace.exp
 
+echo "TESTING: seccomp chmod (seccomp lists)"
+./seccomp-chmod.exp
+
 echo "TESTING: chroot"
 ./fs_chroot.exp
 

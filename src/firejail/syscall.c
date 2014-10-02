@@ -4927,4 +4927,15 @@ int syscall_check_list(const char *slist, void (*callback)(int)) {
 	
 	return 0;
 }
+
+void syscall_print(void) {
+	int i;
+	int elems = sizeof(syslist) / sizeof(syslist[0]);
+	for (i = 0; i < elems; i++) {
+		printf("%d\t- %s\n", syslist[i].nr, syslist[i].name);
+	}
+}
+
+
+
 #endif // HAVE_SECCOMP

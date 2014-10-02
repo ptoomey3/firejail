@@ -10,6 +10,10 @@ chmod u+s $1/bin/firejail
 strip src/firemon/firemon
 install -c -m 0755 src/firemon/firemon $1/bin/.
 
+# libraries and plugins
+mkdir -p $1/lib/firejail
+install -c -m 0644 src/libtrace/libtrace.so $1/lib/firejail/.
+
 # documents
 mkdir -p $1/share/doc/firejail
 install -c -m 0644 COPYING $1/share/doc/firejail/.

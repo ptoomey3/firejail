@@ -11,7 +11,7 @@
 #include <sys/un.h>
 
 //
-// file
+// pid
 //
 static pid_t mypid = 0;
 static inline pid_t pid(void) {
@@ -20,6 +20,9 @@ static inline pid_t pid(void) {
 	return mypid;
 }
 
+//
+// process name
+//
 #define MAXNAME 16
 static char myname[MAXNAME];
 static int nameinit = 0;
@@ -56,10 +59,10 @@ static char *name(void) {
 	return myname;
 }
 
+
 //
 // syscalls
 //
-
 typedef int (*orig_open_t)(const char *pathname, int flags);
 orig_open_t orig_open = NULL;
 int open(const char *pathname, int flags) {

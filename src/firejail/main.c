@@ -52,8 +52,9 @@ int arg_overlay = 0;				// --overlay
 int arg_zsh = 0;				// use zsh as default shell
 int arg_csh = 0;				// use csh as default shell
 int arg_seccomp = 0;				// enable seccomp filter
-char *arg_seccomp_list = NULL;		//  optional seccomp list
+char *arg_seccomp_list = NULL;		// optional seccomp list
 int arg_caps = 0;				// enable capabilities filter
+int arg_trace = 0;				// syscall tracing support
 
 int fds[2];					// parent-child communication pipe
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
@@ -260,6 +261,7 @@ static int read_pid(char *str, pid_t *pid) {
 	return 0;
 }
 
+
 //*******************************************
 // Main program
 //*******************************************
@@ -269,7 +271,6 @@ int main(int argc, char **argv) {
 #ifdef USELOCK
 	int lockfd = -1;
 #endif
-
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
 //	const pid_t ppid = getppid();
@@ -371,6 +372,8 @@ int main(int argc, char **argv) {
 #endif		
 		else if (strcmp(argv[i], "--caps") == 0)
 			arg_caps = 1;
+		else if (strcmp(argv[i], "--trace") == 0)
+			arg_trace = 1;
 		
 		//*************************************
 		// filesystem

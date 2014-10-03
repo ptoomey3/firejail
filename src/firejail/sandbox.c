@@ -70,7 +70,7 @@ int sandbox(void* sandbox_arg) {
 	}
 
 	//****************************
-	// configure filesystem
+	// mount namespace
 	//****************************
 	// mount events are not forwarded between the host the sandbox
 	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0) {
@@ -82,6 +82,15 @@ int sandbox(void* sandbox_arg) {
 			errExit("mounting filesystem as slave");
 	}
 	
+	//****************************
+	// trace pre-install
+	//****************************
+	if (arg_trace)
+		fs_trace_preload();
+
+	//****************************
+	// configure filesystem
+	//****************************
 	if (cfg.chrootdir) {
 		fs_chroot(cfg.chrootdir);
 	}
@@ -106,6 +115,12 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	if (arg_private)
 		fs_private(cfg.homedir);
+		
+	//****************************
+	// install trace
+	//****************************
+	if (arg_trace)
+		fs_trace();
 		
 	//****************************
 	// update /proc, /dev, /boot directory

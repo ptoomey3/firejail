@@ -1,5 +1,3 @@
-// based on an idea from http://rafalcieslak.wordpress.com/2013/04/02/dynamic-linker-tricks-using-ld_preload-to-cheat-inject-features-and-investigate-programs/
-// gcc -shared -fPIC -ldl traceopen.c -o traceopen.so
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,125 +8,106 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/un.h>
 
 //
-// buffer
+// file
 //
-#define MAXBUF (16 * 1024)
-int bufsize = 0;
-char buffer[MAXBUF];
-
-void bufinit(void) {
-	memset(buffer, 0, MAXBUF);
+static pid_t mypid = 0;
+static inline pid_t pid(void) {
+	if (!mypid)
+		mypid = getpid();
+	return mypid;
 }
 
-void bufdump(void) {
-	// dump the contents of the buffer
-	pid_t pid = getpid();
-	char *fname;
-	if (asprintf(&fname, "/tmp/firejail/%u", pid) == -1) {
-		fprintf(stderr, "Error: cannot allocate memory\n");
-		exit(1);
+#define MAXNAME 16
+static char myname[MAXNAME];
+static int nameinit = 0;
+static char *name(void) {
+	if (!nameinit) {
+		// initialize the name of the process based on /proc/PID/comm
+		memset(myname, 0, MAXNAME);
+		
+		pid_t p = pid();
+		char *fname;
+		if (asprintf(&fname, "/proc/%u/comm", p) == -1)
+			return "unknown";
+
+		// read file
+		FILE *fp = fopen(fname, "r");
+		if (!fp)
+			return "unknown";
+		if (fgets(myname, MAXNAME, fp) == NULL) {
+			fclose(fp);
+			free(fname);
+			return "unknown";
+		}
+		
+		// clean '\n'
+		char *ptr = strchr(myname, '\n');
+		if (ptr)
+			*ptr = '\0';
+			
+		fclose(fp);
+		free(fname);
+		nameinit = 1;
 	}
 	
-	FILE *fp = fopen(fname, "a");
-	if (!fp) {
-		fprintf(stderr, "Error: cannot open %s file\n", fname);
-		free(fname);
-		exit(1);
-	}
-	printf("Updating trace buffer\n");
-	fprintf(fp, "%s", buffer);
-	fclose(fp);
-}
-char *bufrequest(int size) {
-	if ((size + bufsize + 1024) > MAXBUF) {
-		bufdump();
-		bufsize = 0;
-	}
-
-	return buffer + bufsize;
-}
-
-void bufset(int size) {
-	bufsize += size;
-}
-
-//
-// exit
-//
-static int exit_flag = 0;
-static void myexit(void) {
-	bufdump();
-}
-static void init_exit(void) {
-	atexit(myexit);
-	bufinit();
-	exit_flag = 1;
+	return myname;
 }
 
 //
 // syscalls
 //
+
 typedef int (*orig_open_t)(const char *pathname, int flags);
 orig_open_t orig_open = NULL;
 int open(const char *pathname, int flags) {
-	if (!exit_flag)
-		init_exit();
 	if (!orig_open)
 		orig_open = (orig_open_t)dlsym(RTLD_NEXT, "open");
 		
 	int rv = orig_open(pathname, flags);
-
-	char *ptr = bufrequest(strlen(pathname));
-	if (ptr) {
-		int len = sprintf(ptr, "open %s return %d\n", pathname, rv);
-		bufset(len);
-	}
-
+	printf("%u:%s:open %s\n", pid(), name(), pathname);
 	return rv;
 }
 
 typedef int (*orig_access_t)(const char *pathname, int mode);
 orig_access_t orig_access = NULL;
 int access(const char *pathname, int mode) {
-	if (!exit_flag)
-		init_exit();
 	if (!orig_access)
 		orig_access = (orig_access_t)dlsym(RTLD_NEXT, "access");
 			
 	int rv = orig_access(pathname, mode);
-
-	char *ptr = bufrequest(strlen(pathname));
-	if (ptr) {
-		int len = sprintf(ptr, "access %s return %d\n", pathname, rv);
-		bufset(len);
-	}
-
+	printf("%u:%s:access %s\n", pid(), name(), pathname);
 	return rv;
 }
 
 typedef int (*orig_connect_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 orig_connect_t orig_connect = NULL;
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
-	if (!exit_flag)
-		init_exit();
 	if (!orig_connect)
 		orig_connect = (orig_connect_t)dlsym(RTLD_NEXT, "connect");
 			
 	int rv = orig_connect(sockfd, addr, addrlen);
-
-	char *ptr = bufrequest(30);
-	if (ptr) {
-		if (addr->sa_family == AF_INET) {
-			struct sockaddr_in *a = (struct sockaddr_in *) addr;
-			int len = sprintf(ptr, "connect %s return %d\n", inet_ntoa(a->sin_addr), rv);
-			bufset(len);
-		}
-		else {
-			int len = sprintf(ptr, "connect family %d return %d\n", addr->sa_family, rv);
-			bufset(len);
-		}
+	if (addr->sa_family == AF_INET) {
+		struct sockaddr_in *a = (struct sockaddr_in *) addr;
+		printf("%u:%s:connect %s:%u\n", pid(), name(), inet_ntoa(a->sin_addr), ntohs(a->sin_port));
+	}
+	else if (addr->sa_family == AF_INET6) {
+		struct sockaddr_in6 *a = (struct sockaddr_in6 *) addr;
+		char str[INET6_ADDRSTRLEN];
+		inet_ntop(AF_INET6, &(a->sin6_addr), str, INET6_ADDRSTRLEN);
+		printf("%u:%s:connect %s\n", pid(), name(), str);
+	}
+	else if (addr->sa_family == AF_UNIX) {
+		struct sockaddr_un *a = (struct sockaddr_un *) addr;
+		if (a->sun_path[0])
+			printf("%u:%s:connect %s\n", pid(), name(), a->sun_path);
+		else
+			printf("%u:%sLconnect &%s\n", pid(), name(), a->sun_path + 1);
+	}
+	else {
+		printf("%u:%s:connect family %d\n", pid(), name(), addr->sa_family);
 	}
 
 	return rv;

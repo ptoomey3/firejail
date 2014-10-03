@@ -28,6 +28,7 @@
 #define USELOCK
 #define RO_DIR "/tmp/firejail.ro.dir"
 #define RO_FILE "/tmp/firejail.ro.file"
+#define TRACE_DIR "/tmp/firejail"
 
 
 
@@ -84,8 +85,9 @@ extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
 extern int arg_seccomp;	// enable seccomp filter
-extern char *arg_seccomp_list;	//  optional seccomp list
+extern char *arg_seccomp_list;//  optional seccomp list
 extern int arg_caps;		// enable capabilities filter
+extern int arg_trace;		// syscall tracing support
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
@@ -209,6 +211,10 @@ const char *syscall_find_nr(int nr);
 int syscall_check_list(const char *slist, void (*callback)(int));
 // print all available syscalls
 void syscall_print(void);
+
+// fs_trace.c
+void fs_trace_preload(void);
+void fs_trace(void);
 
 
 #endif

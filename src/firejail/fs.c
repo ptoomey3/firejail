@@ -46,7 +46,7 @@ static char *create_empty_dir(void) {
 	struct stat s;
 	
 	if (stat(RO_DIR, &s)) {
-		mkdir(RO_DIR, S_IRWXU);
+		mkdir(RO_DIR, S_IRUSR | S_IXUSR);
 		if (chown(RO_DIR, 0, 0) < 0)
 			errExit("chown");
 	}

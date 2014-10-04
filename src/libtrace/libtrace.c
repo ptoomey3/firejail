@@ -107,7 +107,7 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
 		if (a->sun_path[0])
 			printf("%u:%s:connect %s\n", pid(), name(), a->sun_path);
 		else
-			printf("%u:%sLconnect &%s\n", pid(), name(), a->sun_path + 1);
+			printf("%u:%s:connect &%s\n", pid(), name(), a->sun_path + 1);
 	}
 	else {
 		printf("%u:%s:connect family %d\n", pid(), name(), addr->sa_family);

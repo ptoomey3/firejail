@@ -59,14 +59,14 @@ void fs_trace(void) {
 		mkdir(TRACE_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
 		if (chown(TRACE_DIR, 0, 0) < 0)
 			errExit("chown");
-		if (chmod(TRACE_DIR, S_IRWXU | S_IRWXG | S_IRWXO) < 0)
+		if (chmod(TRACE_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
 			errExit("chmod");
 	}
 
 	// mount tmpfs on top of /tmp/firejail
 	if (arg_debug)
 		printf("Mounting tmpfs on %s directory\n", TRACE_DIR);
-	if (mount("tmpfs", TRACE_DIR, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+	if (mount("tmpfs", TRACE_DIR, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 		errExit("mounting /var/log");
 	
 	// create the new ld.so.preload file and mount-bind it

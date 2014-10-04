@@ -52,28 +52,20 @@ void fs_trace_preload(void) {
 void fs_trace(void) {
 	struct stat s;
 
-	// create /tmp/firejail directory
-	if (stat(TRACE_DIR, &s)) {
-		if (arg_debug)
-			printf("Creating %s directory\n", TRACE_DIR);
-		mkdir(TRACE_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
-		if (chown(TRACE_DIR, 0, 0) < 0)
-			errExit("chown");
-		if (chmod(TRACE_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
-			errExit("chmod");
-	}
-
-	// mount tmpfs on top of /tmp/firejail
+	// create /tmp/firejail/mnt directory
+	fs_build_mnt_dir();
+	
+	// mount tmpfs on top of /tmp/firejailmnt
 	if (arg_debug)
-		printf("Mounting tmpfs on %s directory\n", TRACE_DIR);
-	if (mount("tmpfs", TRACE_DIR, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("mounting /var/log");
+		printf("Mounting tmpfs on %s directory\n", MNT_DIR);
+	if (mount("tmpfs", MNT_DIR, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+		errExit("mounting /tmp/firejail/mnt");
 	
 	// create the new ld.so.preload file and mount-bind it
 	if (arg_debug)
 		printf("Create the new ld.so.preload file\n");
 	char *preload;
-	if (asprintf(&preload, "%s/ld.so.preload", TRACE_DIR) == -1)
+	if (asprintf(&preload, "%s/ld.so.preload", MNT_DIR) == -1)
 		errExit("asprintf");
 	FILE *fp = fopen(preload, "w");
 	if (!fp)
@@ -89,7 +81,7 @@ void fs_trace(void) {
 	if (arg_debug)
 		printf("Mount the new ld.so.preload file\n");
 	if (mount(preload, "/etc/ld.so.preload", NULL, MS_BIND|MS_REC, NULL) < 0)
-		errExit("mount bind");
+		errExit("mount bind ls.so.preload");
 }
 
 		

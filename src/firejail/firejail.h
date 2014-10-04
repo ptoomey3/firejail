@@ -26,9 +26,10 @@
 #include "../include/common.h"
 
 #define USELOCK
-#define RO_DIR "/tmp/firejail.ro.dir"
-#define RO_FILE "/tmp/firejail.ro.file"
-#define TRACE_DIR "/tmp/firejail"
+#define FIREJAIL_DIR	"/tmp/firejail"
+#define RO_DIR	"/tmp/firejail/firejail.ro.dir"
+#define RO_FILE	"/tmp/firejail/firejail.ro.file"
+#define MNT_DIR	"/tmp/firejail/mnt"
 
 
 
@@ -113,6 +114,10 @@ void net_ifprint(void);
 void net_bridge_add_interface(const char *bridge, const char *dev);
 
 // fs.c
+// build /tmp/firejail directory
+void fs_build_firejail_dir(void);
+// build /tmp/firejail/mnt directory
+void fs_build_mnt_dir(void);
 // blacklist files or directoies by mounting empty files on top of them
 void fs_blacklist(const char *homedir);
 //void fs_blacklist(char **blacklist, const char *homedir);

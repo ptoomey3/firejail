@@ -31,6 +31,40 @@
 #include "firejail.h"
 
 
+// build /tmp/firejail directory
+void fs_build_firejail_dir(void) {
+	struct stat s;
+
+	if (stat(FIREJAIL_DIR, &s)) {
+		if (arg_debug)
+			printf("Creating %s directory\n", FIREJAIL_DIR);
+		mkdir(FIREJAIL_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		if (chown(FIREJAIL_DIR, 0, 0) < 0)
+			errExit("chown");
+		if (chmod(FIREJAIL_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
+			errExit("chmod");
+	}
+}
+
+
+// build /tmp/firejail/mnt directory
+void fs_build_mnt_dir(void) {
+	struct stat s;
+	fs_build_firejail_dir();
+	
+	// create /tmp/firejail directory
+	if (stat(MNT_DIR, &s)) {
+		if (arg_debug)
+			printf("Creating %s directory\n", MNT_DIR);
+		mkdir(MNT_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		if (chown(MNT_DIR, 0, 0) < 0)
+			errExit("chown");
+		if (chmod(MNT_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
+			errExit("chmod");
+	}
+}
+
+
 //***********************************************
 // process profile file
 //***********************************************
@@ -44,6 +78,7 @@ typedef enum {
 
 static char *create_empty_dir(void) {
 	struct stat s;
+	fs_build_firejail_dir();
 	
 	if (stat(RO_DIR, &s)) {
 		mkdir(RO_DIR, S_IRUSR | S_IXUSR);
@@ -56,6 +91,8 @@ static char *create_empty_dir(void) {
 
 static char *create_empty_file(void) {
 	struct stat s;
+	fs_build_firejail_dir();
+
 	if (stat(RO_FILE, &s)) {
 		FILE *fp = fopen(RO_FILE, "w");
 		if (!fp)

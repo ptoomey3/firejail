@@ -30,6 +30,7 @@ void usage(void) {
 	printf("namespaces. If no program is specified as an argument, /bin/bash is started by\n");
 	printf("default in the sandbox.\n\n");
 	printf("Options:\n");
+	printf("\t--blacklist=dirname_or_filename - blacklist directory or file\n");
 	printf("\t-c - execute command and exit\n");
 	printf("\t--caps - enable Linux capabilities filter\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
@@ -59,6 +60,7 @@ void usage(void) {
 	printf("\t\tto work)\n");    
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
+	printf("\t--read-only=dirname_or_filename - set directory or file read-only\n");
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
 	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
 #ifdef HAVE_SECCOMP
@@ -66,6 +68,7 @@ void usage(void) {
 	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter and use the\n");
 	printf("\t\tcomma-separated list of syscalls\n");
 #endif
+	printf("\t--tmpfs=dirname - mount a tmpfs filesystem on directory dirname\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--version - print program version and exit\n");

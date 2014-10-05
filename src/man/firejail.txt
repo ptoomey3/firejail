@@ -17,6 +17,9 @@ current system directories mounted read-only, and new PID and IPC namespaces.
 If no program is specified as an argument, /bin/bash is started by default in the sandbox.
 .SH OPTIONS
 .TP
+\fB\--blacklist=dirname_or_filename
+Blacklist directory or file.
+.TP
 \fB\-c
 Execute command and exit.
 .TP
@@ -77,6 +80,9 @@ Mount new /tmp, /root and /home/user directories.
 \fB\--profile=filename
 Use a custom profile, see below.
 .TP
+\fB\--read-only=dirname_or_filename
+.Set directory or file read-only.
+.TP
 \fB\--shutdown=name
 Shutdown the sandbox started using --name option.
 .TP
@@ -85,6 +91,9 @@ Shutdown the sandbox specified by pid. Use --list option to get a list of all ac
 .TP
 \fB\--seccomp
 Enable seccomp filter.
+.TP
+\fB\--tmpfs=dirname
+Mount a tmpfs filesystem on directory dirname.
 .TP
 \fB\--top
 Monitor the most CPU-intensive sandboxes.

@@ -18,6 +18,20 @@ echo "TESTING: list"
 echo "TESTING: tree"
 ./option_list.exp
 
+echo "TESTING: tmpfs"
+./option_tmpfs.exp
+
+echo "TESTING: blacklist directory"
+./option_blacklist.exp
+
+echo "TESTING: blacklist file"
+./option_blacklist_file.exp
+
+echo "TESTING: readonly"
+ls -al > tmpreadonly
+./option_readonly.exp
+rm -f tmpreadonly
+
 echo "TESTING: zsh"
 ./shell_zsh.exp
 

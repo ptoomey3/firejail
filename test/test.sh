@@ -33,6 +33,7 @@ echo "TESTING: bind as user"
 echo "TESTING: readonly"
 ls -al > tmpreadonly
 ./option_readonly.exp
+sleep 5
 rm -f tmpreadonly
 
 echo "TESTING: zsh"

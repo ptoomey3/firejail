@@ -213,7 +213,7 @@ void fs_blacklist(const char *homedir) {
 		// process blacklist command
 		if (strncmp(entry->data, "bind", 4) == 0)  {
 			char *dname1 = entry->data + 5;
-			char *dname2 = split_colon(dname1);
+			char *dname2 = split_comma(dname1);
 			if (dname2 == NULL) {
 				fprintf(stderr, "Error: second directory missing in bind command\n");
 				entry = entry->next;

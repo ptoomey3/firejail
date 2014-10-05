@@ -36,3 +36,11 @@ echo "TESTING: seccomp chmod (seccomp lists)"
 echo "TESTING: seccomp chown (seccomp lists)"
 ./seccomp-chown.exp
 
+echo "TESTING: bind directory"
+./option_bind_directory.exp
+
+echo "TESTING: bind file"
+echo hello > tmpfile
+./option_bind_file.exp
+rm -f tmpfile
+

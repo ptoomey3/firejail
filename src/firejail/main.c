@@ -381,7 +381,7 @@ int main(int argc, char **argv) {
 			char *line;
 			if (asprintf(&line, "bind %s", argv[i] + 7) == -1)
 				errExit("asprintf");
-			
+
 			profile_check_line(line, 0);	// will exit if something wrong
 			profile_add(line);
 		}

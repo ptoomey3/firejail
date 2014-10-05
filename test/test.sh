@@ -27,6 +27,9 @@ echo "TESTING: blacklist directory"
 echo "TESTING: blacklist file"
 ./option_blacklist_file.exp
 
+echo "TESTING: bind as user"
+./option_bind_user.exp
+
 echo "TESTING: readonly"
 ls -al > tmpreadonly
 ./option_readonly.exp

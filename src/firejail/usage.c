@@ -30,6 +30,8 @@ void usage(void) {
 	printf("namespaces. If no program is specified as an argument, /bin/bash is started by\n");
 	printf("default in the sandbox.\n\n");
 	printf("Options:\n");
+	printf("\t--bind=dirname1,dirname2 - mount-bind dirname1 on top of dirname2\n");
+	printf("\t--bind=filename1,dirname2 - mount-bind filename1 on top of filename2\n");
 	printf("\t--blacklist=dirname_or_filename - blacklist directory or file\n");
 	printf("\t-c - execute command and exit\n");
 	printf("\t--caps - enable Linux capabilities filter\n");
@@ -108,14 +110,16 @@ void usage(void) {
 	printf("Profile files\n\n");
 	printf("The profile files define a chroot filesystem built on top of the existing host\n");
 	printf("filesystem. Each line describes a file element that is removed from the\n");
-	printf("filesystem (blacklist), a read-only file or directory (read-only), or a\n");
-	printf("tmpfs mounted on top of an existing directory (tmpfs). Examples:\n");
+	printf("filesystem (blacklist), a read-only file or directory (read-only), a tmpfs\n");
+	printf("mounted on top of an existing directory (tmpfs), or mount-bind a directory\n");
+	printf("or file on top of another directory or file (bind). Examples:\n");
 	printf("\n");
 	printf("# this is a comment\n");
 	printf("blacklist /usr/bin # remove /usr/bin directory\n");
 	printf("blacklist /etc/password # remove /etc/password file\n");
 	printf("read-only /etc/password # read-only /etc/password file\n");
 	printf("tmpfs /etc # Mount an empty tmpfs filesystem on top of /etc directory\n");
+	printf("bind /root/config/ssh,/etc/ssh # mount-bind /root/config/ssh on /etc/ssh\n");
 	printf("\n");
 	printf("File globbing is supported, and PATH and HOME directories are searched:\n");
 	printf("\n");

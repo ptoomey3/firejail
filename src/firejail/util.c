@@ -214,10 +214,10 @@ char *line_remove_spaces(const char *buf) {
 }
 
 
-char *split_colon(char *str) {
+char *split_comma(char *str) {
 	if (str == NULL || *str == '\0')
 		return NULL;
-	char *ptr = strchr(str, ':');
+	char *ptr = strchr(str, ',');
 	if (!ptr)
 		return NULL;
 	*ptr = '\0';

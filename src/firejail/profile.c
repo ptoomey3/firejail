@@ -82,9 +82,14 @@ static void check_file_name(char *ptr, int lineno) {
 // check profile line; if line == 0, this was generated from a command line option
 void profile_check_line(char *ptr, int lineno) {
 	if (strncmp(ptr, "bind ", 5) == 0) {
+		if (getuid() != 0) {
+			fprintf(stderr, "Error: --bind option is available only if running as root\n");
+			exit(1);
+		}
+
 		// extract two directories
 		char *dname1 = ptr + 5;
-		char *dname2 = split_colon(dname1); // this inserts a '0 to separate the two dierctories
+		char *dname2 = split_comma(dname1); // this inserts a '0 to separate the two dierctories
 		if (dname2 == NULL) {
 			fprintf(stderr, "Error: mising second directory for bind\n");
 			exit(1);
@@ -94,8 +99,8 @@ void profile_check_line(char *ptr, int lineno) {
 		check_file_name(dname1, lineno);
 		check_file_name(dname2, lineno);
 		
-		// insert colon back
-		*(dname2 - 1) = ':';
+		// insert comma back
+		*(dname2 - 1) = ',';
 		return;
 	}
 

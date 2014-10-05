@@ -10,12 +10,12 @@ Added - Logging the reason for exiting the sandbox
 Added - trace support
 Bug: when exiting the main sandbox process because of CTRL-C, logging the exit doesn't go in syslog
 Bug: preseve mode and owner when mounting tmpfs
-Bug: exit firemon if the monitored sandbox has closed
+Bug: exit firemon if the monitored sandbox was closed
 Bug: kill also the parent in --shutdown
 
 todo: add usage and manpages for --debug-caps and --debug-syscalls
 todo: add usage and manpages for --trace
-
+todo: seccomp lists usage and manpages
 
 * https://github.com/opsengine/cpulimit/tree/master/src
 
@@ -39,7 +39,16 @@ firejail strace -f -e open -o strace.out firefox
 		fprintf(stderr, "mount of /sys failed: %s\n",strerror(errno));
 		return -1;
 	}
-
+	
+	
+libvirt-lxc:
+ - /sys the host "sysfs" instance remounted read-only
+ - /proc a new instance of the "proc" filesystem
+ - /proc/sys the host "/proc/sys" bind-mounted read-only
+ 
+* libvirt-lxc description
+ http://libvirt.org/drvlxc.html#fsmounts
+ 
 * lxc description:
 Linux containers offer:
 - chroot

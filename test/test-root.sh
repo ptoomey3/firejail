@@ -44,3 +44,6 @@ echo hello > tmpfile
 ./option_bind_file.exp
 rm -f tmpfile
 
+echo "TESTING: chroot"
+./fs_chroot.exp
+

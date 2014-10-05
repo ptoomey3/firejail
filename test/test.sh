@@ -30,6 +30,9 @@ echo "TESTING: blacklist file"
 echo "TESTING: bind as user"
 ./option_bind_user.exp
 
+echo "TESTING: chroot as user"
+./fs_chroot.exp
+
 echo "TESTING: readonly"
 ls -al > tmpreadonly
 ./option_readonly.exp
@@ -96,9 +99,6 @@ echo "TESTING: seccomp ptrace"
 
 echo "TESTING: seccomp chmod (seccomp lists)"
 ./seccomp-chmod.exp
-
-echo "TESTING: chroot"
-./fs_chroot.exp
 
 echo "TESTING: read/write /var/tmp"
 ./fs_var_tmp.exp

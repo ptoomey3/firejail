@@ -93,6 +93,17 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	if (cfg.chrootdir) {
 		fs_chroot(cfg.chrootdir);
+		// force caps and seccomp if not started as root
+		if (getuid() != 0) {
+			arg_caps = 1;
+			arg_seccomp = 1;
+		}
+						
+		//****************************
+		// trace pre-install, this time inside chroot
+		//****************************
+		if (arg_trace)
+			fs_trace_preload();
 	}
 	else if (arg_overlay)
 		fs_overlayfs();
@@ -105,9 +116,7 @@ int sandbox(void* sandbox_arg) {
 	// profiles are not handled in chroot mode; the profile file might be different in chroot than on host
 	if (!cfg.chrootdir) { //todo: is this supposed to work also for overlay???
 		if (cfg.profile)
-//		if (cfg.custom_profile)
 			fs_blacklist(cfg.homedir);
-//			fs_blacklist(cfg.custom_profile, cfg.homedir);
 	}
 	
 	//****************************

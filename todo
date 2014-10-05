@@ -4,7 +4,7 @@ Added firemon support to print the ARP table for each sandbox
 Added firemon support to print the route table for each sandbox
 Added firemon support to print network interface information for each sandbox
 Added --tmpfs, --balcklist, --read-only options
-Added --bind option - to do help and man
+Added --bind option
 Added support for user defined seccomp blacklists
 Added - Logging the reason for exiting the sandbox
 Added - trace support
@@ -15,8 +15,6 @@ Bug: kill also the parent in --shutdown
 
 todo: add usage and manpages for --debug-caps and --debug-syscalls
 todo: add usage and manpages for --trace
-todo: add usage and manpages for --bind option
-
 
 
 * https://github.com/opsengine/cpulimit/tree/master/src

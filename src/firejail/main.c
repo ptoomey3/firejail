@@ -414,7 +414,7 @@ int main(int argc, char **argv) {
 //		}
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
-		else if (strncmp(argv[i], "--profile=",10) == 0) {
+		else if (strncmp(argv[i], "--profile=", 10) == 0) {
 			// check file access as user, not as root (suid)
 			if (access(argv[i] + 10, R_OK)) {
 				fprintf(stderr, "Error: cannot access profile file\n");

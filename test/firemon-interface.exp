@@ -4,31 +4,31 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
-send --  "firejail --seccomp\r"
+send --  "firejail\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"Child process initialized"
 }
-sleep 2
+sleep 1
 
-send -- "sudo su -\r"
+spawn $env(SHELL)
+send -- "firemon --interface\r"
 expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
-	"effective uid is not 0"
+	"lo UP"
 }
-
-send -- "sudo ls\r"
 expect {
 	timeout {puts "TESTING ERROR 2\n";exit}
-	"effective uid is not 0"
+	"10.10.20.1/29"
 }
-
-send -- "ping google.com\r"
 expect {
-	timeout {puts "TESTING ERROR 2\n";exit}
-	"Operation not permitted"
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"10.10.50.1/24"
 }
-
-send -- "exit\r"
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"br3"
+}
 sleep 1
+
 puts "\n"

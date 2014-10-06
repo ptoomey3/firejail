@@ -110,6 +110,14 @@ int sandbox(void* sandbox_arg) {
 	else
 		fs_basic_fs();
 	
+
+	//****************************
+	// set hostname in /etc/hostname
+	//****************************
+	if (cfg.hostname) {
+		fs_hostname(cfg.hostname);
+	}
+	
 	//****************************
 	// apply the profile file
 	//****************************

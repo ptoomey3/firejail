@@ -222,5 +222,7 @@ void syscall_print(void);
 void fs_trace_preload(void);
 void fs_trace(void);
 
+// fs_hostname.c
+void fs_hostname(const char *hostname);
 
 #endif

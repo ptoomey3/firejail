@@ -47,3 +47,6 @@ rm -f tmpfile
 echo "TESTING: chroot"
 ./fs_chroot.exp
 
+echo "TESTING: firemon --interface"
+./firemon-interface.exp
+

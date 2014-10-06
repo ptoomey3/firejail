@@ -410,6 +410,10 @@ int main(int argc, char **argv) {
 			profile_add(line);
 		}
 		else if (strcmp(argv[i], "--overlay") == 0) {
+			if (cfg.chrootdir) {
+				fprintf(stderr, "Error: --overlay and --chroot options are mutually exclusive\n");
+				exit(1);
+			}
 			arg_overlay = 1;
 		}
 		else if (strcmp(argv[i], "--private") == 0)
@@ -423,6 +427,11 @@ int main(int argc, char **argv) {
 			profile_read(argv[i] + 10);
 		}
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
+			if (arg_overlay) {
+				fprintf(stderr, "Error: --overlay and --chroot options are mutually exclusive\n");
+				exit(1);
+			}
+			
 			// extract chroot dirname
 			cfg.chrootdir = argv[i] + 9;
 			// if the directory starts with ~, expand the home directory

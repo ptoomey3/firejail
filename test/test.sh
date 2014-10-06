@@ -16,7 +16,13 @@ echo "TESTING: list"
 ./option_list.exp
 
 echo "TESTING: tree"
-./option_list.exp
+./option_tree.exp
+
+echo "TESTING: trace"
+./option-trace.exp
+
+echo "TESTING: chroot overlay"
+./option_chroot_overlay.exp
 
 echo "TESTING: tmpfs"
 ./option_tmpfs.exp
@@ -38,6 +44,9 @@ ls -al > tmpreadonly
 ./option_readonly.exp
 sleep 5
 rm -f tmpreadonly
+
+echo "TESTING: name"
+./name.exp
 
 echo "TESTING: zsh"
 ./shell_zsh.exp
@@ -147,3 +156,10 @@ echo "TESTING: login SSH"
 
 echo "TESTING: ARP"
 ./net_arp.exp
+
+echo "TESTING: firemon --arp"
+./firemon-arp.exp
+
+echo "TESTING: firemon --route"
+./firemon-route.exp
+

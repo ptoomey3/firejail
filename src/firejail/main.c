@@ -409,9 +409,9 @@ int main(int argc, char **argv) {
 			profile_check_line(line, 0);	// will exit if something wrong
 			profile_add(line);
 		}
-//		else if (strcmp(argv[i], "--overlay") == 0) {
-//			arg_overlay = 1;
-//		}
+		else if (strcmp(argv[i], "--overlay") == 0) {
+			arg_overlay = 1;
+		}
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
 		else if (strncmp(argv[i], "--profile=", 10) == 0) {

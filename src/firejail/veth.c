@@ -90,8 +90,8 @@ int net_create_veth(const char *dev, const char *nsdev, unsigned pid) {
 	data->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)data;
 	linkinfo->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)linkinfo;
 
-	if (arg_debug)
-		printf("netlink message length %u, it should be 104 bytes\n", req.n.nlmsg_len);
+//	if (arg_debug)
+//		printf("netlink message length %u, it should be 104 bytes\n", req.n.nlmsg_len);
 	if (rtnl_talk(&rth, &req.n, 0, 0, NULL) < 0)
 		exit(2);
 

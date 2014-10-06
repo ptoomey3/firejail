@@ -114,7 +114,7 @@ int sandbox(void* sandbox_arg) {
 	// apply the profile file
 	//****************************
 	// profiles are not handled in chroot mode; the profile file might be different in chroot than on host
-	if (!cfg.chrootdir) { //todo: is this supposed to work also for overlay???
+	if (!cfg.chrootdir && !arg_overlay) {
 		if (cfg.profile)
 			fs_blacklist(cfg.homedir);
 	}

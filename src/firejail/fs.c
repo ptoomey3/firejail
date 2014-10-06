@@ -64,6 +64,24 @@ void fs_build_mnt_dir(void) {
 	}
 }
 
+// build /tmp/firejail/overlay directory
+void fs_build_overlay_dir(void) {
+	struct stat s;
+	fs_build_firejail_dir();
+	
+	// create /tmp/firejail directory
+	if (stat(OVERLAY_DIR, &s)) {
+		if (arg_debug)
+			printf("Creating %s directory\n", MNT_DIR);
+		mkdir(OVERLAY_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		if (chown(OVERLAY_DIR, 0, 0) < 0)
+			errExit("chown");
+		if (chmod(OVERLAY_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
+			errExit("chmod");
+	}
+}
+
+
 
 //***********************************************
 // process profile file
@@ -413,23 +431,21 @@ void fs_basic_fs(void) {
 
 // mount overlayfs on top of / directory
 void fs_overlayfs(void) {
-#if 0 // todo - rework it
-	assert(tmpdir);
+	fs_build_overlay_dir();
 
-	// build overlay directory
-	char *overlay;
-	if (asprintf(&overlay, "%s/overlay", tmpdir) == -1)
-		errExit("asprintf");
-	if (mkdir(overlay, S_IRWXU|S_IRWXG|S_IRWXO))
-		errExit("mkdir");
-	if (chown(overlay, 0, 0) == -1)
-		errExit("chown");
-	if (chmod(overlay, S_IRWXU|S_IRWXG|S_IRWXO))
-		errExit("chmod");
+	// mount a tmpfs on top of overlay directory in order to hide it from the main filesystem
+	struct stat s;
+	if (stat(OVERLAY_DIR, &s) == -1)
+		errExit("overlay directory");
+	// preserve owner and mode for the directory
+	if (mount("tmpfs", OVERLAY_DIR, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  0) < 0)
+		errExit("mounting tmpfs");
+	if (chown(OVERLAY_DIR, s.st_uid, s.st_gid) == -1)
+		errExit("mounting tmpfs chmod");
 
 	// build new root directory
 	char *root;
-	if (asprintf(&root, "%s/root", tmpdir) == -1)
+	if (asprintf(&root, "%s/root", OVERLAY_DIR) == -1)
 		errExit("asprintf");
 	if (mkdir(root, S_IRWXU|S_IRWXG|S_IRWXO))
 		errExit("mkdir");
@@ -443,7 +459,7 @@ void fs_overlayfs(void) {
 	if (arg_debug)
 		printf("Mounting OverlayFS\n");
 	char *option;
-	if (asprintf(&option, "lowerdir=/,upperdir=%s", overlay) == -1)
+	if (asprintf(&option, "lowerdir=/,upperdir=%s", OVERLAY_DIR) == -1)
 		errExit("asprintf");
 	if (mount("overlayfs", root, "overlayfs", MS_MGC_VAL, option) < 0)
 		errExit("mounting overlayfs");
@@ -472,9 +488,7 @@ void fs_overlayfs(void) {
 	// cleanup and exit
 	free(option);
 	free(root);
-	free(overlay);
 	free(dev);
-#endif	
 }
 
 // chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf

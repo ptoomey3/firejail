@@ -38,6 +38,9 @@ void usage(void) {
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
 	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
+	printf("\t--debug-caps - print capabilities for the current session and exit\n");
+	printf("\t--debug-seccomp - print all recognized system calls in the current\n");
+	printf("\t\tFirejail software build and exit\n");
 	printf("\t--defaultgw=address - use this address as default gateway in the new\n");
 	printf("\t\tnetwork namespace\n");
 	printf("\t--help, -? - this help screen\n");
@@ -66,12 +69,17 @@ void usage(void) {
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
 	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
 #ifdef HAVE_SECCOMP
-	printf("\t--seccomp - enable seccomp filter\n");
-	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter and use the\n");
-	printf("\t\tcomma-separated list of syscalls\n");
+	printf("\t--seccomp - enable seccomp filter and disable the syscalls in the\n");
+	printf("\t\tlist. The default list is as follows: mount, umount2,\n");
+	printf("\t\tptrace, kexec_load, open_by_handle_at, init_module,\n");
+	printf("\t\tfinit_module, delete_module, iopl, ioperm, swapon, swapoff\n");
+	printf("\t\tand syslog.\n");
+	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter, apply the\n");
+	printf("\t\tdefault syscall list and the syscalls specified by the command.\n");
 #endif
 	printf("\t--tmpfs=dirname - mount a tmpfs filesystem on directory dirname\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
+	printf("\t--trace - trace open, access and connect system calls\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--version - print program version and exit\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell\n");

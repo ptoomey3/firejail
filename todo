@@ -13,9 +13,6 @@ Bug: preseve mode and owner when mounting tmpfs
 Bug: exit firemon if the monitored sandbox was closed
 Bug: kill also the parent in --shutdown
 
-todo: add usage and manpages for --debug-caps and --debug-syscalls
-todo: add usage and manpages for --trace
-todo: seccomp lists usage and manpages
 
 * https://github.com/opsengine/cpulimit/tree/master/src
 

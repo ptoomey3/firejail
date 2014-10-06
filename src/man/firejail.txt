@@ -41,6 +41,12 @@ Use /bin/csh as default user shell.
 \fB\--debug\fR
 Print debug messages.
 .TP
+\fB\--debug-caps
+Print capabilities for the current session and exit.
+.TP
+\fB\--debug-seccomp
+Print all recognized system calls in the current Firejail software build and exit.
+.TP
 \fB\--defaultgw=address
 Use this address as default gateway in the new network namespace.
 .TP
@@ -96,6 +102,14 @@ Shutdown the sandbox started using --name option.
 Shutdown the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
 .TP
 \fB\--seccomp
+Enable seccomp filter and disable the syscalls in the default list. The default list is as follows:
+mount, umount2, ptrace, kexec_load, open_by_handle_at, init_module, finit_module, delete_module,
+iopl, ioperm, swapon, swapoff and syslog.
+.TP
+\fB\--seccomp=syscall,syscall,syscall
+Enable seccomp filter, apply the default list and the syscalls specified by the command.
+.TP
+\fB\--seccomp=syscall,syscall,syscall
 Enable seccomp filter.
 .TP
 \fB\--tmpfs=dirname
@@ -103,6 +117,9 @@ Mount a tmpfs filesystem on directory dirname.
 .TP
 \fB\--top
 Monitor the most CPU-intensive sandboxes.
+.TP
+\fB\--trace
+Trace open, access and connect system calls.
 .TP
 \fB\--tree
 Print a tree of all sandboxed processes.

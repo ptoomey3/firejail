@@ -1,20 +1,3 @@
-* current log:
-
-Added firemon support to print the ARP table for each sandbox
-Added firemon support to print the route table for each sandbox
-Added firemon support to print network interface information for each sandbox
-Added --tmpfs, --balcklist, --read-only options
-Added --bind option
-Added support for user defined seccomp blacklists
-Added - Logging the reason for exiting the sandbox
-Added syscall trace support
-Reenabled overlay support
-Bug: when exiting the main sandbox process because of CTRL-C, logging the exit doesn't go in syslog
-Bug: preseve mode and owner when mounting tmpfs
-Bug: exit firemon if the monitored sandbox was closed
-Bug: kill also the parent in --shutdown
-
-
 * https://github.com/opsengine/cpulimit/tree/master/src
 
 * syscalls

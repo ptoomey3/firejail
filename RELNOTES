@@ -1,3 +1,19 @@
+firejail (0.9.14) baseline; urgency=low
+  * Added support for user defined seccomp blacklists
+  * Added syscall trace support
+  * Added --tmpfs option
+  * Added --balcklist option
+  * Added --read-only option
+  * Added --bind option
+  * Logging enhancements
+  * --overlay option was reactivated
+  * Added firemon support to print the ARP table for each sandbox
+  * Added firemon support to print the route table for each sandbox
+  * Added firemon support to print network interface information for each sandbox
+  * bugfixes
+
+ -- netblue30 <netblue30@yahoo.com>  Tue, 7 Oct 2014 11:00:00 -0500
+
 firejail (0.9.12.2) baseline; urgency=low
   * Fix for pulseaudio problems
   * --overlay option was temporarily disabled in this build

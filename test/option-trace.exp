@@ -4,23 +4,27 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
-send --  "firejail --trace firefox\r"
+send --  "firejail --trace firefox --name=testing\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
 	"Child process initialized"
 }
 expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
-	"1:firefox:open"
+	"1:firefox:open" {puts "\n"}
+	"1:iceweasel:open"
 }
 expect {
-	timeout {puts "TESTING ERROR 1\n";exit}
-	"1:firefox:access"
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"1:firefox:access" {puts "\n"}
+	"1:iceweasel:access"
 }
 expect {
-	timeout {puts "TESTING ERROR 1\n";exit}
-	"1:firefox:connect"
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"1:firefox:connect" {puts "\n"}
+	"1:iceweasel:connect"
 }
 
 sleep 1
+
 puts "\n"

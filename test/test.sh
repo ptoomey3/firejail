@@ -21,6 +21,12 @@ echo "TESTING: tree"
 echo "TESTING: trace"
 ./option-trace.exp
 
+echo "TESTING: shutdown"
+./option-shutdown.exp
+
+echo "TESTING: join"
+./option-join.exp
+
 echo "TESTING: chroot overlay"
 ./option_chroot_overlay.exp
 

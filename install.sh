@@ -11,6 +11,7 @@ strip src/firemon/firemon
 install -c -m 0755 src/firemon/firemon $1/bin/.
 
 # libraries and plugins
+strip src/libtrace/libtrace.so
 mkdir -p $1/lib/firejail
 install -c -m 0644 src/libtrace/libtrace.so $1/lib/firejail/.
 

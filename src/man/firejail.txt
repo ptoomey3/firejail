@@ -93,7 +93,7 @@ Mount new /tmp, /root and /home/user directories.
 Use a custom profile, see below.
 .TP
 \fB\--read-only=dirname_or_filename
-.Set directory or file read-only.
+Set directory or file read-only.
 .TP
 \fB\--shutdown=name
 Shutdown the sandbox started using --name option.

@@ -9,7 +9,7 @@ firejail (0.9.14) baseline; urgency=low
   * --overlay option was reactivated
   * Added firemon support to print the ARP table for each sandbox
   * Added firemon support to print the route table for each sandbox
-  * Added firemon support to print network interface information for each sandbox
+  * Added firemon support to print interface information for each sandbox
   * bugfixes
 
  -- netblue30 <netblue30@yahoo.com>  Tue, 7 Oct 2014 11:00:00 -0500

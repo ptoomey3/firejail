@@ -14,6 +14,7 @@ expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
 	"eth0" {puts "Debian testing\n"}
 	"enp0s20" {puts "OpenSUSE testing\n"}
+        "enp0s3" {puts "Centos 7 testing\n"}
 }
 expect {
 	timeout {puts "TESTING ERROR 3\n";exit}

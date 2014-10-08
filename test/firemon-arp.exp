@@ -22,7 +22,8 @@ spawn $env(SHELL)
 send -- "firemon --arp\r"
 expect {
 	timeout {puts "TESTING ERROR 2\n";exit}
-	"192.168.1.1 dev eth0 lladdr"
+	"192.168.1.1 dev eth0 lladdr" {puts "Debian testing\n";}
+	"192.168.1.1 dev enp0s3 lladdr" {puts "Centos 7 testing\n";}
 }
 expect {
 	timeout {puts "TESTING ERROR 3\n";exit}

@@ -22,11 +22,15 @@ expect {
 }
 send -- "env | grep SHELL;pwd\r"
 expect {
-	timeout {puts "TESTING ERROR 2\n";exit}
-	"SHELL=/bin/csh"
+        timeout {puts "TESTING ERROR 2\n";exit}
+        "SHELL"
 }
 expect {
 	timeout {puts "TESTING ERROR 2.1\n";exit}
+	"/bin/csh"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.2\n";exit}
 	"home"
 }
 send -- "exit\r"

@@ -21,6 +21,19 @@ mkdir -p $INSTALL_DIR
 cd $CODE_DIR
 ./configure --prefix=$INSTALL_DIR
 make && make install
+
+# second compilation - the path to libtrace.so is hardcoded in firejail executable
+# pointing according to --prefix=$INSTALL_DIR. We need it to point to /usr/lib 
+make distclean
+./configure --prefix=/usr
+make
+# install firejail executable in $TOP/$INSTALL_DIR
+strip src/firejail/firejail
+install -c -m 0755 src/firejail/firejail $INSTALL_DIR/bin/.
+chmod u+s $INSTALL_DIR/bin/firejail
+
+
+
 cd ..
 echo "*****************************************"
 SIZE=`du -s debian/usr`

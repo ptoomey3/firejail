@@ -10,6 +10,18 @@
 #include <arpa/inet.h>
 #include <sys/un.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+// break recursivity on fopen call
+typedef FILE *(*orig_fopen_t)(const char *pathname, const char *mode);
+static orig_fopen_t orig_fopen = NULL;
+typedef FILE *(*orig_fopen64_t)(const char *pathname, const char *mode);
+static orig_fopen64_t orig_fopen64 = NULL;
+
+
+
 //
 // pid
 //
@@ -37,7 +49,9 @@ static char *name(void) {
 			return "unknown";
 
 		// read file
-		FILE *fp = fopen(fname, "r");
+		if (!orig_fopen)
+			orig_fopen = (orig_fopen_t)dlsym(RTLD_NEXT, "fopen");
+		FILE *fp  = orig_fopen(fname, "r");
 		if (!fp)
 			return "unknown";
 		if (fgets(myname, MAXNAME, fp) == NULL) {
@@ -63,19 +77,179 @@ static char *name(void) {
 //
 // syscalls
 //
-typedef int (*orig_open_t)(const char *pathname, int flags);
-orig_open_t orig_open = NULL;
-int open(const char *pathname, int flags) {
+
+// open
+typedef int (*orig_open_t)(const char *pathname, int flags, mode_t mode);
+static orig_open_t orig_open = NULL;
+int open(const char *pathname, int flags, mode_t mode) {
 	if (!orig_open)
 		orig_open = (orig_open_t)dlsym(RTLD_NEXT, "open");
 		
-	int rv = orig_open(pathname, flags);
+	int rv = orig_open(pathname, flags, mode);
 	printf("%u:%s:open %s\n", pid(), name(), pathname);
 	return rv;
 }
+typedef int (*orig_open64_t)(const char *pathname, int flags, mode_t mode);
+static orig_open64_t orig_open64 = NULL;
+int open64(const char *pathname, int flags, mode_t mode) {
+	if (!orig_open64)
+		orig_open64 = (orig_open64_t)dlsym(RTLD_NEXT, "open64");
+		
+	int rv = orig_open64(pathname, flags, mode);
+	printf("%u:%s:open64 %s\n", pid(), name(), pathname);
+	return rv;
+}
 
+// openat
+typedef int (*orig_openat_t)(int dirfd, const char *pathname, int flags, mode_t mode);
+static orig_openat_t orig_openat = NULL;
+int openat(int dirfd, const char *pathname, int flags, mode_t mode) {
+	if (!orig_openat)
+		orig_openat = (orig_openat_t)dlsym(RTLD_NEXT, "openat");
+		
+	int rv = orig_openat(dirfd, pathname, flags, mode);
+	printf("%u:%s:openat %s\n", pid(), name(), pathname);
+	return rv;
+}
+typedef int (*orig_openat64_t)(int dirfd, const char *pathname, int flags, mode_t mode);
+static orig_openat64_t orig_openat64 = NULL;
+int openat64(int dirfd, const char *pathname, int flags, mode_t mode) {
+	if (!orig_openat64)
+		orig_openat64 = (orig_openat64_t)dlsym(RTLD_NEXT, "openat64");
+		
+	int rv = orig_openat64(dirfd, pathname, flags, mode);
+	printf("%u:%s:openat64 %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+
+// fopen
+FILE *fopen(const char *pathname, const char *mode) {
+	if (!orig_fopen)
+		orig_fopen = (orig_fopen_t)dlsym(RTLD_NEXT, "fopen");
+		
+	FILE *rv = orig_fopen(pathname, mode);
+	printf("%u:%s:fopen %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+FILE *fopen64(const char *pathname, const char *mode) {
+	if (!orig_fopen64)
+		orig_fopen64 = (orig_fopen_t)dlsym(RTLD_NEXT, "fopen64");
+		
+	FILE *rv = orig_fopen64(pathname, mode);
+	printf("%u:%s:fopen64 %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+
+// freopen
+typedef FILE *(*orig_freopen_t)(const char *pathname, const char *mode, FILE *stream);
+static orig_freopen_t orig_freopen = NULL;
+FILE *freopen(const char *pathname, const char *mode, FILE *stream) {
+	if (!orig_freopen)
+		orig_freopen = (orig_freopen_t)dlsym(RTLD_NEXT, "freopen");
+		
+	FILE *rv = orig_freopen(pathname, mode, stream);
+	printf("%u:%s:freopen %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+typedef FILE *(*orig_freopen64_t)(const char *pathname, const char *mode, FILE *stream);
+static orig_freopen64_t orig_freopen64 = NULL;
+FILE *freopen64(const char *pathname, const char *mode, FILE *stream) {
+	if (!orig_freopen64)
+		orig_freopen64 = (orig_freopen64_t)dlsym(RTLD_NEXT, "freopen64");
+		
+	FILE *rv = orig_freopen64(pathname, mode, stream);
+	printf("%u:%s:freopen64 %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+// unlink
+typedef int (*orig_unlink_t)(const char *pathname);
+static orig_unlink_t orig_unlink = NULL;
+int unlink(const char *pathname) {
+	if (!orig_unlink)
+		orig_unlink = (orig_unlink_t)dlsym(RTLD_NEXT, "unlink");
+		
+	int rv = orig_unlink(pathname);
+	printf("%u:%s:unlink %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+typedef int (*orig_unlinkat_t)(int dirfd, const char *pathname, int flags);
+static orig_unlinkat_t orig_unlinkat = NULL;
+int unlinkat(int dirfd, const char *pathname, int flags) {
+	if (!orig_unlinkat)
+		orig_unlinkat = (orig_unlinkat_t)dlsym(RTLD_NEXT, "unlinkat");
+		
+	int rv = orig_unlinkat(dirfd, pathname, flags);
+	printf("%u:%s:unlinkat %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+// mkdir/mkdirat/rmdir
+typedef int (*orig_mkdir_t)(const char *pathname, mode_t mode);
+static orig_mkdir_t orig_mkdir = NULL;
+int mkdir(const char *pathname, mode_t mode) {
+	if (!orig_mkdir)
+		orig_mkdir = (orig_mkdir_t)dlsym(RTLD_NEXT, "mkdir");
+		
+	int rv = orig_mkdir(pathname, mode);
+	printf("%u:%s:mkdir %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+typedef int (*orig_mkdirat_t)(int dirfd, const char *pathname, mode_t mode);
+static orig_mkdirat_t orig_mkdirat = NULL;
+int mkdirat(int dirfd, const char *pathname, mode_t mode) {
+	if (!orig_mkdirat)
+		orig_mkdirat = (orig_mkdirat_t)dlsym(RTLD_NEXT, "mkdirat");
+		
+	int rv = orig_mkdirat(dirfd, pathname, mode);
+	printf("%u:%s:mkdirat %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+typedef int (*orig_rmdir_t)(const char *pathname);
+static orig_rmdir_t orig_rmdir = NULL;
+int rmdir(const char *pathname) {
+	if (!orig_rmdir)
+		orig_rmdir = (orig_rmdir_t)dlsym(RTLD_NEXT, "rmdir");
+		
+	int rv = orig_rmdir(pathname);
+	printf("%u:%s:rmdir %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+// stat
+typedef int (*orig_stat_t)(const char *pathname, struct stat *buf);
+static orig_stat_t orig_stat = NULL;
+int stat(const char *pathname, struct stat *buf) {
+	if (!orig_stat)
+		orig_stat = (orig_stat_t)dlsym(RTLD_NEXT, "stat");
+			
+	int rv = orig_stat(pathname, buf);
+	printf("%u:%s:stat %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+typedef int (*orig_stat64_t)(const char *pathname, struct stat64 *buf);
+static orig_stat64_t orig_stat64 = NULL;
+int stat64(const char *pathname, struct stat64 *buf) {
+	if (!orig_stat)
+		orig_stat64 = (orig_stat64_t)dlsym(RTLD_NEXT, "stat");
+			
+	int rv = orig_stat64(pathname, buf);
+	printf("%u:%s:stat %s\n", pid(), name(), pathname);
+	return rv;
+}
+
+
+// access
 typedef int (*orig_access_t)(const char *pathname, int mode);
-orig_access_t orig_access = NULL;
+static orig_access_t orig_access = NULL;
 int access(const char *pathname, int mode) {
 	if (!orig_access)
 		orig_access = (orig_access_t)dlsym(RTLD_NEXT, "access");
@@ -85,8 +259,10 @@ int access(const char *pathname, int mode) {
 	return rv;
 }
 
+
+// connect
 typedef int (*orig_connect_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-orig_connect_t orig_connect = NULL;
+static orig_connect_t orig_connect = NULL;
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
 	if (!orig_connect)
 		orig_connect = (orig_connect_t)dlsym(RTLD_NEXT, "connect");

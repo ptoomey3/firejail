@@ -18,8 +18,11 @@ echo "TESTING: list"
 echo "TESTING: tree"
 ./option_tree.exp
 
-echo "TESTING: trace"
+echo "TESTING: trace1"
 ./option-trace.exp
+
+echo "TESTING: trace2"
+./trace.exp
 
 echo "TESTING: shutdown"
 ./option-shutdown.exp

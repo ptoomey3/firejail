@@ -104,3 +104,19 @@ soundcore              13065  1 snd
 netblue@debian:~/work/firejail/trunk$ lspci | grep Audio
 00:10.2 Multimedia audio controller: NVIDIA Corporation MCP51 AC97 Audio Controller (rev a2)
 netblue@debian:~/work/firejail/trunk$ 
+
+
+* function interposition
+
+ A few caveats before we close. First, LD_PRELOAD is ignored for programs with the SUID
+ permission bits set for security reasons. Since function interposition lets you make a program
+ do almost anything you want it to, Linux prevents you from modifying the behavior of a program
+  running on behalf of another user or group. Second, you cannot interpose internal library 
+  function calls, since these are resolved before runtime. For instance, if some function in libc 
+  calls malloc, it will never call a wrapper function from a different library.
+
+Aside from these limitations, function interposition is a very powerful technique that is useful
+ for monitoring programs or modifying their behavior. Happy interposing! 
+ 	
+ Library call interposition
+ 

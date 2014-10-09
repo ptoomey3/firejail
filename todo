@@ -120,3 +120,32 @@ Aside from these limitations, function interposition is a very powerful techniqu
  	
  Library call interposition
  
+* bug???
+netblue@debian:~/work/firejail-sf$ firejail --trace svn commit -m "0.9.14 testing"
+Parent pid 7848, child pid 7849
+Interface           IP                  Mask                Status              
+lo                  127.0.0.1           255.0.0.0           UP                  
+eth0                192.168.1.60        255.255.255.0       UP                  
+br0                 10.10.20.1          255.255.255.248     UP                  
+br1                 10.10.30.1          255.255.255.0       UP                  
+br2                 10.10.40.1          255.255.255.0       UP                  
+br3                 10.10.50.1          255.255.255.0       UP                  
+
+Child process initialized
+1:bash:open /dev/tty
+1:svn:open /etc/subversion/servers
+1:svn:open /home/netblue/.subversion/servers
+1:svn:open /etc/subversion/config
+1:svn:open /home/netblue/.subversion/config
+1:svn:open /home/netblue/work/firejail-sf/.svn/entries
+1:svn:open /home/netblue/work/firejail-sf/.svn/entries
+1:svn:open /home/netblue/work/firejail-sf/.svn/entries
+1:svn:open /home/netblue/work/firejail-sf/.svn/entries
+1:svn:open /home/netblue/work/firejail-sf/.svn/entries
+1:svn:open /home/netblue/work/firejail-sf/.svn/lock
+1:svn:open /home/netblue/work/firejail-sf/.svn/entries
+1:svn:unlink /home/netblue/work/firejail-sf/.svn/lock
+svn: Commit failed (details follow):
+svn: '/home/netblue/work/firejail-sf/testing' is not under version control
+
+parent is shutting down, bye...

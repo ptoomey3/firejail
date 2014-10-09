@@ -22,7 +22,9 @@ echo "TESTING: trace1"
 ./option-trace.exp
 
 echo "TESTING: trace2"
+rm -f index.html*
 ./trace.exp
+rm -f index.html*
 
 echo "TESTING: shutdown"
 ./option-shutdown.exp

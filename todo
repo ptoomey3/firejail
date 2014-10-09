@@ -1,3 +1,5 @@
+* include /etc/firejail/iceweasel.profile into centos rpm
+
 * https://github.com/opsengine/cpulimit/tree/master/src
 
 * syscalls

@@ -9,18 +9,13 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/un.h>
-
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 // break recursivity on fopen call
 typedef FILE *(*orig_fopen_t)(const char *pathname, const char *mode);
 static orig_fopen_t orig_fopen = NULL;
 typedef FILE *(*orig_fopen64_t)(const char *pathname, const char *mode);
 static orig_fopen64_t orig_fopen64 = NULL;
-
-
 
 //
 // pid
@@ -73,6 +68,169 @@ static char *name(void) {
 	return myname;
 }
 
+//
+// network
+//
+typedef struct {
+	int val;
+	char *name;
+} XTable;
+
+static XTable socket_type[] = {
+#ifdef SOCK_STREAM
+	{ SOCK_STREAM, "SOCK_STREAM" },
+#endif	
+#ifdef SOCK_DGRAM 
+	{ SOCK_DGRAM, "SOCK_DGRAM" },
+#endif	
+#ifdef SOCK_RAW 
+	{ SOCK_RAW, "SOCK_RAW" },
+#endif	
+#ifdef SOCK_RDM 
+	{ SOCK_RDM, "SOCK_RDM" },
+#endif	
+#ifdef SOCK_SEQPACKET 
+	{ SOCK_SEQPACKET, "SOCK_SEQPACKET" },
+#endif	
+#ifdef SOCK_DCCP 
+	{ SOCK_DCCP, "SOCK_DCCP" },
+#endif
+	{ 0, NULL} // NULL terminated
+};
+
+static XTable socket_domain[] = {
+#ifdef AF_INET
+	{ AF_INET, "AF_INET" },
+#endif
+#ifdef AF_INET6
+	{ AF_INET6, "AF_INET6" },
+#endif
+#ifdef AF_LOCAL
+	{ AF_LOCAL, "AF_LOCAL" },
+#endif
+#ifdef AF_PACKET
+	{ AF_PACKET, "AF_PACKET" },
+#endif
+#ifdef AF_IPX
+	{ AF_IPX, "AF_IPX" },
+#endif
+#ifdef AF_NETLINK
+	{ AF_NETLINK, "AF_NETLINK" },
+#endif
+#ifdef AF_X25
+	{ AF_X25, "AF_X25" },
+#endif
+#ifdef AF_AX25
+	{ AF_AX25, "AF_AX25" },
+#endif
+#ifdef AF_ATMPVC
+	{ AF_ATMPVC, "AF_ATMPVC" },
+#endif
+#ifdef AF_APPLETALK
+	{ AF_APPLETALK, "AF_APPLETALK" },
+#endif
+	{ 0, NULL} // NULL terminated
+};
+
+static XTable socket_protocol[] = {
+#ifdef IPPROTO_IP
+	{ IPPROTO_IP, "IPPROTO_IP" },
+#endif
+#ifdef IPPROTO_ICMP
+	{ IPPROTO_ICMP, "IPPROTO_ICMP" },
+#endif
+#ifdef IPPROTO_IGMP
+	{ IPPROTO_IGMP, "IPPROTO_IGMP" },
+#endif
+#ifdef IPPROTO_IPIP
+	{ IPPROTO_IPIP, "IPPROTO_IPIP" },
+#endif
+#ifdef IPPROTO_TCP
+	{ IPPROTO_TCP, "IPPROTO_TCP" },
+#endif
+#ifdef IPPROTO_EGP
+	{ IPPROTO_EGP, "IPPROTO_EGP" },
+#endif
+#ifdef IPPROTO_PUP
+	{ IPPROTO_PUP, "IPPROTO_PUP" },
+#endif
+#ifdef IPPROTO_UDP
+	{ IPPROTO_UDP, "IPPROTO_UDP" },
+#endif
+#ifdef IPPROTO_IDP
+	{ IPPROTO_IDP, "IPPROTO_IDP" },
+#endif
+#ifdef IPPROTO_DCCP
+	{ IPPROTO_DCCP, "IPPROTO_DCCP" },
+#endif
+#ifdef IPPROTO_RSVP
+	{ IPPROTO_RSVP, "IPPROTO_RSVP" },
+#endif
+#ifdef IPPROTO_GRE
+	{ IPPROTO_GRE, "IPPROTO_GRE" },
+#endif
+#ifdef IPPROTO_IPV6
+	{ IPPROTO_IPV6, "IPPROTO_IPV6" },
+#endif
+#ifdef IPPROTO_ESP
+	{ IPPROTO_ESP, "IPPROTO_ESP" },
+#endif
+#ifdef IPPROTO_AH
+	{ IPPROTO_AH, "IPPROTO_AH" },
+#endif
+#ifdef IPPROTO_BEETPH	
+	{ IPPROTO_BEETPH, "IPPROTO_BEETPH" },
+#endif
+#ifdef IPPROTO_PIM
+	{ IPPROTO_PIM, "IPPROTO_PIM" },
+#endif
+#ifdef IPPROTO_COMP
+	{ IPPROTO_COMP, "IPPROTO_COMP" },
+#endif
+#ifdef IPPROTO_SCTP
+	{ IPPROTO_SCTP, "IPPROTO_SCTP" },
+#endif
+#ifdef IPPROTO_UDPLITE
+	{ IPPROTO_UDPLITE, "IPPROTO_UDPLITE" },
+#endif
+#ifdef IPPROTO_RAW
+	{ IPPROTO_RAW, "IPPROTO_RAW" },
+#endif
+	{ 0, NULL} // NULL terminated
+};
+
+static char *translate(XTable *table, int val) {
+	while (table->name != NULL) {
+		if (val == table->val)
+			return table->name;
+		table++;
+	}
+	
+	return NULL;
+}
+
+static void print_sockaddr(const char *call, const struct sockaddr *addr) {
+	if (addr->sa_family == AF_INET) {
+		struct sockaddr_in *a = (struct sockaddr_in *) addr;
+		printf("%u:%s:%s %s:%u\n", pid(), name(), call, inet_ntoa(a->sin_addr), ntohs(a->sin_port));
+	}
+	else if (addr->sa_family == AF_INET6) {
+		struct sockaddr_in6 *a = (struct sockaddr_in6 *) addr;
+		char str[INET6_ADDRSTRLEN];
+		inet_ntop(AF_INET6, &(a->sin6_addr), str, INET6_ADDRSTRLEN);
+		printf("%u:%s:%s %s\n", pid(), name(), call, str);
+	}
+	else if (addr->sa_family == AF_UNIX) {
+		struct sockaddr_un *a = (struct sockaddr_un *) addr;
+		if (a->sun_path[0])
+			printf("%u:%s:%s %s\n", pid(), name(), call, a->sun_path);
+		else
+			printf("%u:%s:%s &%s\n", pid(), name(), call, a->sun_path + 1);
+	}
+	else {
+		printf("%u:%s:%s family %d\n", pid(), name(), call, addr->sa_family);
+	}
+}
 
 //
 // syscalls
@@ -89,6 +247,7 @@ int open(const char *pathname, int flags, mode_t mode) {
 	printf("%u:%s:open %s\n", pid(), name(), pathname);
 	return rv;
 }
+
 typedef int (*orig_open64_t)(const char *pathname, int flags, mode_t mode);
 static orig_open64_t orig_open64 = NULL;
 int open64(const char *pathname, int flags, mode_t mode) {
@@ -111,6 +270,7 @@ int openat(int dirfd, const char *pathname, int flags, mode_t mode) {
 	printf("%u:%s:openat %s\n", pid(), name(), pathname);
 	return rv;
 }
+
 typedef int (*orig_openat64_t)(int dirfd, const char *pathname, int flags, mode_t mode);
 static orig_openat64_t orig_openat64 = NULL;
 int openat64(int dirfd, const char *pathname, int flags, mode_t mode) {
@@ -268,26 +428,74 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
 		orig_connect = (orig_connect_t)dlsym(RTLD_NEXT, "connect");
 			
 	int rv = orig_connect(sockfd, addr, addrlen);
-	if (addr->sa_family == AF_INET) {
-		struct sockaddr_in *a = (struct sockaddr_in *) addr;
-		printf("%u:%s:connect %s:%u\n", pid(), name(), inet_ntoa(a->sin_addr), ntohs(a->sin_port));
-	}
-	else if (addr->sa_family == AF_INET6) {
-		struct sockaddr_in6 *a = (struct sockaddr_in6 *) addr;
-		char str[INET6_ADDRSTRLEN];
-		inet_ntop(AF_INET6, &(a->sin6_addr), str, INET6_ADDRSTRLEN);
-		printf("%u:%s:connect %s\n", pid(), name(), str);
-	}
-	else if (addr->sa_family == AF_UNIX) {
-		struct sockaddr_un *a = (struct sockaddr_un *) addr;
-		if (a->sun_path[0])
-			printf("%u:%s:connect %s\n", pid(), name(), a->sun_path);
-		else
-			printf("%u:%s:connect &%s\n", pid(), name(), a->sun_path + 1);
-	}
-	else {
-		printf("%u:%s:connect family %d\n", pid(), name(), addr->sa_family);
-	}
+	print_sockaddr("connect", addr);
 
 	return rv;
 }
+
+// socket
+typedef int (*orig_socket_t)(int domain, int type, int protocol);
+static orig_socket_t orig_socket = NULL;
+static char buf[1024];
+int socket(int domain, int type, int protocol) {
+	if (!orig_socket)
+		orig_socket = (orig_socket_t)dlsym(RTLD_NEXT, "socket");
+			
+	int rv = orig_socket(domain, type, protocol);
+	char *ptr = buf;
+	ptr += sprintf(ptr, "%u:%s:socket ", pid(), name());
+	char *str = translate(socket_domain, domain);
+	if (str == NULL)
+		ptr += sprintf(ptr, "%d ", domain);
+	else
+		ptr += sprintf(ptr, "%s ", str);
+
+	int t = type;	// glibc uses higher bits for various other purposes
+#ifdef SOCK_CLOEXEC
+	t &= ~SOCK_CLOEXEC;
+#endif
+#ifdef SOCK_NONBLOCK
+	t &= ~SOCK_NONBLOCK;
+#endif
+	str = translate(socket_type, t);
+	if (str == NULL)
+		ptr += sprintf(ptr, "%d ", type);
+	else
+		ptr += sprintf(ptr, "%s ", str);
+
+	str = translate(socket_protocol, protocol);
+	if (str == NULL)
+		ptr += sprintf(ptr, "%d", protocol);
+	else
+		ptr += sprintf(ptr, "%s", str);
+
+	printf("%s\n", buf);
+	return rv;
+}
+
+// bind
+typedef int (*orig_bind_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+static orig_bind_t orig_bind = NULL;
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
+	if (!orig_bind)
+		orig_bind = (orig_bind_t)dlsym(RTLD_NEXT, "bind");
+			
+	int rv = orig_bind(sockfd, addr, addrlen);
+	print_sockaddr("bind", addr);
+
+	return rv;
+}
+
+#if 0 //todo: fix compilation problems
+typedef int (*orig_accept_t)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+static orig_accept_t orig_accept = NULL;
+int accept(int sockfd, struct sockaddr *addr, socklen_t addrlen) {
+	if (!orig_accept)
+		orig_accept = (orig_accept_t)dlsym(RTLD_NEXT, "accept");
+			
+	int rv = orig_accept(sockfd, addr,  addrlen);
+	print_sockaddr("accept", addr);
+
+	return rv;
+}
+#endif

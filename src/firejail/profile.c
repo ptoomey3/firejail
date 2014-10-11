@@ -80,7 +80,7 @@ static void check_file_name(char *ptr, int lineno) {
 
 
 // check profile line; if line == 0, this was generated from a command line option
-void profile_check_line(char *ptr, int lineno) {
+int profile_check_line(char *ptr, int lineno) {
 	// filesystem bind
 	if (strncmp(ptr, "bind ", 5) == 0) {
 		if (getuid() != 0) {
@@ -107,24 +107,47 @@ void profile_check_line(char *ptr, int lineno) {
 
 	// rlimit
 	if (strncmp(ptr, "rlimit", 6) == 0) {
-		if (strncmp(ptr, "rlimit-nofile ", 14) == 0)
+		if (strncmp(ptr, "rlimit-nofile ", 14) == 0) {
 			ptr += 14;
-		else if (strncmp(ptr, "rlimit-nproc ", 13) == 0)
+			if (not_unsigned(ptr)) {
+				fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
+				exit(1);
+			}
+			sscanf(ptr, "%u", &cfg.rlimit_nofile);
+			arg_rlimit_nofile = 1;
+		}
+		else if (strncmp(ptr, "rlimit-nproc ", 13) == 0) {
 			ptr += 13;
-		else if (strncmp(ptr, "rlimit-fsize ", 13) == 0)
+			if (not_unsigned(ptr)) {
+				fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
+				exit(1);
+			}
+			sscanf(ptr, "%u", &cfg.rlimit_nproc);
+			arg_rlimit_nproc = 1;
+		}
+		else if (strncmp(ptr, "rlimit-fsize ", 13) == 0) {
 			ptr += 13;
-		else if (strncmp(ptr, "rlimit-sigpending ", 18) == 0)
+			if (not_unsigned(ptr)) {
+				fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
+				exit(1);
+			}
+			sscanf(ptr, "%u", &cfg.rlimit_fsize);
+			arg_rlimit_fsize = 1;
+		}
+		else if (strncmp(ptr, "rlimit-sigpending ", 18) == 0) {
 			ptr += 18;
+			if (not_unsigned(ptr)) {
+				fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
+				exit(1);
+			}
+			sscanf(ptr, "%u", &cfg.rlimit_sigpending);
+			arg_rlimit_sigpending = 1;
+		}
 		else {
 			fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
 			exit(1);
 		}
 		
-		// check value
-		if (not_unsigned(ptr)) {
-			fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
-			exit(1);
-		}
 		return;		
 	}
 
@@ -208,9 +231,8 @@ void profile_read(const char *fname) {
 			continue;
 
 		// verify syntax, exit in case of error
-		profile_check_line(ptr, lineno);
-
-		profile_add(ptr);
+		if (profile_check_line(ptr, lineno))
+			profile_add(ptr);
 	}
 	fclose(fp);
 }

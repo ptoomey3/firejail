@@ -264,29 +264,6 @@ void fs_blacklist(const char *homedir) {
 			continue;
 		}
 
-
-		// rlimit
-		if (strncmp(entry->data, "rlimit", 6) == 0) {
-			if (strncmp(entry->data, "rlimit-nofile ", 14) == 0) {
-				sscanf(entry->data + 14, "%u", &cfg.rlimit_nofile);
-				arg_rlimit_nofile = 1;
-			}				
-			else if (strncmp(entry->data, "rlimit-nproc ", 13) == 0) {
-				sscanf(entry->data + 13, "%u", &cfg.rlimit_nproc);
-				arg_rlimit_nproc = 1;
-			}				
-			else if (strncmp(entry->data, "rlimit-fsize ", 13) == 0) {
-				sscanf(entry->data + 13, "%u", &cfg.rlimit_fsize);
-				arg_rlimit_fsize = 1;
-			}				
-			else if (strncmp(entry->data, "rlimit-sigpending ", 18) == 0) {
-				sscanf(entry->data + 18, "%u", &cfg.rlimit_sigpending);
-				arg_rlimit_sigpending = 1;
-			}				
-			entry = entry->next;
-			continue;
-		}
-
 		// process blacklist command
 		if (strncmp(entry->data, "blacklist", 9) == 0)  {
 			ptr = entry->data + 10;

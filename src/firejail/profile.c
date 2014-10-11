@@ -81,6 +81,7 @@ static void check_file_name(char *ptr, int lineno) {
 
 // check profile line; if line == 0, this was generated from a command line option
 void profile_check_line(char *ptr, int lineno) {
+	// filesystem bind
 	if (strncmp(ptr, "bind ", 5) == 0) {
 		if (getuid() != 0) {
 			fprintf(stderr, "Error: --bind option is available only if running as root\n");
@@ -104,6 +105,30 @@ void profile_check_line(char *ptr, int lineno) {
 		return;
 	}
 
+	// rlimit
+	if (strncmp(ptr, "rlimit", 6) == 0) {
+		if (strncmp(ptr, "rlimit-nofile ", 14) == 0)
+			ptr += 14;
+		else if (strncmp(ptr, "rlimit-nproc ", 13) == 0)
+			ptr += 13;
+		else if (strncmp(ptr, "rlimit-fsize ", 13) == 0)
+			ptr += 13;
+		else if (strncmp(ptr, "rlimit-sigpending ", 18) == 0)
+			ptr += 18;
+		else {
+			fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
+			exit(1);
+		}
+		
+		// check value
+		if (not_unsigned(ptr)) {
+			fprintf(stderr, "Invalid rlimit option on line %d\n", lineno);
+			exit(1);
+		}
+		return;		
+	}
+
+	// rest of filesystem
 	if (strncmp(ptr, "blacklist ", 10) == 0)
 		ptr += 10;
 	else if (strncmp(ptr, "read-only ", 10) == 0)

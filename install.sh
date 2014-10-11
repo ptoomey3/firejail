@@ -39,10 +39,14 @@ rm -f firejail.1.gz
 gzip -9 firejail.1
 rm -f firemon.1.gz
 gzip -9 firemon.1
+rm -f firejail-profile.5.gz
+gzip -9 firejail-profile.5
 mkdir -p $1/share/man/man1
 install -c -m 0644 firejail.1.gz $1/share/man/man1/.	
 install -c -m 0644 firemon.1.gz $1/share/man/man1/.	
-rm -f firejail.1.gz firemon.1.gz
+mkdir -p $1/share/man/man5
+install -c -m 0644 firejail-profile.5.gz $1/share/man/man5/.	
+rm -f firejail.1.gz firemon.1.gz firejail-profile.5.gz
 
 # bash completion
 mkdir -p $1/share/bash-completion/completions

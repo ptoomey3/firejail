@@ -28,6 +28,8 @@
 #include <sys/stat.h>
 #include <assert.h>
 #include <sys/prctl.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "firejail.h"
 
 #define BUFLEN 500 // generic read buffer
@@ -251,6 +253,9 @@ int sandbox(void* sandbox_arg) {
 	// set capabilities
 	if (arg_caps == 1)
 		caps_filter();
+
+	// set rlimits
+	set_rlimits();
 
 	// set seccomp
 #ifdef HAVE_SECCOMP

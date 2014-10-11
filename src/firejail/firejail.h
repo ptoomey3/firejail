@@ -67,6 +67,12 @@ typedef struct config_t {
 	Bridge bridge2;
 	Bridge bridge3;
 
+	// rlimits
+	unsigned rlimit_nofile;
+	unsigned rlimit_nproc;
+	unsigned rlimit_fsize;
+	unsigned rlimit_sigpending;
+
 	// command line, profile, hostname, chroot dir
 	char *command_line;
 	char *command_name;
@@ -90,6 +96,10 @@ extern int arg_seccomp;	// enable seccomp filter
 extern char *arg_seccomp_list;//  optional seccomp list
 extern int arg_caps;		// enable capabilities filter
 extern int arg_trace;		// syscall tracing support
+extern int arg_rlimit_nofile;	// rlimit nofile
+extern int arg_rlimit_nproc;	// rlimit nproc
+extern int arg_rlimit_fsize;	// rlimit fsize
+extern int arg_rlimit_sigpending;// rlimit sigpending
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
@@ -186,6 +196,7 @@ int is_dir(const char *fname);
 int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
 char *split_comma(char *str);
+int not_unsigned(const char *str);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log
@@ -224,5 +235,8 @@ void fs_trace(void);
 
 // fs_hostname.c
 void fs_hostname(const char *hostname);
+
+// rlimit.c
+void set_rlimits(void);
 
 #endif

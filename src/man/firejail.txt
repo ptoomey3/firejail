@@ -95,6 +95,18 @@ Use a custom profile, see below.
 \fB\--read-only=dirname_or_filename
 Set directory or file read-only.
 .TP
+\fB\--rlimit-fsize=number
+Set the maximum file size that can be created by a process.
+.TP
+\fB\--rlimit-nofile=number
+Set the maximum number of files that can be opened by a process.
+.TP
+\fB\-rlimit-nproc=number
+Set the maximum number of processes that can be created for the real user ID of the calling process.
+.TP
+\fB\--rlimit-sigpending=number
+Set the maximum number of pending signals for a process.
+.TP
 \fB\--shutdown=name
 Shutdown the sandbox started using --name option.
 .TP
@@ -176,44 +188,12 @@ The owner of the sandbox.
 
 
 .SH PROFILES
-The profile files define a chroot filesystem built on top of the existing
-host filesystem. Each line describes a file element that is removed from
-the filesystem (\fBblacklist\fR), a read-only file or directory (\fBread-only\fR),
-a tmpfs mounted on top of an existing directory (\fBtmpfs\fR),
-or mount-bind a directory  or file on top of another directory or file (\fBbind\fR).
-Examples:Examples:
-.TP
-# this is a comment
-.TP
-\f\blacklist /usr/bin
-Remove /usr/bin directory.
-.TP
-\f\blacklist /etc/password
-Remove /etc/password file.
-.TP
-\f\read-only /etc/password
-Read-only /etc/password file.
-.TP
-tmpfs /etc
-Mount an empty tmpfs filesystem on top of /etc directory.
-.TP
-bind /root/config/ssh,/etc/ssh
-Mount-bind /root/config/ssh on /etc/ssh.
-.TP
-File globbing is supported, and PATH and HOME directories are searched:
-.TP
-\f\blacklist /usr/bin/gcc*
-Remove all gcc files in /usr/bin (file globbing).
-.TP
-\f\blacklist ${PATH}/ifconfig
-Remove ifconfig from the regular path directories.
-.TP
-\f\blacklist ${HOME}/.ssh
-Remove .ssh directory from user home directory.
-.PP
-Default Firejail profile files are stored in /etc/firejail directory, user
-profile files are stored in ~/.config/firejail directory. See /etc/firejail/firefox.profile
-for more examples.
+Several command line configuration options can be passed to the program using
+profile files. Default Firejail profile files are stored in /etc/firejail
+directory, user profile files are stored in ~/.config/firejail directory. See
+man 5 firejail-profile for more information.
+	
+	
 .SH RESTRICTED SHELL
 To configure a restricted shell, replace /bin/bash with /usr/bin/firejail in
 /etc/password file for each user that needs to be restricted. Alternatively,
@@ -259,7 +239,8 @@ This program is free software; you can redistribute it and/or modify it under th
 .PP
 Homepage: http://firejail.sourceforge.net
 .SH SEE ALSO
-\&\flfiremon\fR\|(1)
+\&\flfiremon\fR\|(1),
+\&\flfirejail-profile\fR\|(5)
 
 
 

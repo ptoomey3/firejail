@@ -1,0 +1,81 @@
+.TH man 1 "MONTH YEAR" "VERSION" "firejail man page"
+.SH NAME
+Firejail profile files
+
+.SH USAGE
+.TP
+firejail --profile=filename.profile
+
+.SH DESCRIPTION
+.TT
+Several Firejail command line configuration options can be passed to the program using
+profile files. Default Firejail profile files are stored in /etc/firejail
+directory and ~/.config/firejail directory.
+
+.SH Filesystem
+These profile entries define a chroot filesystem built on top of the existing
+host filesystem. Each line describes a file element that is removed from
+the filesystem (\fBblacklist\fR), a read-only file or directory (\fBread-only\fR),
+a tmpfs mounted on top of an existing directory (\fBtmpfs\fR),
+or mount-bind a directory  or file on top of another directory or file (\fBbind\fR).
+File globbing is supported, and PATH and HOME directories are searched.
+Examples:
+.TP
+# this is a comment
+.TP
+\f\blacklist /usr/bin
+Remove /usr/bin directory.
+.TP
+\f\blacklist /etc/password
+Remove /etc/password file.
+.TP
+\f\read-only /etc/password
+Read-only /etc/password file.
+.TP
+tmpfs /etc
+Mount an empty tmpfs filesystem on top of /etc directory.
+.TP
+bind /root/config/ssh,/etc/ssh
+Mount-bind /root/config/ssh on /etc/ssh.
+.TP
+\f\blacklist /usr/bin/gcc*
+Remove all gcc files in /usr/bin (file globbing).
+.TP
+\f\blacklist ${PATH}/ifconfig
+Remove ifconfig from the regular path directories.
+.TP
+\f\blacklist ${HOME}/.ssh
+Remove .ssh directory from user home directory.
+
+.SH Resource limits
+These profile entries define the limits on system resources (rlimits) for the processes inside the sandbox.
+The limits can be modified inside the sandbox using the regular \fBulimt\fR command. Examples:
+
+.TP
+\f\rlimit-fsize 1024
+Set the maximum file size that can be created by a process to 1024 bytes.
+.TP
+\f\rlimit-nproc 1000
+Set the maximum number of processes that can be created for the real user ID of the calling process to 1000.
+.TP
+\f\rlimit-nofile 500
+Set the maximum number of files that can be opened by a process to 500.
+.TP
+\f\rlimit-sigpending 200
+Set the maximum number of processes that can be created for the real user ID of the calling process to 200.
+.TP
+# this is a comment
+
+.SH FILES
+/etc/firejail/filename.profile, $HOME/.config/firejail/filename.profile
+
+.SH LICENSE
+Firejail is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+.PP
+Homepage: http://firejail.sourceforge.net
+.SH SEE ALSO
+\&\flfirejail\fR\|(1),
+\&\flfiremon\fR\|(1)
+
+
+

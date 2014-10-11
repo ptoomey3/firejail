@@ -66,6 +66,14 @@ void usage(void) {
 	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--read-only=dirname_or_filename - set directory or file read-only\n");
+	printf("\t--rlimit-fsize=number - set the maximum file size that can be created\n");
+	printf("\t\tby a process\n");
+	printf("\t--rlimit-nofile=number - set the maximum number of files that can be\n");
+	printf("\t\topened by a process\n");
+	printf("\t--rlimit-nproc=number - set the maximum number of processes that can be\n");
+	printf("\t\tcreated for the real user ID of the calling process\n");
+	printf("\t--rlimit-sigpending=number - set the maximum number of pending signals\n");
+	printf("\t\tfor a process\n");
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
 	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
 #ifdef HAVE_SECCOMP
@@ -113,31 +121,11 @@ void usage(void) {
 	printf("\tUptime - sandbox running time in hours:minutes:seconds format.\n");
 	printf("\tUser - The owner of the sandbox.\n");
 	printf("\n");
-	
-	
 	printf("Profile files\n\n");
-	printf("The profile files define a chroot filesystem built on top of the existing host\n");
-	printf("filesystem. Each line describes a file element that is removed from the\n");
-	printf("filesystem (blacklist), a read-only file or directory (read-only), a tmpfs\n");
-	printf("mounted on top of an existing directory (tmpfs), or mount-bind a directory\n");
-	printf("or file on top of another directory or file (bind). Examples:\n");
-	printf("\n");
-	printf("# this is a comment\n");
-	printf("blacklist /usr/bin # remove /usr/bin directory\n");
-	printf("blacklist /etc/password # remove /etc/password file\n");
-	printf("read-only /etc/password # read-only /etc/password file\n");
-	printf("tmpfs /etc # Mount an empty tmpfs filesystem on top of /etc directory\n");
-	printf("bind /root/config/ssh,/etc/ssh # mount-bind /root/config/ssh on /etc/ssh\n");
-	printf("\n");
-	printf("File globbing is supported, and PATH and HOME directories are searched:\n");
-	printf("\n");
-	printf("blacklist /usr/bin/gcc* # remove all gcc files in /usr/bin (file globbing)\n");
-	printf("blacklist ${PATH}/ifconfig # remove ifconfig from the regular path directories\n");
-	printf("blacklist ${HOME}/.ssh # remove .ssh directory from user home directory\n");
-	printf("\n");
-	printf("Default Firejail profile files are stored in /etc/firejail directory, user\n");
-	printf("profile files are stored in ~/.config/firejail directory. See\n");
-	printf("/etc/firejail/firefox.profile for more examples. \n\n");
+	printf("Several command line configuration options can be passed to the program using\n");
+	printf("profile files. Default Firejail profile files are stored in /etc/firejail\n");
+	printf("directory, user profile files are stored in ~/.config/firejail directory. See\n");
+	printf("man 5 firejail-profile for more information.\n\n");
 	printf("Restricted shell\n\n");
 	printf("To  configure a restricted shell, replace /bin/bash with /usr/bin/firejail i\n");
 	printf("/etc/password file for each user that needs to  be  restricted.\n");

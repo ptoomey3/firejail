@@ -55,6 +55,10 @@ int arg_seccomp = 0;				// enable seccomp filter
 char *arg_seccomp_list = NULL;		// optional seccomp list
 int arg_caps = 0;				// enable capabilities filter
 int arg_trace = 0;				// syscall tracing support
+int arg_rlimit_nofile = 0;			// rlimit nofile
+int arg_rlimit_nproc = 0;			// rlimit nproc
+int arg_rlimit_fsize = 0;				// rlimit fsize
+int arg_rlimit_sigpending = 0;			// rlimit fsize
 
 int fds[2];					// parent-child communication pipe
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
@@ -261,6 +265,7 @@ static int read_pid(char *str, pid_t *pid) {
 	return 0;
 }
 
+
 //*******************************************
 // Main program
 //*******************************************
@@ -373,7 +378,39 @@ int main(int argc, char **argv) {
 			arg_caps = 1;
 		else if (strcmp(argv[i], "--trace") == 0)
 			arg_trace = 1;
-		
+		else if (strncmp(argv[i], "--rlimit-nofile=", 16) == 0) {
+			if (not_unsigned(argv[i] + 16)) {
+				fprintf(stderr, "Error: invalid rlimt nofile\n");
+				exit(1);
+			}
+			sscanf(argv[i] + 16, "%u", &cfg.rlimit_nofile);
+			arg_rlimit_nofile = 1;
+		}		
+		else if (strncmp(argv[i], "--rlimit-nproc=", 15) == 0) {
+			if (not_unsigned(argv[i] + 15)) {
+				fprintf(stderr, "Error: invalid rlimt nproc\n");
+				exit(1);
+			}
+			sscanf(argv[i] + 15, "%u", &cfg.rlimit_nproc);
+			arg_rlimit_nproc = 1;
+		}	
+		else if (strncmp(argv[i], "--rlimit-fsize=", 15) == 0) {
+			if (not_unsigned(argv[i] + 15)) {
+				fprintf(stderr, "Error: invalid rlimt fsize\n");
+				exit(1);
+			}
+			sscanf(argv[i] + 15, "%u", &cfg.rlimit_fsize);
+			arg_rlimit_fsize = 1;
+		}	
+		else if (strncmp(argv[i], "--rlimit-sigpending=", 20) == 0) {
+			if (not_unsigned(argv[i] + 20)) {
+				fprintf(stderr, "Error: invalid rlimt sigpending\n");
+				exit(1);
+			}
+			sscanf(argv[i] + 20, "%u", &cfg.rlimit_sigpending);
+			arg_rlimit_sigpending = 1;
+		}	
+			
 		//*************************************
 		// filesystem
 		//*************************************

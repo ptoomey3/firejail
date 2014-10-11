@@ -26,6 +26,9 @@ rm -f index.html*
 ./trace.exp
 rm -f index.html*
 
+echo "TESTING: rlimit"
+./option_rlimit.exp
+
 echo "TESTING: shutdown"
 ./option-shutdown.exp
 
@@ -84,6 +87,9 @@ echo "TESTING: profile no permissions"
 
 echo "TESTING: profile syntax"
 ./profile_syntax.exp
+
+echo "TESTING: profile rlimit"
+./profile_rlimit.exp
 
 echo "TESTING: profile read-only"
 ./profile_readonly.exp

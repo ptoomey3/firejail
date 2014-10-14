@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ */
 
 #include <errno.h>
 #include <linux/filter.h>
@@ -42,18 +42,18 @@ void caps_print(void) {
 		perror("capget");
 		goto doexit;
 	}
-	
+
 	printf("effective\t%x\n", data->effective);
 	printf("permitted\t%x\n", data->permitted);
 	printf("inheritable\t%x\n", data->inheritable);
 
-doexit:
+	doexit:
 	free(hdr);
 	free(data);
 }
 
 
-// enabled by default 
+// enabled by default
 int caps_filter(void) {
 	// drop capabilities
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0) && arg_debug)
@@ -85,12 +85,21 @@ int caps_filter(void) {
 		fprintf(stderr, "Warning: cannot drop CAP_SYSLOG");
 	else if (arg_debug)
 		printf("Drop CAP_SYSLOG\n");
-		
+
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: cannot drop CAP_SYS_ADMIN");
 	else if (arg_debug)
 		printf("Drop CAP_SYS_ADMIN\n");
-	
+
 	return 0;
 }
 
+
+void caps_drop_all(void) {
+	unsigned long cap;
+	for (cap=0; cap <= 63; cap++) {
+		int code = prctl(PR_CAPBSET_DROP, cap, 0, 0, 0);
+		if (code == -1 && errno != EINVAL)
+			errExit("PR_CAPBSET_DROP");
+	}
+}

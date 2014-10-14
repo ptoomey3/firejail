@@ -93,12 +93,15 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// configure filesystem
 	//****************************
+	int drop_caps = 0;
 	if (cfg.chrootdir) {
 		fs_chroot(cfg.chrootdir);
 		// force caps and seccomp if not started as root
 		if (getuid() != 0) {
-			arg_caps = 1;
 			arg_seccomp = 1;
+			arg_caps = 0;
+			drop_caps = 1;
+			printf("Dropping all Linux capabilities and enforcing default seccomp filter\n");
 		}
 						
 		//****************************
@@ -253,6 +256,8 @@ int sandbox(void* sandbox_arg) {
 	// set capabilities
 	if (arg_caps == 1)
 		caps_filter();
+	if (drop_caps)
+		caps_drop_all();
 
 	// set rlimits
 	set_rlimits();

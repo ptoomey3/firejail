@@ -223,6 +223,7 @@ int seccomp_filter(void);
 // caps.c
 int caps_filter(void);
 void caps_print(void);
+void caps_drop_all(void);
 
 // syscall.c
 const char *syscall_find_nr(int nr);

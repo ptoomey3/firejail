@@ -31,6 +31,18 @@ libvirt-lxc:
  
 * libvirt-lxc description
  http://libvirt.org/drvlxc.html#fsmounts
+All containers are launched with the CAP_MKNOD capability cleared and removed from the bounding set. 
+    /dev/zero
+    /dev/null
+    /dev/full
+    /dev/random
+    /dev/urandom
+    /dev/stdin symlinked to /proc/self/fd/0
+    /dev/stdout symlinked to /proc/self/fd/1
+    /dev/stderr symlinked to /proc/self/fd/2
+    /dev/fd symlinked to /proc/self/fd
+    /dev/ptmx symlinked to /dev/pts/ptmx
+    /dev/console symlinked to /dev/pts/0 
  
 * lxc description:
 Linux containers offer:
@@ -47,6 +59,20 @@ Linux containers offer:
 - Fine grained capabilities per-container
 - Tools: Docker, LXC and a lot of others.
 - Live migration - CRIU. If certain rules are met, you can even live migrate a linux container to another physical machine.
+
+
+lxc.cgroup.devices.deny = a # Deny all access to devices
+lxc.cgroup.devices.allow = c 1:3 rwm # dev/null
+lxc.cgroup.devices.allow = c 1:5 rwm # dev/zero
+lxc.cgroup.devices.allow = c 5:1 rwm # dev/console
+lxc.cgroup.devices.allow = c 5:0 rwm # dev/tty
+lxc.cgroup.devices.allow = c 4:0 rwm # dev/tty0
+lxc.cgroup.devices.allow = c 1:9 rwm # dev/urandom
+lxc.cgroup.devices.allow = c 1:8 rwm # dev/random
+lxc.cgroup.devices.allow = c 136:* rwm # dev/pts/*
+lxc.cgroup.devices.allow = c 5:2 rwm # dev/pts/ptmx
+# No idea what this is .. dev/bsg/0:0:0:0 ???
+lxc.cgroup.devices.allow = c 254:0 rwm
 
 * lxc-freeze and lxc-clone - using btrfs to take a snapshot of a frozen container and cloning it
 https://blogs.oracle.com/OTNGarage/entry/linux_container_lxc_part_2

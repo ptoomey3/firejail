@@ -80,6 +80,8 @@ static void check_file_name(char *ptr, int lineno) {
 
 
 // check profile line; if line == 0, this was generated from a command line option
+// return 1 if the command is to be added to the linked list of profile commands
+// return 0 if the command was already executed inside the function
 int profile_check_line(char *ptr, int lineno) {
 	// filesystem bind
 	if (strncmp(ptr, "bind ", 5) == 0) {
@@ -102,7 +104,7 @@ int profile_check_line(char *ptr, int lineno) {
 		
 		// insert comma back
 		*(dname2 - 1) = ',';
-		return;
+		return 1;
 	}
 
 	// rlimit
@@ -148,7 +150,7 @@ int profile_check_line(char *ptr, int lineno) {
 			exit(1);
 		}
 		
-		return;		
+		return 0;		
 	}
 
 	// rest of filesystem
@@ -168,6 +170,7 @@ int profile_check_line(char *ptr, int lineno) {
 
 	// some characters just don't belong in filenames
 	check_file_name(ptr, lineno);
+	return 1;
 }
 
 // add a profile entry in cfg.profile list; use str to populate the list

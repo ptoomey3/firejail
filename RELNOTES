@@ -1,4 +1,4 @@
-firejail (0.9.14) baseline; urgency=low
+firejail (0.9.14-rc2) baseline; urgency=low
   * Linux capabilities and seccomp filters are automatically enabled in 
     chroot mode (--chroot option) if the sandbox is started as regular user
   * Added support for user defined seccomp blacklists

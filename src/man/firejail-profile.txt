@@ -1,13 +1,12 @@
-.TH man 1 "MONTH YEAR" "VERSION" "firejail man page"
+.TH man 5 "MONTH YEAR" "VERSION" "firejail profiles man page"
 .SH NAME
-Firejail profile files
+profile \- Profile file syntax for Firejail
 
 .SH USAGE
 .TP
 firejail --profile=filename.profile
 
 .SH DESCRIPTION
-.TT
 Several Firejail command line configuration options can be passed to the program using
 profile files. Default Firejail profile files are stored in /etc/firejail
 directory and ~/.config/firejail directory.

@@ -651,7 +651,13 @@ int main(int argc, char **argv) {
 		errExit("pipe");
 
 	// clone environment
-	int flags = CLONE_NEWNS | CLONE_NEWIPC | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
+	int flags = CLONE_NEWNS | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
+	
+	// in root mode also enable CLONE_NEWIPC
+	// in user mode CLONE_NEWIPC will break MIT Shared Memory Extension (MIT-SHM)
+	if (getuid() == 0)
+		flags |= CLONE_NEWIPC;
+	
 	if (any_bridge_configured() || arg_nonetwork) {
 		flags |= CLONE_NEWNET;
 	}

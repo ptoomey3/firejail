@@ -56,6 +56,10 @@ Print options end exit.
 \fB\--ip=address
 Use this IP address in the new network namespace.
 .TP
+\fB\--ipc-namespace
+Enable  a new IPC namespace if the sandbox was started as a regular user. IPC namespace is enabled by default only if
+the sandbox is started as root.
+.TP
 \fB\--join=name
 Join the sandbox started using --name option.
 .TP

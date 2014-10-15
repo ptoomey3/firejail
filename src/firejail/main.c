@@ -275,6 +275,8 @@ int main(int argc, char **argv) {
 #ifdef USELOCK
 	int lockfd = -1;
 #endif
+	int arg_ipc = 0;
+	
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
 //	const pid_t ppid = getppid();
@@ -410,6 +412,8 @@ int main(int argc, char **argv) {
 			sscanf(argv[i] + 20, "%u", &cfg.rlimit_sigpending);
 			arg_rlimit_sigpending = 1;
 		}	
+		else if (strncmp(argv[i], "--ipc-namespace", 15) == 0)
+			arg_ipc = 1;
 			
 		//*************************************
 		// filesystem
@@ -655,7 +659,7 @@ int main(int argc, char **argv) {
 	
 	// in root mode also enable CLONE_NEWIPC
 	// in user mode CLONE_NEWIPC will break MIT Shared Memory Extension (MIT-SHM)
-	if (getuid() == 0)
+	if (getuid() == 0 || arg_ipc)
 		flags |= CLONE_NEWIPC;
 	
 	if (any_bridge_configured() || arg_nonetwork) {

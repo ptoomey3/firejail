@@ -45,6 +45,9 @@ void usage(void) {
 	printf("\t\tnetwork namespace\n");
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--ip=address - use this IP address in the new network namespace\n");
+	printf("\t--ipc-namespace - enable a new IPC namespace if the sandbox was started\n");
+	printf("\t\tas a regular user. IPC namespace is enabled by default only if\n");
+	printf("\t\tthe sandbox is started as root.\n");
 	printf("\t--join=name - join the sandbox started using --name option\n");
 	printf("\t--join=pid - join the sandbox of the specified process\n");
 	printf("\t--list - list all sandboxes\n");

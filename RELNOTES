@@ -1,4 +1,4 @@
-firejail (0.9.14-rc2) baseline; urgency=low
+firejail (0.9.14) baseline; urgency=low
   * Linux capabilities and seccomp filters are automatically enabled in 
     chroot mode (--chroot option) if the sandbox is started as regular user
   * Added support for user defined seccomp blacklists
@@ -14,7 +14,7 @@ firejail (0.9.14-rc2) baseline; urgency=low
   * Added firemon support to print interface information for each sandbox
   * bugfixes
 
- -- netblue30 <netblue30@yahoo.com>  Tue, 7 Oct 2014 11:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Tue, 15 Oct 2014 10:00:00 -0500
 
 firejail (0.9.12.2) baseline; urgency=low
   * Fix for pulseaudio problems

@@ -23,6 +23,9 @@ mkdir -p firejail-$VERSION/usr/share/man/man1
 install -m 644 /usr/share/man/man1/firejail.1.gz firejail-$VERSION/usr/share/man/man1/.
 install -m 644 /usr/share/man/man1/firemon.1.gz firejail-$VERSION/usr/share/man/man1/.
 
+mkdir -p firejail-$VERSION/usr/share/man/man5
+install -m 644 /usr/share/man/man5/firejail-profile.5.gz firejail-$VERSION/usr/share/man/man5/.
+
 mkdir -p firejail-$VERSION/usr/share/doc/packages/firejail
 install -m 644 /usr/share/doc/firejail/COPYING firejail-$VERSION/usr/share/doc/packages/firejail/.
 install -m 644 /usr/share/doc/firejail/README firejail-$VERSION/usr/share/doc/packages/firejail/.
@@ -99,6 +102,7 @@ rm -rf %{buildroot}
 /usr/share/doc/packages/firejail/RELNOTES
 /usr/share/man/man1/firejail.1.gz
 /usr/share/man/man1/firemon.1.gz
+/usr/share/man/man5/firejail-profile.5.gz
 /usr/share/bash-completion/completions/firejail
  
 %post
@@ -106,6 +110,9 @@ chmod u+s /usr/bin/firejail
 
 %changelog
 * Wed Oct 8 2014  netblue30 <netblue30@yahoo.com> 0.9.14-1
+ - Linux capabilities and seccomp filters are automatically enabled in 
+   chroot mode (--chroot option) if the sandbox is started as regular
+   user
  - Added support for user defined seccomp blacklists
  - Added syscall trace support
  - Added --tmpfs option

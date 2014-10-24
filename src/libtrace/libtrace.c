@@ -225,7 +225,7 @@ static void print_sockaddr(const char *call, const struct sockaddr *addr) {
 		if (a->sun_path[0])
 			printf("%u:%s:%s %s\n", pid(), name(), call, a->sun_path);
 		else
-			printf("%u:%s:%s &%s\n", pid(), name(), call, a->sun_path + 1);
+			printf("%u:%s:%s @%s\n", pid(), name(), call, a->sun_path + 1);
 	}
 	else {
 		printf("%u:%s:%s family %d\n", pid(), name(), call, addr->sa_family);

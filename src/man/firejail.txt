@@ -44,7 +44,7 @@ Print debug messages.
 \fB\--debug-caps
 Print capabilities for the current session and exit.
 .TP
-\fB\--debug-seccomp
+\fB\--debug-syscalls
 Print all recognized system calls in the current Firejail software build and exit.
 .TP
 \fB\--defaultgw=address
@@ -105,7 +105,7 @@ Set the maximum file size that can be created by a process.
 \fB\--rlimit-nofile=number
 Set the maximum number of files that can be opened by a process.
 .TP
-\fB\-rlimit-nproc=number
+\fB\--rlimit-nproc=number
 Set the maximum number of processes that can be created for the real user ID of the calling process.
 .TP
 \fB\--rlimit-sigpending=number

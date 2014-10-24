@@ -39,7 +39,7 @@ void usage(void) {
 	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
 	printf("\t--debug-caps - print capabilities for the current session and exit\n");
-	printf("\t--debug-seccomp - print all recognized system calls in the current\n");
+	printf("\t--debug-syscalls - print all recognized system calls in the current\n");
 	printf("\t\tFirejail software build and exit\n");
 	printf("\t--defaultgw=address - use this address as default gateway in the new\n");
 	printf("\t\tnetwork namespace\n");

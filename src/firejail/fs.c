@@ -351,11 +351,21 @@ void fs_proc_sys_dev_boot(void) {
 	if (mount("proc", "/proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_REC, NULL) < 0)
 		errExit("mounting /proc");
 
+	// remount /proc/sys readonly
 	if (mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_REC, NULL) < 0)
 		errExit("mounting /proc/sys");
 
 	if (mount(NULL, "/proc/sys", NULL, MS_BIND | MS_REMOUNT | MS_RDONLY | MS_REC, NULL) < 0)
 		errExit("mounting /proc/sys");
+
+
+	/* Mount a version of /sys that describes the network namespace */
+	if (arg_debug)
+		printf("Remounting /sys directory\n");
+	if (umount2("/sys", MNT_DETACH) < 0) 
+		fprintf(stderr, "Error: failed to unmount /sys\n");
+	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
+		fprintf(stderr, "Error: failed to mount /sys\n");
 
 //	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
 //		errExit("mounting /sys");

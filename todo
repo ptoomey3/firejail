@@ -1,6 +1,9 @@
-* include /etc/firejail/iceweasel.profile into centos rpm
+* upcoming 4.16
+bugfixes
+software configuration support for --docdir and DESTDIR
 
-* https://github.com/opsengine/cpulimit/tree/master/src
+
+* include /etc/firejail/iceweasel.profile into centos rpm
 
 * syscalls
 /usr/include/x86_64-linux-gnu/bits/syscall.h

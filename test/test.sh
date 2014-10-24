@@ -53,6 +53,9 @@ echo "TESTING: bind as user"
 echo "TESTING: chroot as user"
 ./fs_chroot.exp
 
+echo "TESTING: /sys"
+./fs_sys.exp
+
 echo "TESTING: readonly"
 ls -al > tmpreadonly
 ./option_readonly.exp

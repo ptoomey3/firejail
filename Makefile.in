@@ -2,9 +2,14 @@ all: apps firejail.1 firemon.1 firejail-profile.5
 MYLIBS = src/lib
 APPS = src/firejail src/firemon src/libtrace
 
+datarootdir=@datarootdir@
 PREFIX=@prefix@
+prefix=@prefix@
 VERSION=@PACKAGE_VERSION@
 NAME=@PACKAGE_NAME@
+PACKAGE_TARNAME=@PACKAGE_TARNAME@
+DOCDIR=@docdir@
+
 
 .PHONY: mylibs $(MYLIBS)
 mylibs: $(MYLIBS)
@@ -42,18 +47,60 @@ distclean: clean
 	rm -fr Makefile autom4te.cache config.log config.status config.h
 
 install: all
-	./install.sh $(PREFIX)
+	# firejail executable
+	strip src/firejail/firejail
+	mkdir -p $(DESTDIR)/$(PREFIX)/bin
+	install -c -m 0755 src/firejail/firejail $(DESTDIR)/$(PREFIX)/bin/.
+	chmod u+s $(DESTDIR)/$(PREFIX)/bin/firejail
+	# firemon executable
+	strip src/firemon/firemon
+	install -c -m 0755 src/firemon/firemon $(DESTDIR)/$(PREFIX)/bin/.
+	# libraries and plugins
+	strip src/libtrace/libtrace.so
+	mkdir -p $(DESTDIR)/$(PREFIX)/lib/firejail
+	install -c -m 0644 src/libtrace/libtrace.so $(DESTDIR)/$(PREFIX)/lib/firejail/.
+	# documents
+	mkdir -p $(DESTDIR)/$(DOCDIR)
+	install -c -m 0644 COPYING $(DESTDIR)/$(DOCDIR)/.
+	install -c -m 0644 README $(DESTDIR)/$(DOCDIR)/.
+	install -c -m 0644 RELNOTES $(DESTDIR)/$(DOCDIR)/.
+	# etc files
+	mkdir -p $(DESTDIR)/etc/firejail
+	install -c -m 0644 etc/firefox.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/firefox.profile $(DESTDIR)/etc/firejail/iceweasel.profile
+	install -c -m 0644 etc/midori.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/evince.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/chromium-browser.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/chromium.profile $(DESTDIR)/etc/firejail/.
+	bash -c "if [ ! -f /etc/firejail/login.users ]; then install -c -m 0644 etc/login.users /etc/firejail/.; fi;"
+	# man pages
+	rm -f firejail.1.gz
+	gzip -9 firejail.1
+	rm -f firemon.1.gz
+	gzip -9 firemon.1
+	rm -f firejail-profile.5.gz
+	gzip -9 firejail-profile.5
+	mkdir -p $(DESTDIR)/$(PREFIX)/share/man/man1
+	install -c -m 0644 firejail.1.gz $(DESTDIR)/$(PREFIX)/share/man/man1/.	
+	install -c -m 0644 firemon.1.gz $(DESTDIR)/$(PREFIX)/share/man/man1/.	
+	mkdir -p $(DESTDIR)/$(PREFIX)/share/man/man5
+	install -c -m 0644 firejail-profile.5.gz $(DESTDIR)/$(PREFIX)/share/man/man5/.	
+	rm -f firejail.1.gz firemon.1.gz firejail-profile.5.gz
+	# bash completion
+	mkdir -p $(DESTDIR)/$(PREFIX)/share/bash-completion/completions
+	install -c -m 0644 etc/firejail.bash_completion $(DESTDIR)/$(PREFIX)/share/bash-completion/completions/firejail
+	install -c -m 0644 etc/firemon.bash_completion $(DESTDIR)/$(PREFIX)/share/bash-completion/completions/firemon
 
 uninstall:;
-	rm -f $(PREFIX)/bin/firejail
-	rm -f $(PREFIX)/bin/firemon
-	rm -fr $(PREFIX)/lib/firejail
-	rm -fr $(PREFIX)/share/doc/firejail
-	rm -f $(PREFIX)/share/man/man1/firejail.1*
-	rm -f $(PREFIX)/share/man/man1/firemon.1*
-	rm -f $(PREFIX)/share/man/man5/firejail-profile.5*
-	rm -f $(PREFIX)/share/bash-completion/completions/firejail
-	rm -f $(PREFIX)/share/bash-completion/completions/firemon
+	rm -f $(DESTDIR)/$(PREFIX)/bin/firejail
+	rm -f $(DESTDIR)/$(PREFIX)/bin/firemon
+	rm -fr $(DESTDIR)/$(PREFIX)/lib/firejail
+	rm -fr $(DESTDIR)/$(PREFIX)/share/doc/firejail
+	rm -f $(DESTDIR)/$(PREFIX)/share/man/man1/firejail.1*
+	rm -f $(DESTDIR)/$(PREFIX)/share/man/man1/firemon.1*
+	rm -f $(DESTDIR)/$(PREFIX)/share/man/man5/firejail-profile.5*
+	rm -f $(DESTDIR)/$(PREFIX)/share/bash-completion/completions/firejail
+	rm -f $(DESTDIR)/$(PREFIX)/share/bash-completion/completions/firemon
 	
 dist:
 	make distclean

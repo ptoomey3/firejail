@@ -1,7 +1,7 @@
 * upcoming 0.9.16
 bugfixes
 software configuration support for --docdir and DESTDIR
-profile file support for caps, seccomp and private
+profile file support for include, caps, seccomp and private
 
 
 * include /etc/firejail/iceweasel.profile into centos rpm

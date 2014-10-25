@@ -31,6 +31,7 @@
 #define RO_FILE	"/tmp/firejail/firejail.ro.file"
 #define MNT_DIR	"/tmp/firejail/mnt"
 #define OVERLAY_DIR	"/tmp/firejail/overlay"
+#define MAX_INCLUDE_LEVEL 6
 
 
 

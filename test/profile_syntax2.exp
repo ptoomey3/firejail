@@ -18,6 +18,14 @@ expect {
 	"Processing line #private#"
 }
 expect {
+	timeout {puts "TESTING ERROR 2.1\n";exit}
+	"Reading test.profile"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.2\n";exit}
+	"Processing line #blacklist /bin/rmdir#"
+}
+expect {
 	timeout {puts "TESTING ERROR 3\n";exit}
 	"Mounting a new /home directory"
 }

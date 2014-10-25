@@ -11,6 +11,13 @@ Several Firejail command line configuration options can be passed to the program
 profile files. Default Firejail profile files are stored in /etc/firejail
 directory and ~/.config/firejail directory.
 
+.SH Scripting
+Include and comment support:
+
+.TP
+\f\include other.profile
+Include other.profile file.
+
 .SH Filesystem
 These profile entries define a chroot filesystem built on top of the existing
 host filesystem. Each line describes a file element that is removed from

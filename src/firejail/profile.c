@@ -207,7 +207,14 @@ void profile_add(char *str) {
 }
 
 // read a profile file
+static int include_level = 0;
 void profile_read(const char *fname) {
+	// exit program if maximum include level was reached
+	if (include_level > MAX_INCLUDE_LEVEL) {
+		fprintf(stderr, "Error: maximum profile include level was reached\n");
+		exit(1);	
+	}
+
 	if (strlen(fname) == 0) {
 		fprintf(stderr, "Error: invalid profile file\n");
 		exit(1);
@@ -246,6 +253,15 @@ void profile_read(const char *fname) {
 		// comments
 		if (*ptr == '#')
 			continue;
+		
+		// process include
+		if (strncmp(ptr, "include ", 8) == 0) {
+			include_level++;
+			// recursivity
+			profile_read(ptr + 8);
+			include_level--;
+			continue;
+		}
 		
 		// verify syntax, exit in case of error
 		if (profile_check_line(ptr, lineno))

@@ -3,6 +3,8 @@ bugfixes
 software configuration support for --docdir and DESTDIR
 profile file support for include, caps, seccomp and private
 
+* tofix - if file.name has blanks, firejail will truncate file.name to the first blank
+- firejail evince file.name
 
 * include /etc/firejail/iceweasel.profile into centos rpm
 

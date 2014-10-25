@@ -91,6 +91,9 @@ echo "TESTING: profile no permissions"
 echo "TESTING: profile syntax"
 ./profile_syntax.exp
 
+echo "TESTING: profile syntax 2"
+./profile_syntax2.exp
+
 echo "TESTING: profile rlimit"
 ./profile_rlimit.exp
 

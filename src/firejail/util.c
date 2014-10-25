@@ -190,6 +190,7 @@ char *line_remove_spaces(const char *buf) {
 	char *ptr2 = rv;
 	int state = 0;
 	while (*ptr1 != '\0') {
+//printf("state %d, #%s#, #%s#\n", state, ptr1, rv);		
 		if (*ptr1 == '\n' || *ptr1 == '\r')
 			break;
 
@@ -208,7 +209,13 @@ char *line_remove_spaces(const char *buf) {
 			state = 0;
 		}
 	}
+
+	// strip last blank character if any
+	if (*(ptr2 - 1) == ' ')
+		--ptr2;
 	*ptr2 = '\0';
+	if (arg_debug)
+		printf("Processing line #%s#\n", rv);
 
 	return rv;
 }

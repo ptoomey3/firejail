@@ -1,9 +1,14 @@
-* upcoming 4.16
+* upcoming 0.9.16
 bugfixes
 software configuration support for --docdir and DESTDIR
+profile file support for caps, seccomp and private
 
 
 * include /etc/firejail/iceweasel.profile into centos rpm
+
+
+* list dbus sockets
+sudo netstat -nap | grep dbus | grep CONNECTED | awk '{print $8}' | sort | uniq -c
 
 * syscalls
 /usr/include/x86_64-linux-gnu/bits/syscall.h
@@ -13,21 +18,7 @@ Trace files being opened by firefox
 firejail strace -f -e open -o strace.out firefox
 
 
-
-* Investigate mounting /sys
-
-	/* Mount a version of /sys that describes the network namespace */
-	if (umount2("/sys", MNT_DETACH) < 0) {
-		fprintf(stderr, "umount of /sys failed: %s\n", strerror(errno));
-		return -1;
-	}
-	if (mount(name, "/sys", "sysfs", 0, NULL) < 0) {
-		fprintf(stderr, "mount of /sys failed: %s\n",strerror(errno));
-		return -1;
-	}
-	
-	
-libvirt-lxc:
+* libvirt-lxc:
  - /sys the host "sysfs" instance remounted read-only
  - /proc a new instance of the "proc" filesystem
  - /proc/sys the host "/proc/sys" bind-mounted read-only
@@ -89,7 +80,9 @@ Once you need the service again, just call “sudo lxc-unfreeze -n <container na
 
 * container usage
 http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
-https://github.com/google/lmctfy/
+
+* video device
+/dev/video* 
 
 * sound devices
 /dev/dsp
@@ -100,6 +93,8 @@ https://github.com/google/lmctfy/
 
 $ ls /dev/snd
 by-path  controlC0  pcmC0D0c  pcmC0D0p  pcmC0D1c  pcmC0D2p  seq  timer
+
+$ lsusb --verbose | less
 
 $ cat /dev/sndstat
 Sound Driver:3.8.1a-980706 (ALSA v1.0.24 emulation code)

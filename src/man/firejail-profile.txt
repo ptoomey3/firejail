@@ -17,6 +17,7 @@ host filesystem. Each line describes a file element that is removed from
 the filesystem (\fBblacklist\fR), a read-only file or directory (\fBread-only\fR),
 a tmpfs mounted on top of an existing directory (\fBtmpfs\fR),
 or mount-bind a directory  or file on top of another directory or file (\fBbind\fR).
+Use \fBprivate\fR to set private mode.
 File globbing is supported, and PATH and HOME directories are searched.
 Examples:
 .TP
@@ -45,6 +46,20 @@ Remove ifconfig from the regular path directories.
 .TP
 \f\blacklist ${HOME}/.ssh
 Remove .ssh directory from user home directory.
+.TP
+\f\private
+Mount an empty tmpfs filesystem on top of /tmp and user home directory.
+
+.SH Filters
+\fBcaps\fR and \fBseccomp\fR enable Linux capabilities and seccomp filters. Examples:
+
+.TP
+\f\ caps
+Enable default Linux capabilities filter.
+.TP
+\f\seccomp
+Enable default seccomp filter.
+
 
 .SH Resource limits
 These profile entries define the limits on system resources (rlimits) for the processes inside the sandbox.
@@ -63,7 +78,6 @@ Set the maximum number of files that can be opened by a process to 500.
 \f\rlimit-sigpending 200
 Set the maximum number of processes that can be created for the real user ID of the calling process to 200.
 .TP
-# this is a comment
 
 .SH FILES
 /etc/firejail/filename.profile, $HOME/.config/firejail/filename.profile

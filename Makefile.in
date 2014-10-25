@@ -67,11 +67,13 @@ install: all
 	# etc files
 	mkdir -p $(DESTDIR)/etc/firejail
 	install -c -m 0644 etc/firefox.profile $(DESTDIR)/etc/firejail/.
-	install -c -m 0644 etc/firefox.profile $(DESTDIR)/etc/firejail/iceweasel.profile
+	install -c -m 0644 etc/iceweasel.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/midori.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/evince.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/chromium-browser.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/chromium.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/disable-mgmt.inc $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/disable-secret.inc $(DESTDIR)/etc/firejail/.
 	bash -c "if [ ! -f /etc/firejail/login.users ]; then install -c -m 0644 etc/login.users /etc/firejail/.; fi;"
 	# man pages
 	rm -f firejail.1.gz

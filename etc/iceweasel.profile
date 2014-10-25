@@ -1,2 +1,2 @@
 # Firejail profile for Mozilla Firefox (Iceweasel in Debian)
-include /etc/firejail/firefox.inc
+include /etc/firejail/firefox.profile

@@ -490,6 +490,38 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 		}
+		else if (strncmp(argv[i], "--private=", 10) == 0) {
+			// extract private home dirname
+			cfg.home_private = argv[i] + 10;
+			// if the directory starts with ~, expand the home directory
+			if (*cfg.home_private == '~') {
+				char *tmp;
+				if (asprintf(&tmp, "%s%s", cfg.homedir, cfg.home_private + 1) == -1)
+					errExit("asprintf");
+				cfg.home_private = tmp;
+			}
+			// check chroot dirname exists
+			struct stat s2;
+			int rv = stat(cfg.home_private, &s2);
+			if (rv < 0) {
+				fprintf(stderr, "Error: cannot find %s directory, aborting\n", cfg.home_private);
+				return 1;
+			}
+			
+			// check home directory and chroot home directory have the same owner
+			struct stat s1;
+			rv = stat(cfg.homedir, &s1);
+			if (rv < 0) {
+				fprintf(stderr, "Error: cannot find %s directory, aborting\n", cfg.homedir);
+				return 1;
+			}
+			if (s1.st_uid != s2.st_uid || s1.st_gid != s2.st_gid) {
+				printf("Error: the two directories must have the same owner\n");
+				exit(1);
+			}
+			arg_private = 1;
+		}
+
 
 		//*************************************
 		// network

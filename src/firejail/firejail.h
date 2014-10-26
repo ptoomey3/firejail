@@ -57,8 +57,9 @@ typedef struct config_t {
 	// filesystem
 	char **custom_profile;	// loaded profile
 	ProfileEntry *profile;
-	char *chrootdir;		// chroot directory
-	char *cwd;	// current working directory
+	char *chrootdir;	// chroot directory
+	char *home_private;	// private home directory
+	char *cwd;		// current working directory
 
 	// networking
 	char *hostname;
@@ -74,7 +75,7 @@ typedef struct config_t {
 	unsigned rlimit_fsize;
 	unsigned rlimit_sigpending;
 
-	// command line, profile, hostname, chroot dir
+	// command line
 	char *command_line;
 	char *command_name;
 } Config;
@@ -215,7 +216,8 @@ void fs_dev_shm(void);
 
 // fs_home.c
 // private mode: mount tmpfs over /home and /tmp
-void fs_private(const char *homedir);
+void fs_private(void);
+void fs_private_home(void);
 
 
 // seccomp.c

@@ -135,9 +135,13 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// private mode
 	//****************************
-	if (arg_private)
-		fs_private(cfg.homedir);
-		
+	if (arg_private) {
+		if (cfg.home_private)
+			fs_private_home();
+		else
+			fs_private();
+	}
+	
 	//****************************
 	// install trace
 	//****************************

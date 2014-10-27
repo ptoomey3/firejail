@@ -597,6 +597,11 @@ int main(int argc, char **argv) {
 			// we have a program name coming
 			if (asprintf(&cfg.command_name, "%s", argv[i]) == -1)
 				errExit("asprintf");
+			// restrict the command name to the first word
+			char *ptr = cfg.command_name;
+			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
+				ptr++;
+			*ptr = '\0';
 			prog_index = i;
 			break;
 		}
@@ -647,6 +652,8 @@ int main(int argc, char **argv) {
 	// load the profile
 	{
 		assert(cfg.command_name);
+		if (arg_debug)
+			printf("Command name #%s#\n", cfg.command_name);		
 		if (!cfg.custom_profile) {
 			// look for a profile in ~/.config/firejail directory
 			char *usercfgdir;

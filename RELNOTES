@@ -1,3 +1,14 @@
+firejail (0.9.16-rc1) baseline; urgency=low
+  * Software configuration support for --docdir and DESTDIR
+  * Profile file support for include, caps, seccomp and privat
+  * Dropbox profile file
+  * Linux capabilities and seccomp filters by default for Firefox,
+  Midori, Evince and Dropbox
+  * Custom private home directory
+  * bugfixes
+
+ -- netblue30 <netblue30@yahoo.com>  Tue, 28 Oct 2014 10:00:00 -0500
+
 firejail (0.9.14) baseline; urgency=low
   * Linux capabilities and seccomp filters are automatically enabled in 
     chroot mode (--chroot option) if the sandbox is started as regular user

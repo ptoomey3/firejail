@@ -55,12 +55,6 @@ void fs_trace(void) {
 	// create /tmp/firejail/mnt directory
 	fs_build_mnt_dir();
 	
-	// mount tmpfs on top of /tmp/firejailmnt
-	if (arg_debug)
-		printf("Mounting tmpfs on %s directory\n", MNT_DIR);
-	if (mount("tmpfs", MNT_DIR, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-		errExit("mounting /tmp/firejail/mnt");
-	
 	// create the new ld.so.preload file and mount-bind it
 	if (arg_debug)
 		printf("Create the new ld.so.preload file\n");

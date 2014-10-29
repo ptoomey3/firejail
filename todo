@@ -1,10 +1,7 @@
-* upcoming 0.9.16
-bugfixes
-software configuration support for --docdir and DESTDIR
-profile file support for include, caps, seccomp and private
-
-* tofix - if file.name has blanks, firejail will truncate file.name to the first blank
-- firejail evince file.name
+* problem: /tmp/firejail/mnt should be a tmpfs
+overwriten: /tmp/firejail/mnt/hostname, /tmp/firejail/mnt/hosts - affecting /etc/hostname and /etc/hosts on all
+active sandboxes
+/tmp/firejail/mnt/ld.so.preload seems to be handled nicely
 
 * include /etc/firejail/iceweasel.profile into centos rpm
 

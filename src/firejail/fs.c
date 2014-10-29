@@ -48,6 +48,7 @@ void fs_build_firejail_dir(void) {
 
 
 // build /tmp/firejail/mnt directory
+static int tmpfs_mounted = 0;
 void fs_build_mnt_dir(void) {
 	struct stat s;
 	fs_build_firejail_dir();
@@ -61,6 +62,16 @@ void fs_build_mnt_dir(void) {
 			errExit("chown");
 		if (chmod(MNT_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
 			errExit("chmod");
+	}
+
+	// ... and mount tmpfs on top of it
+	if (!tmpfs_mounted) {
+		// mount tmpfs on top of /tmp/firejail/mnt
+		if (arg_debug)
+			printf("Mounting tmpfs on %s directory\n", MNT_DIR);
+		if (mount("tmpfs", MNT_DIR, "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+			errExit("mounting /tmp/firejail/mnt");
+		tmpfs_mounted = 1;
 	}
 }
 

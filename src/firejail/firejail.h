@@ -201,6 +201,7 @@ int is_link(const char *fname);
 char *line_remove_spaces(const char *buf);
 char *split_comma(char *str);
 int not_unsigned(const char *str);
+int find_child(pid_t parent, pid_t *child);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log
@@ -222,11 +223,13 @@ void fs_private_home(void);
 
 // seccomp.c
 int seccomp_filter(void);
+void seccomp_set(void);
 
 // caps.c
 int caps_filter(void);
 void caps_print(void);
 void caps_drop_all(void);
+void caps_set(uint64_t caps);
 
 // syscall.c
 const char *syscall_find_nr(int nr);

@@ -54,6 +54,9 @@
 #include <linux/audit.h>
 #include "firejail.h"
 #include <assert.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <sys/prctl.h>
 #ifndef PR_SET_NO_NEW_PRIVS
@@ -245,6 +248,75 @@ static void filter_end(void) {
 	sfilter_index += sizeof(filter) / sizeof(struct sock_filter);	
 }
 
+
+// save seccomp filter in  /tmp/firejail/mnt/seccomp
+static void write_seccomp_file(void) {
+	fs_build_mnt_dir();
+	assert(sfilter);
+
+	char *fname;
+	if (asprintf(&fname, "%s/seccomp", MNT_DIR) == -1)
+		errExit("asprintf");
+	int fd = open(fname, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+	if (fd == -1)
+		errExit("open");
+
+	if (arg_debug)
+		printf("Save seccomp filter, size %lu bytes\n", sfilter_index * sizeof(struct sock_filter));
+	errno = 0;
+	ssize_t sz = write(fd, sfilter, sfilter_index * sizeof(struct sock_filter));
+	if (sz != (sfilter_index * sizeof(struct sock_filter))) {
+		fprintf(stderr, "Error: cannot save seccomp filter\n");
+		exit(1);
+	}
+	close(fd);
+	if (chown(fname, 0, 0) < 0)
+		errExit("chown");
+	free(fname);
+}
+
+// read seccomp filter from /tmp/firejail/mnt/seccomp
+static void read_seccomp_file(void) {
+	assert(sfilter == NULL && sfilter_index == 0);
+
+	char *fname;
+	if (asprintf(&fname, "%s/seccomp", MNT_DIR) == -1)
+		errExit("asprintf");
+		
+	// check file
+	struct stat s;
+	if (stat(fname, &s) == -1) {
+		fprintf(stderr, "Error: seccomp file not found\n");
+		exit(1);
+	}
+	ssize_t sz = s.st_size;
+	if (sz == 0 || (sz % sizeof(struct sock_filter)) != 0) {
+		fprintf(stderr, "Error: invalid seccomp file\n");
+		exit(1);
+	}
+	sfilter = malloc(sz);
+	if (!sfilter)
+		errExit("malloc");
+		
+	// read file
+	int fd = open(fname,O_RDONLY);
+	if (fd == -1)
+		errExit("open");
+	errno = 0;		
+	ssize_t size = read(fd, sfilter, sz);
+	if (size != sz) {
+		fprintf(stderr, "Error: invalid seccomp file\n");
+		exit(1);
+	}
+	sfilter_index = sz / sizeof(struct sock_filter);
+
+	if (arg_debug)
+		printf("Read seccomp filter, size %lu bytes\n", sfilter_index * sizeof(struct sock_filter));
+
+	close(fd);
+	free(fname);
+}
+
 // enabled only for --seccomp option
 int seccomp_filter(void) {
 	filter_init();
@@ -276,6 +348,11 @@ int seccomp_filter(void) {
 	if (arg_debug)
 		filter_debug();
 
+	// save seccomp filter in  /tmp/firejail/mnt/seccomp
+	// in order to use it in --join operations
+	write_seccomp_file();
+
+
 	struct sock_fprog prog = {
 		.len = sfilter_index,
 		.filter = sfilter,
@@ -288,8 +365,28 @@ int seccomp_filter(void) {
 	else if (arg_debug) {
 		printf("seccomp enabled\n");
 	}
-
+	
 	return 0;
 }
+
+void seccomp_set(void) {
+	// read seccomp filter from  /tmp/firejail/mnt/seccomp
+	read_seccomp_file();
+	
+	// apply filter
+	struct sock_fprog prog = {
+		.len = sfilter_index,
+		.filter = sfilter,
+	};
+	
+	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &prog) || prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+		fprintf(stderr, "Warning: seccomp disabled, it requires a Linux kernel version 3.5 or newer.\n");
+		return;
+	}
+	else if (arg_debug) {
+		printf("seccomp enabled\n");
+	}
+}
+
 #endif // HAVE_SECCOMP
 

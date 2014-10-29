@@ -451,6 +451,16 @@ void fs_basic_fs(void) {
 
 
 // mount overlayfs on top of / directory
+// mounting an overlay and chrooting into it:
+// # cd ~
+// # mkdir -p overlay/root
+// # mkdir -p overlay/diff
+// # mount -t overlayfs -o lowerdir=/,upperdir=/root/overlay/diff overlayfs /root/overlay/root
+// # chroot /root/overlay/root
+// to shutdown, first exit the chroot and unmount the overlay
+// # exit
+// # umount /root/overlay/root
+// to do: fix the code below; also, it might work without /dev; impose seccomp/caps filters when not root
 void fs_overlayfs(void) {
 	fs_build_overlay_dir();
 
@@ -475,8 +485,7 @@ void fs_overlayfs(void) {
 	if (chmod(root, S_IRWXU|S_IRWXG|S_IRWXO))
 		errExit("chmod");
 
-	// mount overlayfs:
-	//      mount -t overlayfs -o lowerdir=/,upperdir=$tmpdir/overlay overlayfs $tmpdir/root
+	// mount overlayfs
 	if (arg_debug)
 		printf("Mounting OverlayFS\n");
 	char *option;

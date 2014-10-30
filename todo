@@ -1,7 +1,17 @@
-* problem: /tmp/firejail/mnt should be a tmpfs
-overwriten: /tmp/firejail/mnt/hostname, /tmp/firejail/mnt/hosts - affecting /etc/hostname and /etc/hosts on all
-active sandboxes
-/tmp/firejail/mnt/ld.so.preload seems to be handled nicely
+* in overlay mode "sudo su -" doesn't work
+etblue@ubuntu:~/work/firejail-sf$ firejail --overlay
+Parent pid 4173, child pid 4174
+Error: failed to unmount /sys
+Interface           IP                  Mask                Status              
+lo                  127.0.0.1           255.0.0.0           UP                  
+eth0                192.168.1.47        255.255.255.0       UP                  
+
+Child process initialized
+[netblue@ubuntu firejail-sf]$ sudo su -
+[sudo] password for netblue: 
+su: System error
+[netblue@ubuntu firejail-sf]$ 
+
 
 * include /etc/firejail/iceweasel.profile into centos rpm
 

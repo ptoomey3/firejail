@@ -374,9 +374,9 @@ void fs_proc_sys_dev_boot(void) {
 	if (arg_debug)
 		printf("Remounting /sys directory\n");
 	if (umount2("/sys", MNT_DETACH) < 0) 
-		fprintf(stderr, "Error: failed to unmount /sys\n");
+		fprintf(stderr, "Warning: failed to unmount /sys\n");
 	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
-		fprintf(stderr, "Error: failed to mount /sys\n");
+		fprintf(stderr, "Warning: failed to mount /sys\n");
 
 //	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
 //		errExit("mounting /sys");
@@ -457,56 +457,54 @@ void fs_basic_fs(void) {
 // # mkdir -p overlay/diff
 // # mount -t overlayfs -o lowerdir=/,upperdir=/root/overlay/diff overlayfs /root/overlay/root
 // # chroot /root/overlay/root
-// to shutdown, first exit the chroot and unmount the overlay
+// to shutdown, first exit the chroot and then  unmount the overlay
 // # exit
 // # umount /root/overlay/root
 // to do: fix the code below; also, it might work without /dev; impose seccomp/caps filters when not root
 void fs_overlayfs(void) {
-	fs_build_overlay_dir();
+	fs_build_mnt_dir();
 
-	// mount a tmpfs on top of overlay directory in order to hide it from the main filesystem
-	struct stat s;
-	if (stat(OVERLAY_DIR, &s) == -1)
-		errExit("overlay directory");
-	// preserve owner and mode for the directory
-	if (mount("tmpfs", OVERLAY_DIR, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  0) < 0)
-		errExit("mounting tmpfs");
-	if (chown(OVERLAY_DIR, s.st_uid, s.st_gid) == -1)
-		errExit("mounting tmpfs chmod");
-
-	// build new root directory
-	char *root;
-	if (asprintf(&root, "%s/root", OVERLAY_DIR) == -1)
+	char *oroot;
+	if(asprintf(&oroot, "%s/oroot", MNT_DIR) == -1)
 		errExit("asprintf");
-	if (mkdir(root, S_IRWXU|S_IRWXG|S_IRWXO))
+	if (mkdir(oroot, S_IRWXU | S_IRWXG | S_IRWXO))
 		errExit("mkdir");
-	if (chown(root, 0, 0) == -1)
+	if (chown(oroot, 0, 0) < 0)
 		errExit("chown");
-	if (chmod(root, S_IRWXU|S_IRWXG|S_IRWXO))
+	if (chmod(oroot, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
+		errExit("chmod");
+
+	char *odiff;
+	if(asprintf(&odiff, "%s/odiff", MNT_DIR) == -1)
+		errExit("asprintf");
+	if (mkdir(odiff, S_IRWXU | S_IRWXG | S_IRWXO))
+		errExit("mkdir");
+	if (chown(odiff, 0, 0) < 0)
+		errExit("chown");
+	if (chmod(odiff, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
 		errExit("chmod");
 
 	// mount overlayfs
 	if (arg_debug)
 		printf("Mounting OverlayFS\n");
 	char *option;
-	if (asprintf(&option, "lowerdir=/,upperdir=%s", OVERLAY_DIR) == -1)
+	if (asprintf(&option, "lowerdir=/,upperdir=%s", odiff) == -1)
 		errExit("asprintf");
-	if (mount("overlayfs", root, "overlayfs", MS_MGC_VAL, option) < 0)
+	if (mount("overlayfs", oroot, "overlayfs", MS_MGC_VAL, option) < 0)
 		errExit("mounting overlayfs");
 
 	// mount-bind dev directory
 	if (arg_debug)
 		printf("Mounting /dev\n");
 	char *dev;
-	if (asprintf(&dev, "%s/dev", root) == -1)
+	if (asprintf(&dev, "%s/dev", oroot) == -1)
 		errExit("asprintf");
 	if (mount("/dev", dev, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mounting /dev");
 
 	// chroot in the new filesystem
-	if (chroot(root) == -1)
+	if (chroot(oroot) == -1)
 		errExit("chroot");
-
 	// update /var directory in order to support multiple sandboxes running on the same root directory
 	fs_dev_shm();
 	fs_var_lock();
@@ -517,8 +515,8 @@ void fs_overlayfs(void) {
 
 	// cleanup and exit
 	free(option);
-	free(root);
-	free(dev);
+	free(oroot);
+	free(odiff);
 }
 
 // chroot into an existing directory; mount exiting /dev and update /etc/resolv.conf

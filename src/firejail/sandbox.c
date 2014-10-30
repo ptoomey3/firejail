@@ -126,11 +126,8 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// apply the profile file
 	//****************************
-	// profiles are not handled in chroot mode; the profile file might be different in chroot than on host
-	if (!cfg.chrootdir && !arg_overlay) {
-		if (cfg.profile)
-			fs_blacklist(cfg.homedir);
-	}
+	if (cfg.profile)
+		fs_blacklist(cfg.homedir);
 	
 	//****************************
 	// private mode

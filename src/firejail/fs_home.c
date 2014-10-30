@@ -122,25 +122,6 @@ void fs_private_home(void) {
 		exit(1);
 	}
 
-//	if (arg_debug)
-//		printf("Mounting a new /home directory\n");
-//	if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-//		errExit("mounting home directory");
-//
-//	if (arg_debug)
-//		printf("Mounting a new /root directory\n");
-//	if (mount("tmpfs", "/root", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=700,gid=0") < 0)
-//		errExit("mounting home directory");
-//
-//	// mounting /home/user
-//	if (u != 0) {
-//		mkdir(homedir, S_IRWXU);
-//		if (chown(homedir, u, g) < 0)
-//			errExit("chown");
-//
-//	}
-
-
 	// mount bind private_homedir on top of homedir
 	if (arg_debug)
 		printf("Mount-bind %s on top of %s\n", private_homedir, homedir);
@@ -152,17 +133,13 @@ void fs_private_home(void) {
 //	if (chmod(homedir, s.st_mode) == -1)
 //		errExit("mount-bind chmod");
 
-	// mask /root and /tmp
+	// mask /root
 	if (u) {
 		if (arg_debug)
 			printf("Mounting a new /root directory\n");
 		if (mount("tmpfs", "/root", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=700,gid=0") < 0)
 			errExit("mounting home directory");
 	}
-	if (arg_debug)
-		printf("Mounting a new /tmp directory\n");
-	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-		errExit("mounting tmp directory");
 
 	skel(homedir, u, g);
 }
@@ -172,7 +149,7 @@ void fs_private_home(void) {
 
 
 
-// private mode: mount tmpfs over /home and /tmp
+// private mode: mount tmpfs over /home
 void fs_private(void) {
 	char *homedir = cfg.homedir;
 	assert(homedir);
@@ -197,10 +174,12 @@ void fs_private(void) {
 
 	}
 	
+#if 0 // removed because KDE keeps all kind of sockets in /tmp!!!
 	if (arg_debug)
 		printf("Mounting a new /tmp directory\n");
 	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
 		errExit("mounting tmp directory");
+#endif
 
 	skel(homedir, u, g);
 

@@ -1,4 +1,3 @@
-
 * in overlay mode "sudo su -" doesn't work
 etblue@ubuntu:~/work/firejail-sf$ firejail --overlay
 Parent pid 4173, child pid 4174

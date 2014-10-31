@@ -133,13 +133,27 @@ void fs_private_home(void) {
 //	if (chmod(homedir, s.st_mode) == -1)
 //		errExit("mount-bind chmod");
 
-	// mask /root
-	if (u) {
+	if (u != 0) {
+		// mask /root
 		if (arg_debug)
 			printf("Mounting a new /root directory\n");
 		if (mount("tmpfs", "/root", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=700,gid=0") < 0)
 			errExit("mounting home directory");
 	}
+	else {
+		// mask /home
+		if (arg_debug)
+			printf("Mounting a new /home directory\n");
+		if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+			errExit("mounting home directory");
+
+		// mask /tmp only in root mode; KDE keeps all kind of sockets in /tmp!
+		if (arg_debug)
+			printf("Mounting a new /tmp directory\n");
+		if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting tmp directory");
+	}
+	
 
 	skel(homedir, u, g);
 }
@@ -156,31 +170,33 @@ void fs_private(void) {
 	uid_t u = getuid();
 	gid_t g = getgid();
 
+	// mask /home
 	if (arg_debug)
 		printf("Mounting a new /home directory\n");
 	if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 		errExit("mounting home directory");
 
+	// mask /root
 	if (arg_debug)
 		printf("Mounting a new /root directory\n");
 	if (mount("tmpfs", "/root", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=700,gid=0") < 0)
 		errExit("mounting home directory");
 
-	// mounting /home/user
 	if (u != 0) {
+		// create /home/user
+		if (arg_debug)
+			printf("Create a new user directory\n");
 		mkdir(homedir, S_IRWXU);
 		if (chown(homedir, u, g) < 0)
 			errExit("chown");
-
+	}
+	else {
+		// mask tmp only in root mode; KDE keeps all kind of sockets in /tmp!
+		if (arg_debug)
+			printf("Mounting a new /tmp directory\n");
+		if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting tmp directory");
 	}
 	
-#if 0 // removed because KDE keeps all kind of sockets in /tmp!!!
-	if (arg_debug)
-		printf("Mounting a new /tmp directory\n");
-	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
-		errExit("mounting tmp directory");
-#endif
-
 	skel(homedir, u, g);
-
 }

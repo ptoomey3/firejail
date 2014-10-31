@@ -1,3 +1,4 @@
+* in user mode, --private=newdir, mask all other user directories in /home
 
 * in overlay mode "sudo su -" doesn't work
 etblue@ubuntu:~/work/firejail-sf$ firejail --overlay

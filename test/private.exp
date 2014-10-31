@@ -54,7 +54,8 @@ sleep 1
 send -- "stat -c %U%a /tmp;pwd\r"
 expect {
 	timeout {puts "TESTING ERROR 2\n";exit}
-	"root777"
+	"root777" {puts "version 1\n";}
+        "root1777" {puts "version 2\n";}
 }
 expect {
 	timeout {puts "TESTING ERROR 2.1\n";exit}

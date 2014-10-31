@@ -11,7 +11,7 @@ expect {
 }
 sleep 1
 
-send -- "find /sys | grep eth0;pwd\r"
+send -- "find /sys | grep --color=never eth0;pwd\r"
 expect {
 	timeout {puts "TESTING ERROR 2\n";exit}
 	"/sys/class/net/eth0"
@@ -22,7 +22,7 @@ expect {
 }
 sleep 1
 
-send -- "find /sys | grep br0;pwd\r"
+send -- "find /sys | grep --color=never br0;pwd\r"
 expect {
 	timeout {puts "TESTING ERROR 4\n";exit}
 	"/sys/class/net/br0" {puts "TESTING ERROR 5\n";exit}

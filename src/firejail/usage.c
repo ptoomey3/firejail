@@ -77,8 +77,6 @@ void usage(void) {
 	printf("\t\tcreated for the real user ID of the calling process\n");
 	printf("\t--rlimit-sigpending=number - set the maximum number of pending signals\n");
 	printf("\t\tfor a process\n");
-	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
-	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
 #ifdef HAVE_SECCOMP
 	printf("\t--seccomp - enable seccomp filter and disable the syscalls in the\n");
 	printf("\t\tlist. The default list is as follows: mount, umount2,\n");
@@ -88,6 +86,9 @@ void usage(void) {
 	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter, apply the\n");
 	printf("\t\tdefault syscall list and the syscalls specified by the command.\n");
 #endif
+	printf("\t--shell=program - set default user shell\n");
+	printf("\t--shutdown=name - shutdown the sandbox started using --name option\n");
+	printf("\t--shutdown=pid - shutdown the sandbox specified by pid\n");
 	printf("\t--tmpfs=dirname - mount a tmpfs filesystem on directory dirname\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--trace - trace open, access and connect system calls\n");

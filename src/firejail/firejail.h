@@ -78,6 +78,7 @@ typedef struct config_t {
 	// command line
 	char *command_line;
 	char *command_name;
+	char *shell;
 } Config;
 extern Config cfg;
 static inline int any_bridge_configured(void) {

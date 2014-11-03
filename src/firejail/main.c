@@ -582,10 +582,33 @@ int main(int argc, char **argv) {
 		//*************************************
 		// command
 		//*************************************
-		else if (strcmp(argv[i], "--csh") == 0)
+		else if (strcmp(argv[i], "--csh") == 0) {
+			if (arg_zsh || cfg.shell ) {
+				fprintf(stderr, "Error: only one default user shell can be specified\n");
+				return 1;
+			}
 			arg_csh = 1;
-		else if (strcmp(argv[i], "--zsh") == 0)
+		}
+		else if (strcmp(argv[i], "--zsh") == 0) {
+			if (arg_csh || cfg.shell ) {
+				fprintf(stderr, "Error: only one default user shell can be specified\n");
+				return 1;
+			}
 			arg_zsh = 1;
+		}
+		else if (strncmp(argv[i], "--shell=", 8) == 0) {
+			if (arg_csh || arg_zsh) {
+				fprintf(stderr, "Error: only one default user shell can be specified\n");
+				return 1;
+			}
+			cfg.shell = argv[i] + 8;
+			// check if the file exists
+			struct stat s;
+			if (stat(cfg.shell, &s) == -1) {
+				fprintf(stderr, "Error: cannot find shell %s\n", cfg.shell);
+				return 1;
+			}
+		}
 		else if (strcmp(argv[i], "-c") == 0) {
 			arg_command = 1;
 			if (i == (argc -  1)) {
@@ -625,6 +648,10 @@ int main(int argc, char **argv) {
 	else if (prog_index == -1 && arg_csh) {
 		cfg.command_line = "/bin/csh";
 		cfg.command_name = "csh";
+	}
+	else if (prog_index == -1 && cfg.shell) {
+		cfg.command_line = cfg.shell;
+		cfg.command_name = cfg.shell;
 	}
 	else if (prog_index == -1) {
 		cfg.command_line = "/bin/bash";

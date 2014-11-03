@@ -253,6 +253,8 @@ int sandbox(void* sandbox_arg) {
 		errExit("setenv");
 	if (arg_csh && setenv("SHELL", "/bin/csh", 1) < 0)
 		errExit("setenv");
+	if (cfg.shell && setenv("SHELL", cfg.shell, 1) < 0)
+		errExit("setenv");
 
 	// set capabilities
 	if (arg_caps == 1)
@@ -280,7 +282,9 @@ int sandbox(void* sandbox_arg) {
 		
 	// set the shell
 	char *sh;
-	if (arg_zsh)
+	if (cfg.shell)
+ 		sh = cfg.shell;
+	else if (arg_zsh)
 		sh = "/usr/bin/zsh";
 	else if (arg_csh)
 		sh = "/bin/csh";

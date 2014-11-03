@@ -111,12 +111,6 @@ Set the maximum number of processes that can be created for the real user ID of 
 \fB\--rlimit-sigpending=number
 Set the maximum number of pending signals for a process.
 .TP
-\fB\--shutdown=name
-Shutdown the sandbox started using --name option.
-.TP
-\fB\--shutdown=pid
-Shutdown the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
-.TP
 \fB\--seccomp
 Enable seccomp filter and disable the syscalls in the default list. The default list is as follows:
 mount, umount2, ptrace, kexec_load, open_by_handle_at, init_module, finit_module, delete_module,
@@ -125,8 +119,17 @@ iopl, ioperm, swapon, swapoff and syslog.
 \fB\--seccomp=syscall,syscall,syscall
 Enable seccomp filter, apply the default list and the syscalls specified by the command.
 .TP
-\fB\--seccomp=syscall,syscall,syscall
-Enable seccomp filter.
+\fB\--shell=program
+Set default user shell. Use this shell to run the application using -c shell option.
+For example "firejail --shell=/bin/dash firefox" will start Mozilla Firefox as "/bin/dash -c firefox".
+By default Bash shell (/bin/bash) is used. Options such as --zsh and --csh can also set the default
+shell.
+.TP
+\fB\--shutdown=name
+Shutdown the sandbox started using --name option.
+.TP
+\fB\--shutdown=pid
+Shutdown the sandbox specified by pid. Use --list option to get a list of all active sandboxes.
 .TP
 \fB\--tmpfs=dirname
 Mount a tmpfs filesystem on directory dirname.

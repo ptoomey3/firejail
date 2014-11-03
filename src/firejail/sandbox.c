@@ -276,8 +276,19 @@ int sandbox(void* sandbox_arg) {
 	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
 	if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
 		errExit("setenv");
+		
+		
+	// set the shell
+	char *sh;
+	if (arg_zsh)
+		sh = "/usr/bin/zsh";
+	else if (arg_csh)
+		sh = "/bin/csh";
+	else
+		sh = "/bin/bash";
+		
 	char *arg[4];
-	arg[0] = "bash";
+	arg[0] = sh;
 	arg[1] = "-c";
 	assert(cfg.command_line);
 	if (arg_debug)
@@ -294,7 +305,7 @@ int sandbox(void* sandbox_arg) {
 		logmsg(msg);
 		free(msg);
 	}
-	execvp("/bin/bash", arg); 
+	execvp(sh, arg); 
 
 	perror("execvp");
 	return 0;

@@ -17,6 +17,8 @@ Include and comment support:
 .TP
 \f\include other.profile
 Include other.profile file.
+.TP
+# this is a comment
 
 .SH Filesystem
 These profile entries define a chroot filesystem built on top of the existing
@@ -27,8 +29,6 @@ or mount-bind a directory  or file on top of another directory or file (\fBbind\
 Use \fBprivate\fR to set private mode.
 File globbing is supported, and PATH and HOME directories are searched.
 Examples:
-.TP
-# this is a comment
 .TP
 \f\blacklist /usr/bin
 Remove /usr/bin directory.
@@ -61,7 +61,7 @@ Mount an empty tmpfs filesystem on top of /tmp and user home directory.
 \fBcaps\fR and \fBseccomp\fR enable Linux capabilities and seccomp filters. Examples:
 
 .TP
-\f\ caps
+caps
 Enable default Linux capabilities filter.
 .TP
 \f\seccomp

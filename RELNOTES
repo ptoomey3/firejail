@@ -1,14 +1,14 @@
-firejail (0.9.16-rc2) baseline; urgency=low
+firejail (0.9.16) baseline; urgency=low
+  * Configurable private home directory
+  * Configurable default user shell
   * Software configuration support for --docdir and DESTDIR
   * Profile file support for include, caps, seccomp and private keywords
   * Dropbox profile file
   * Linux capabilities and seccomp filters enabled by default for Firefox,
   Midori, Evince and Dropbox
-  * Configurable private home directory
-  * Configurable default user shell
   * bugfixes
 
- -- netblue30 <netblue30@yahoo.com>  Tue, 28 Oct 2014 10:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Tue, 4 Nov 2014 10:00:00 -0500
 
 firejail (0.9.14) baseline; urgency=low
   * Linux capabilities and seccomp filters are automatically enabled in 

@@ -91,7 +91,10 @@ Mount a filesystem overlay on top of the current filesystem. OverlayFS support i
 for this option to work.
 .TP
 \fB\--private
-Mount new /tmp, /root and /home/user directories.
+Mount new /root and /home/user directories.
+.TP
+\fB\--private=directory
+Use directory as user home.
 .TP
 \fB\--profile=filename
 Use a custom profile, see below.

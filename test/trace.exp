@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-set timeout 10
+set timeout 30
 spawn $env(SHELL)
 match_max 100000
 
@@ -73,7 +73,7 @@ expect {
 expect {
 	timeout {puts "TESTING ERROR 8.6\n";exit}
 	"1:wget:fopen64 index.html" {puts "OK\n";}
-        "1:wget:fopen index.html" {puts "OK\n";}
+	"1:wget:fopen index.html" {puts "OK\n";}
 }
 sleep 1
 

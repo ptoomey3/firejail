@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="0.9.14"
+VERSION="0.9.16"
 rm -fr ~/rpmbuild
 rm -f firejail-$VERSION-1.x86_64.rpm
 
@@ -32,13 +32,15 @@ install -m 644 /usr/share/doc/firejail/README firejail-$VERSION/usr/share/doc/pa
 install -m 644 /usr/share/doc/firejail/RELNOTES firejail-$VERSION/usr/share/doc/packages/firejail/.
 
 mkdir -p firejail-$VERSION/etc/firejail
-install -m 644 /etc/firejail/firefox.profile firejail-$VERSION/etc/firejail/firefox.profile
-install -m 644 /etc/firejail/evince.profile firejail-$VERSION/etc/firejail/evince.profile
-install -m 644 /etc/firejail/midori.profile firejail-$VERSION/etc/firejail/midori.profile
-install -m 644 /etc/firejail/login.users firejail-$VERSION/etc/firejail/login.users
-install -m 644 /etc/firejail/chromium.profile firejail-$VERSION/etc/firejail/chromium.profile
 install -m 644 /etc/firejail/chromium-browser.profile firejail-$VERSION/etc/firejail/chromium-browser.profile
-
+install -m 644 /etc/firejail/chromium.profile firejail-$VERSION/etc/firejail/chromium.profile
+install -m 644 /etc/firejail/dropbox.profile firejail-$VERSION/etc/firejail/dropbox.profile
+install -m 644 /etc/firejail/disable-secret.inc firejail-$VERSION/etc/firejail/disable-secret.inc
+install -m 644 /etc/firejail/disable-mgmt.inc firejail-$VERSION/etc/firejail/disable-mgmt.inc
+install -m 644 /etc/firejail/evince.profile firejail-$VERSION/etc/firejail/evince.profile
+install -m 644 /etc/firejail/firefox.profile firejail-$VERSION/etc/firejail/firefox.profile
+install -m 644 /etc/firejail/iceweasel.profile firejail-$VERSION/etc/firejail/iceweasel.profile
+install -m 644 /etc/firejail/midori.profile firejail-$VERSION/etc/firejail/midori.profile
 
 mkdir -p firejail-$VERSION/usr/share/bash-completion/completions
 install -m 644 /usr/share/bash-completion/completions/firejail  firejail-$VERSION/usr/share/bash-completion/completions/.
@@ -109,6 +111,16 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Tue Nov 4 2014  netblue30 <netblue30@yahoo.com> 0.9.16-1
+ - Configurable private home directory
+ - Configurable default user shell
+ - Software configuration support for --docdir and DESTDIR
+ - Profile file support for include, caps, seccomp and private keywords
+ - Dropbox profile file
+ - Linux capabilities and seccomp filters enabled by default for Firefox,
+  Midori, Evince and Dropbox
+ - bugfixes
+
 * Wed Oct 8 2014  netblue30 <netblue30@yahoo.com> 0.9.14-1
  - Linux capabilities and seccomp filters are automatically enabled in 
    chroot mode (--chroot option) if the sandbox is started as regular

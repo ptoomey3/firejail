@@ -84,7 +84,7 @@ Set the maximum number of files that can be opened by a process to 500.
 .TP
 \f\rlimit-sigpending 200
 Set the maximum number of processes that can be created for the real user ID of the calling process to 200.
-.TP
+
 
 .SH FILES
 /etc/firejail/filename.profile, $HOME/.config/firejail/filename.profile

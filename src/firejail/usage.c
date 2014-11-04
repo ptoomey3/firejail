@@ -66,7 +66,8 @@ void usage(void) {
 	printf("\t--overlay - mount a filesystem overlay on top of the current filesystem\n");
 	printf("\t\t(OverlayFS support is required in Linux kernel for this option\n");
 	printf("\t\tto work)\n");    
-	printf("\t--private - mount new /tmp, /root and /home/user directories\n");
+	printf("\t--private - mount new /root and /home/user directories\n");
+	printf("\t--private=directory - use directory as user home\n");
 	printf("\t--profile=filename - use a custom profile\n");
 	printf("\t--read-only=dirname_or_filename - set directory or file read-only\n");
 	printf("\t--rlimit-fsize=number - set the maximum file size that can be created\n");

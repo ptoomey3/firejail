@@ -41,6 +41,7 @@ install -m 644 /etc/firejail/evince.profile firejail-$VERSION/etc/firejail/evinc
 install -m 644 /etc/firejail/firefox.profile firejail-$VERSION/etc/firejail/firefox.profile
 install -m 644 /etc/firejail/iceweasel.profile firejail-$VERSION/etc/firejail/iceweasel.profile
 install -m 644 /etc/firejail/midori.profile firejail-$VERSION/etc/firejail/midori.profile
+install -m 644 /etc/firejail/login.users firejail-$VERSION/etc/firejail/login.users
 
 mkdir -p firejail-$VERSION/usr/share/bash-completion/completions
 install -m 644 /usr/share/bash-completion/completions/firejail  firejail-$VERSION/usr/share/bash-completion/completions/.
@@ -90,12 +91,16 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/%{name}/firefox.profile
-%config(noreplace) %{_sysconfdir}/%{name}/midori.profile
-%config(noreplace) %{_sysconfdir}/%{name}/evince.profile
-%config(noreplace) %{_sysconfdir}/%{name}/chromium.profile
 %config(noreplace) %{_sysconfdir}/%{name}/chromium-browser.profile
+%config(noreplace) %{_sysconfdir}/%{name}/chromium.profile
+%config(noreplace) %{_sysconfdir}/%{name}/disable-mgmt.inc
+%config(noreplace) %{_sysconfdir}/%{name}/disable-secret.inc
+%config(noreplace) %{_sysconfdir}/%{name}/dropbox.profile
+%config(noreplace) %{_sysconfdir}/%{name}/evince.profile
+%config(noreplace) %{_sysconfdir}/%{name}/firefox.profile
+%config(noreplace) %{_sysconfdir}/%{name}/iceweasel.profile
 %config(noreplace) %{_sysconfdir}/%{name}/login.users
+%config(noreplace) %{_sysconfdir}/%{name}/midori.profile
 /usr/bin/firejail
 /usr/bin/firemon
 /usr/lib/firejail/libtrace.so

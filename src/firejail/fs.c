@@ -427,6 +427,52 @@ void fs_proc_sys_dev_boot(void) {
 	}
 }
 
+static void sanitize_home(void) {
+	// extract current /var/log directory data
+	struct dirent *dir;
+	DIR *d = opendir("/home");
+	if (d == NULL)
+		return;
+
+	char *emptydir = create_empty_dir();
+	while ((dir = readdir(d))) {
+		if(strcmp(dir->d_name, "." ) == 0 || strcmp(dir->d_name, ".." ) == 0)
+			continue;
+
+		if (dir->d_type == DT_DIR ) {
+			// get properties
+			struct stat s;
+			char *name;
+			if (asprintf(&name, "/home/%s", dir->d_name) == -1)
+				continue;
+			if (stat(name, &s) == -1)
+				continue;
+			if (S_ISLNK(s.st_mode)) {
+				free(name);
+				continue;
+			}
+			
+			if (strcmp(name, cfg.homedir) == 0)
+				continue;
+
+//			printf("directory %u %u:%u #%s#\n",
+//				s.st_mode,
+//				s.st_uid,
+//				s.st_gid,
+//				name);
+			
+			// disable directory
+			disable_file(BLACKLIST_FILE, name, emptydir, "not used");
+			free(name);
+		}			
+	}
+	closedir(d);
+}
+
+
+
+
+
 
 // build a basic read-only filesystem
 void fs_basic_fs(void) {
@@ -447,6 +493,10 @@ void fs_basic_fs(void) {
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
+
+	// only in user mode
+	if (getuid())
+		sanitize_home();
 }
 
 
@@ -513,6 +563,10 @@ void fs_overlayfs(void) {
 	fs_var_lib();
 	fs_var_cache();
 
+	// only in user mode
+	if (getuid())
+		sanitize_home();
+
 	// cleanup and exit
 	free(option);
 	free(oroot);
@@ -572,5 +626,9 @@ void fs_chroot(const char *rootdir) {
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
+
+	// only in user mode
+	if (getuid())
+		sanitize_home();
 }
 

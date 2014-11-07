@@ -617,6 +617,12 @@ int main(int argc, char **argv) {
 			}
 		}
 		else {
+			// is this an invalid option?
+			if (*argv[i] == '-') {
+				fprintf(stderr, "Error: invalid %s command line option\n", argv[i]);
+				return 1;
+			}
+		
 			// we have a program name coming
 			if (asprintf(&cfg.command_name, "%s", argv[i]) == -1)
 				errExit("asprintf");

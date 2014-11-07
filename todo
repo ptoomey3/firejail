@@ -1,3 +1,16 @@
+* bug - char " needs to be escaped
+$ firejail svn commit -m "exit program if an invalid option is detected"
+Parent pid 4415, child pid 4416
+Interface           IP                  Mask                Status              
+lo                  127.0.0.1           255.0.0.0           UP                  
+eth0                192.168.1.60        255.255.255.0       UP                  
+
+Child process initialized
+svn: Commit failed (details follow):
+svn: '/home/netblue/work/firejail-sf/program' is not under version control
+
+parent is shutting down, bye...
+
 * in user mode, --private=newdir, mask all other user directories in /home
 
 * in overlay mode "sudo su -" doesn't work

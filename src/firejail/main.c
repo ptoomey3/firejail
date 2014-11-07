@@ -516,7 +516,7 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			if (s1.st_uid != s2.st_uid || s1.st_gid != s2.st_gid) {
-				printf("Error: the two directories must have the same owner\n");
+				printf("Error: the two home directories must have the same owner\n");
 				exit(1);
 			}
 			arg_private = 1;

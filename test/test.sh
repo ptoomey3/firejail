@@ -50,6 +50,12 @@ echo "TESTING: blacklist file"
 echo "TESTING: bind as user"
 ./option_bind_user.exp
 
+if [ -d /home/bingo ];
+then
+	echo "TESTING: home sanitize"
+	./option_version.exp
+fi
+
 echo "TESTING: chroot as user"
 ./fs_chroot.exp
 
@@ -70,6 +76,9 @@ echo "TESTING: zsh"
 
 echo "TESTING: csh"
 ./shell_csh.exp
+
+echo "TESTING: dash"
+./shell_dash.exp
 
 grep "Ubuntu" /etc/os-release
 if [ "$?" -eq 0 ];
@@ -108,6 +117,12 @@ echo "TESTING: profile applications"
 
 echo "TESTING: private"
 ./private.exp `whoami`
+
+echo "TESTING: private directory"
+rm -fr dirprivate
+mkdir dirprivate
+./private_dir.exp
+rm -fr dirprivate
 
 grep "openSUSE" /etc/os-release
 if [ "$?" -eq 0 ];

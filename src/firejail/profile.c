@@ -96,8 +96,23 @@ int profile_check_line(char *ptr, int lineno) {
 		arg_private = 1;
 		return 0;
 	}
+	
+	// seccomp list
+	if (strncmp(ptr, "seccomp ", 8) == 0) {
+		arg_seccomp = 1;
+#ifdef HAVE_SECCOMP
+		arg_seccomp_list = strdup(ptr + 8);
+		if (!arg_seccomp_list)
+			errExit("strdup");
+		// verify seccomp list and exit if problems
+		if (syscall_check_list(arg_seccomp_list, NULL))
+			exit(1);
+#endif
+		return 0;
+	}
+	
 	// private directory
-	else if (strncmp(ptr, "private ", 8) == 0) {
+	if (strncmp(ptr, "private ", 8) == 0) {
 		cfg.home_private = ptr + 8;
 		check_private_dir();
 		arg_private = 1;

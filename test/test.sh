@@ -144,6 +144,9 @@ then
 	./fs_overlay.exp
 fi
 
+echo "TESTING: seccomp debug"
+./seccomp-debug.exp
+
 echo "TESTING: seccomp su"
 ./seccomp-su.exp
 
@@ -152,6 +155,9 @@ echo "TESTING: seccomp ptrace"
 
 echo "TESTING: seccomp chmod (seccomp lists)"
 ./seccomp-chmod.exp
+
+echo "TESTING: seccomp chmod profile (seccomp lists)"
+./seccomp-chmod-profile.exp
 
 echo "TESTING: read/write /var/tmp"
 ./fs_var_tmp.exp

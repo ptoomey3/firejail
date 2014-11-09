@@ -9,12 +9,12 @@ cleanup() {
 
 while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
     case "$1" in
-    --cleanup)
+    --clean)
     	cleanup
     	exit
 	;;
     --help)
-    	echo "./autotest.sh [--cleanup|--help]"
+    	echo "./autotest.sh [--clean|--help]"
     	exit
     	;;
     esac

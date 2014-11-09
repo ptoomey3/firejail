@@ -137,8 +137,9 @@ void filter_debug(void) {
 	while (i < sfilter_index) {
 		// minimal parsing!
 		unsigned char *ptr = (unsigned char *) &sfilter[i];
+		int *nr = (int *) (ptr + 4);
 		if (*ptr	== 0x15) {
-			printf("  BLACKLIST %s\n", syscall_find_nr(*(ptr + 4)));
+			printf("  BLACKLIST %d %s\n", *nr, syscall_find_nr(*nr));
 			i += 2;
 		}
 		else if (*ptr == 0x06) {
@@ -201,7 +202,7 @@ static void filter_add(int syscall) {
 	assert(sfilter_alloc_size);
 	assert(sfilter_index);
 	if (arg_debug)
-		printf("Blacklisting syscall %s\n", syscall_find_nr(syscall));
+		printf("Blacklisting syscall %d %s\n", syscall, syscall_find_nr(syscall));
 	
 	if ((sfilter_index + 2) > sfilter_alloc_size)
 		filter_realloc();

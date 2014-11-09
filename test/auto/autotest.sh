@@ -4,7 +4,6 @@
 cleanup() {
 	rm -f output*
 	rm -f report*
-	rm -f outrep*
 	rm -fr firejail-trunk
 }
 
@@ -22,7 +21,6 @@ while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
     shift       # Check next set of parameters.
 done
 
-
 cleanup
 # enable sudo
 sudo ls -al
@@ -31,7 +29,7 @@ sudo ls -al
 # TEST 1
 #*****************************************************************
 # - checkout source code
-# - check compilation,
+# - check compilation
 # - install
 #*****************************************************************
 svn checkout svn://svn.code.sf.net/p/firejail/code-0/trunk firejail-trunk
@@ -74,6 +72,27 @@ echo
 
 
 
+#*****************************************************************
+# TEST 1.2
+#*****************************************************************
+# - disable seccomp configuration
+# - check compilation
+#*****************************************************************
+cd firejail-trunk
+make distclean
+./configure --prefix=/usr --disable-seccomp 2>&1 | tee ../output-configure-noseccomp
+make -j4 2>&1 | tee ../output-make-noseccomp
+cd ..
+grep warning output-configure-noseccomp output-make-noseccomp > ./report-test1.2
+grep error output-configure-noseccomp output-make-noseccomp >> ./report-test1.2
+echo
+echo
+echo
+echo "TEST 1.2 Report:"
+cat report-test1.2
+echo
+echo
+echo
 
 
 #*****************************************************************
@@ -133,6 +152,8 @@ echo "TEST 1 Report:"
 cat report-test1
 echo "TEST 1.1 Report:"
 cat report-test1.1
+echo "TEST 1.2 Report:"
+cat report-test1.2
 echo "TEST 2 Report:"
 cat ./report-test2 
 echo "TEST 3 Report:"
@@ -143,13 +164,14 @@ echo "TEST 5 Report:"
 cat ./report-test5 
 echo
 
-cat report-test1 > outrep1
-cat report-test1.1 > outrep1.1
-grep ERROR report-test2 > outrep2
-grep ERROR report-test3 > outrep3
-grep ERROR report-test4 > outrep4
-grep ERROR report-test5 > outrep5
-wc -l outrep*
+cat report-test1 > output-test1
+cat report-test1.1 > output-test1.1
+cat report-test1.2 > output-test1.2
+grep ERROR report-test2 > output-test2
+grep ERROR report-test3 > output-test3
+grep ERROR report-test4 > output-test4
+grep ERROR report-test5 > output-test5
+wc -l output-test*
 echo
 
 

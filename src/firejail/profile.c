@@ -97,7 +97,7 @@ int profile_check_line(char *ptr, int lineno) {
 		return 0;
 	}
 	// private directory
-	else if (strncmp(ptr, "private", 7) == 0 && *(ptr + 7) == ' ') {
+	else if (strncmp(ptr, "private ", 8) == 0) {
 		cfg.home_private = ptr + 8;
 		check_private_dir();
 		arg_private = 1;

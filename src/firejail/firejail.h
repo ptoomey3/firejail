@@ -203,6 +203,7 @@ char *line_remove_spaces(const char *buf);
 char *split_comma(char *str);
 int not_unsigned(const char *str);
 int find_child(pid_t parent, pid_t *child);
+void check_private_dir(void);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log

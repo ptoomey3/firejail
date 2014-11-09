@@ -124,6 +124,12 @@ mkdir dirprivate
 ./private_dir.exp
 rm -fr dirprivate
 
+echo "TESTING: private directory profile"
+rm -fr dirprivate
+mkdir dirprivate
+./private_dir_profile.exp
+rm -fr dirprivate
+
 grep "openSUSE" /etc/os-release
 if [ "$?" -eq 0 ];
 then

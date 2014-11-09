@@ -309,3 +309,32 @@ int find_child(pid_t parent, pid_t *child) {
 	
 	return (*child)? 0:1;	// 0 = found, 1 = not found
 }
+
+void check_private_dir(void) {
+	// if the directory starts with ~, expand the home directory
+	if (*cfg.home_private == '~') {
+		char *tmp;
+		if (asprintf(&tmp, "%s%s", cfg.homedir, cfg.home_private + 1) == -1)
+			errExit("asprintf");
+		cfg.home_private = tmp;
+	}
+	// check chroot dirname exists
+	struct stat s2;
+	int rv = stat(cfg.home_private, &s2);
+	if (rv < 0) {
+		fprintf(stderr, "Error: cannot find %s directory, aborting\n", cfg.home_private);
+		exit(1);
+	}
+	
+	// check home directory and chroot home directory have the same owner
+	struct stat s1;
+	rv = stat(cfg.homedir, &s1);
+	if (rv < 0) {
+		fprintf(stderr, "Error: cannot find %s directory, aborting\n", cfg.homedir);
+		exit(1);
+	}
+	if (s1.st_uid != s2.st_uid || s1.st_gid != s2.st_gid) {
+		printf("Error: the two home directories must have the same owner\n");
+		exit(1);
+	}
+}

@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+# testing private
+send -- "firejail --profile=private.profile\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 1
+
+send -- "ls -al;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"bashrc"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"home"
+}
+
+send -- "ls -al | wc -l;pwd\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"4"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"home"
+}
+
+puts "\n"

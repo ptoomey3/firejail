@@ -18,7 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>6
 #include <string.h>
 
 #define BUFMAX 4096
@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
 			char *ptr2 = strstr(start, "__NR_");
 			if (!ptr1 || !ptr2) {
 				fprintf(stderr, "Error: cannot parse \"%s\"\n", start);
+				fclose(fp);
 				return 1;
 			}
 			*(ptr2 - 1) = '\0';

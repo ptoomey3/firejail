@@ -96,7 +96,14 @@ int profile_check_line(char *ptr, int lineno) {
 		arg_private = 1;
 		return 0;
 	}
-	
+	// private directory
+	else if (strncmp(ptr, "private", 7) == 0 && *(ptr + 7) == ' ') {
+		cfg.home_private = ptr + 8;
+		check_private_dir();
+		arg_private = 1;
+		return 0;
+	}
+
 	// filesystem bind
 	if (strncmp(ptr, "bind ", 5) == 0) {
 		if (getuid() != 0) {

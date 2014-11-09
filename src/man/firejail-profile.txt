@@ -55,7 +55,10 @@ Remove ifconfig from the regular path directories.
 Remove .ssh directory from user home directory.
 .TP
 \f\private
-Mount an empty tmpfs filesystem on top of /tmp and user home directory.
+Mount an empty tmpfs filesystem on top of user home directory.
+.TP
+\f\private directory
+Use mount directory as user home directory.
 
 .SH Filters
 \fBcaps\fR and \fBseccomp\fR enable Linux capabilities and seccomp filters. Examples:
@@ -66,6 +69,9 @@ Enable default Linux capabilities filter.
 .TP
 \f\seccomp
 Enable default seccomp filter.
+.TP
+\f\seccomp syscall,syscall,syscall
+Enable seccomp filter and add  the system calls in the list on top of default seccomp filter.
 
 
 .SH Resource limits

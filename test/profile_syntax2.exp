@@ -31,10 +31,14 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 6\n";exit}
-	"Blacklisting syscall mount"
+	"Blacklisting syscall"
 }
 expect {
 	timeout {puts "TESTING ERROR 7\n";exit}
+	"mount"
+}
+expect {
+	timeout {puts "TESTING ERROR 8\n";exit}
 	"Child process initialized"
 }
 

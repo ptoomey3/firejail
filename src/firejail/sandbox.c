@@ -244,6 +244,7 @@ int sandbox(void* sandbox_arg) {
 		}
 	}
 	
+	// set environment
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
 		errExit("setenv");
@@ -255,6 +256,11 @@ int sandbox(void* sandbox_arg) {
 		errExit("setenv");
 	if (cfg.shell && setenv("SHELL", cfg.shell, 1) < 0)
 		errExit("setenv");
+	// set prompt color to green
+	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
+	if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
+		errExit("setenv");
+		
 
 	// set capabilities
 	if (arg_caps == 1)
@@ -274,11 +280,6 @@ int sandbox(void* sandbox_arg) {
 	// drop privileges
 	drop_privs();
 	
-	// set prompt color to green
-	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
-	if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
-		errExit("setenv");
-		
 		
 	// set the shell
 	char *sh;

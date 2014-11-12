@@ -8,3 +8,5 @@
 /etc/firejail/chromium-browser.profile
 /etc/firejail/disable-mgmt.inc
 /etc/firejail/firefox.profile
+/etc/firejail/transmission-gtk.profile
+/etc/firejail/transmission-qt.profile

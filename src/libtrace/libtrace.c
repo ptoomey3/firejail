@@ -499,3 +499,40 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t addrlen) {
 	return rv;
 }
 #endif
+
+typedef int (*orig_system_t)(const char *command);
+static orig_system_t orig_system = NULL;
+int system(const char *command) {
+	if (!orig_system)
+		orig_system = (orig_system_t)dlsym(RTLD_NEXT, "system");
+			
+	int rv = orig_system(command);
+	printf("%u:%s:system %s\n", pid(), name(), command);
+
+	return rv;
+}
+
+typedef int (*orig_setuid_t)(uid_t uid);
+static orig_setuid_t orig_setuid = NULL;
+int setuid(uid_t uid) {
+	if (!orig_setuid)
+		orig_setuid = (orig_setuid_t)dlsym(RTLD_NEXT, "setuid");
+			
+	int rv = orig_setuid(uid);
+	printf("%u:%s:setuid %d\n", pid(), name(), uid);
+
+	return rv;
+}
+
+typedef int (*orig_setgid_t)(gid_t gid);
+static orig_setgid_t orig_setgid = NULL;
+int setgid(gid_t gid) {
+	if (!orig_setgid)
+		orig_setgid = (orig_setgid_t)dlsym(RTLD_NEXT, "setgid");
+			
+	int rv = orig_setgid(gid);
+	printf("%u:%s:setgid %d\n", pid(), name(), gid);
+
+	return rv;
+}
+

@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="128"
+   height="128"
+   id="svg3190"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs3192" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.33941125"
+     inkscape:cx="1066.7158"
+     inkscape:cy="-147.74662"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     showborder="false"
+     inkscape:window-width="1056"
+     inkscape:window-height="971"
+     inkscape:window-x="222"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:snap-global="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3198"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata3195">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-924.36218)">
+    <rect
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3200"
+       width="864.23077"
+       height="881.8681"
+       x="22.673346"
+       y="568.89752"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3202"
+       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:12px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion3204"><rect
+           id="rect3206"
+           width="211.28171"
+           height="172.24052"
+           x="607.43488"
+           y="-139.54694" /></flowRegion><flowPara
+         id="flowPara3208" /></flowRoot>    <text
+       xml:space="preserve"
+       style="font-size:577.12713623px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="1043.1339"
+       y="1013.7549"
+       id="text3210"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(0.90126085,1.1095567)"><tspan
+         sodipodi:role="line"
+         id="tspan3212"
+         x="1043.1339"
+         y="1013.7549">Firejail</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3214"
+       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Nimbus Sans L;-inkscape-font-specification:Nimbus Sans L"
+       transform="translate(0,924.36218)"><flowRegion
+         id="flowRegion3216"><rect
+           id="rect3218"
+           width="261.8056"
+           height="90.713341"
+           x="597.10046"
+           y="12.024717"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Nimbus Sans L;-inkscape-font-specification:Nimbus Sans L;font-size:144px" /></flowRegion><flowPara
+         id="flowPara3220">Firejail</flowPara></flowRoot>    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079"
+       width="864.23077"
+       height="17.637365"
+       x="22.673346"
+       y="992.19391"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3"
+       width="881.8681"
+       height="17.637365"
+       x="-1450.7655"
+       y="181.40961"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3-8"
+       width="881.8681"
+       height="17.637365"
+       x="-1450.7655"
+       y="357.7832"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3-7"
+       width="881.8681"
+       height="17.637365"
+       x="-1450.7655"
+       y="534.15686"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3-1"
+       width="881.8681"
+       height="17.637365"
+       x="-1450.7655"
+       y="710.53052"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3131"
+       sodipodi:cx="-680"
+       sodipodi:cy="-772"
+       sodipodi:rx="120"
+       sodipodi:ry="100"
+       d="m -560,-772 a 120,100 0 1 1 -240,0 120,100 0 1 1 240,0 z"
+       transform="matrix(0.62190167,0,0,0.74628204,1146.7605,1690.1507)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3133"
+       width="49.752129"
+       height="74.628181"
+       x="698.99139"
+       y="989.6402"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3135"
+       sodipodi:cx="-480"
+       sodipodi:cy="-1152"
+       sodipodi:rx="80"
+       sodipodi:ry="80"
+       d="m -400,-1152 a 80,80 0 1 1 -160,0 80,80 0 1 1 160,0 z"
+       transform="matrix(0.31095083,0,0,0.31095083,873.12381,1347.8559)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3137"
+       sodipodi:cx="-200"
+       sodipodi:cy="-1232"
+       sodipodi:rx="40"
+       sodipodi:ry="40"
+       d="m -160,-1232 a 40,40 0 1 1 -80,0 40,40 0 1 1 80,0 z"
+       transform="matrix(0.31095083,0,0,0.38868852,786.05756,1471.6145)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3139"
+       width="24.876064"
+       height="46.642628"
+       x="711.42938"
+       y="992.74982"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3913"
+       sodipodi:cx="-680"
+       sodipodi:cy="-972"
+       sodipodi:rx="120"
+       sodipodi:ry="140"
+       d="m -560,-972 a 120,140 0 1 1 -240,0 120,140 0 1 1 240,0 z"
+       transform="matrix(0.16140746,0,0,0.1383492,836.59878,1252.3812)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3915"
+       width="19.368895"
+       height="58.106686"
+       x="717.72858"
+       y="1111.4209"
+       ry="9.6844454"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:0;fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3917"
+       width="2682.384"
+       height="953.57587"
+       x="-26.236765"
+       y="-1488.1687"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1,-1)" />
+    <path
+       style="fill:#00ff00;fill-opacity:1;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       d=""
+       id="path3949"
+       inkscape:connector-curvature="0"
+       transform="translate(0,924.36218)" />
+    <text
+       xml:space="preserve"
+       style="font-size:189.03182983px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="982.32751"
+       y="1412.4202"
+       id="text3034"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3036"
+         x="982.32751"
+         y="1412.4202">security sandbox</tspan></text>
+    <rect
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3200-9"
+       width="80.670067"
+       height="82.316391"
+       x="17.918846"
+       y="187.86729"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:53.87089157px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+       x="114.90316"
+       y="216.08517"
+       id="text3210-1"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(0.90126084,1.1095567)"><tspan
+         sodipodi:role="line"
+         id="tspan3212-9"
+         x="114.90316"
+         y="216.08517">Firejail</tspan></text>
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-7"
+       width="80.670067"
+       height="1.6463281"
+       x="17.918846"
+       y="227.37915"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3-80"
+       width="82.316391"
+       height="1.6463281"
+       x="-270.18369"
+       y="32.73579"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3-8-8"
+       width="82.316391"
+       height="1.6463281"
+       x="-270.18369"
+       y="49.19907"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3-7-2"
+       width="82.316391"
+       height="1.6463281"
+       x="-270.18369"
+       y="65.662346"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3079-3-1-9"
+       width="82.316391"
+       height="1.6463281"
+       x="-270.18369"
+       y="82.125626"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3131-2"
+       sodipodi:cx="-680"
+       sodipodi:cy="-772"
+       sodipodi:rx="120"
+       sodipodi:ry="100"
+       d="m -560,-772 a 120,100 0 1 1 -240,0 120,100 0 1 1 240,0 z"
+       transform="matrix(0.05805029,0,0,0.06966035,122.84474,292.52865)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3133-9"
+       width="4.6440225"
+       height="6.9660335"
+       x="81.048531"
+       y="227.14082"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3135-5"
+       sodipodi:cx="-480"
+       sodipodi:cy="-1152"
+       sodipodi:rx="80"
+       sodipodi:ry="80"
+       d="m -400,-1152 a 80,80 0 1 1 -160,0 80,80 0 1 1 160,0 z"
+       transform="matrix(0.02902515,0,0,0.02902515,97.302609,260.57778)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3137-7"
+       sodipodi:cx="-200"
+       sodipodi:cy="-1232"
+       sodipodi:rx="40"
+       sodipodi:ry="40"
+       d="m -160,-1232 a 40,40 0 1 1 -80,0 40,40 0 1 1 80,0 z"
+       transform="matrix(0.02902515,0,0,0.03628143,89.175567,272.1298)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3139-6"
+       width="2.3220112"
+       height="4.3537722"
+       x="82.209534"
+       y="227.43105"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="path3913-2"
+       sodipodi:cx="-680"
+       sodipodi:cy="-972"
+       sodipodi:rx="120"
+       sodipodi:ry="140"
+       d="m -560,-972 a 120,140 0 1 1 -240,0 120,140 0 1 1 240,0 z"
+       transform="matrix(0.01506629,0,0,0.01291396,93.893247,251.66589)"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3915-5"
+       width="1.8079547"
+       height="5.4238639"
+       x="82.797516"
+       y="238.50819"
+       ry="0.9039771"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:0;fill:#ff0000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       id="rect3917-6"
+       width="250.38229"
+       height="89.009819"
+       x="13.353415"
+       y="-273.67505"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(1,-1)" />
+    <text
+       xml:space="preserve"
+       style="font-size:17.64483643px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="107.49603"
+       y="266.60443"
+       id="text3034-5"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/netblue/work/firelogo/logo-sml.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3036-6"
+         x="107.49603"
+         y="266.60443">security sandbox</tspan></text>
+  </g>
+</svg>

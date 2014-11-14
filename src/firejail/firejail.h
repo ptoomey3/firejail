@@ -55,7 +55,6 @@ typedef struct config_t {
 	char *homedir;
 	
 	// filesystem
-	char **custom_profile;	// loaded profile
 	ProfileEntry *profile;
 	char *chrootdir;	// chroot directory
 	char *home_private;	// private home directory

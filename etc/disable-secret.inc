@@ -1,6 +1,6 @@
 # HOME directory
 blacklist ${HOME}/.ssh
-blacklist ${HOME}/.gnome2_private
+tmpfs ${HOME}/.gnome2_private
 blacklist ${HOME}/.gnome2/keyrings
 blacklist ${HOME}/kde4/share/apps/kwallet
 blacklist ${HOME}/kde/share/apps/kwallet

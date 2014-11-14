@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT(firejail, 0.9.17, netblue30@yahoo.com, , http://firejail.sourceforge.net)
+AC_INIT(firejail, 0.9.18-rc1, netblue30@yahoo.com, , http://firejail.sourceforge.net)
 AC_CONFIG_SRCDIR([src/firejail/main.c])
 #AC_CONFIG_HEADERS([config.h])
 
@@ -28,5 +28,5 @@ AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile s
 
 echo "Configuration options:"
 echo "   seccomp: $HAVE_SECCOMP"
-echo "   <linux/seccomp.h>: $HAVE_SECCOMP_H"
+echo "   found <linux/seccomp.h> header: $HAVE_SECCOMP_H"
 echo

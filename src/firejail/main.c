@@ -276,6 +276,7 @@ int main(int argc, char **argv) {
 	int lockfd = -1;
 #endif
 	int arg_ipc = 0;
+	int custom_profile = 0;	// custom profile loaded
 	
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
@@ -458,12 +459,14 @@ int main(int argc, char **argv) {
 			arg_overlay = 1;
 		}
 		else if (strncmp(argv[i], "--profile=", 10) == 0) {
+			// multiple profile files are allowed!
 			// check file access as user, not as root (suid)
 			if (access(argv[i] + 10, R_OK)) {
 				fprintf(stderr, "Error: cannot access profile file\n");
 				return 1;
 			}
 			profile_read(argv[i] + 10);
+			custom_profile = 1;
 		}
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
 			if (arg_overlay) {
@@ -662,16 +665,20 @@ int main(int argc, char **argv) {
 		assert(cfg.command_name);
 		if (arg_debug)
 			printf("Command name #%s#\n", cfg.command_name);		
-		if (!cfg.custom_profile) {
+		if (!custom_profile) {
 			// look for a profile in ~/.config/firejail directory
 			char *usercfgdir;
 			if (asprintf(&usercfgdir, "%s/.config/firejail", cfg.homedir) == -1)
 				errExit("asprintf");
 			profile_find(cfg.command_name, usercfgdir);
+			free(usercfgdir);
+			custom_profile = 1;
 		}
-		if (!cfg.custom_profile)
+		if (!custom_profile) {
 			// look for a user profile in /etc/firejail directory
 			profile_find(cfg.command_name, "/etc/firejail");
+			custom_profile = 1;
+		}
 	}
 
 	// check and assign an IP address

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo "*** TESTING system configuration ***"
 ./chk_config.exp
 
 echo "TESTING: servers rsyslogd, sshd, nginx"

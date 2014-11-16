@@ -83,5 +83,4 @@ expect {
 	"home"
 }
 
-puts "*********************************TESTING system configuration END***\n"
 

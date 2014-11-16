@@ -1,4 +1,4 @@
-* bug - char " needs to be escaped
+* char " needs to be escaped
 $ firejail svn commit -m "exit program if an invalid option is detected"
 Parent pid 4415, child pid 4416
 Interface           IP                  Mask                Status              
@@ -11,7 +11,6 @@ svn: '/home/netblue/work/firejail-sf/program' is not under version control
 
 parent is shutting down, bye...
 
-* in user mode, --private=newdir, mask all other user directories in /home
 
 * in overlay mode "sudo su -" doesn't work
 etblue@ubuntu:~/work/firejail-sf$ firejail --overlay

@@ -8,6 +8,8 @@ brctl addbr br2
 ifconfig br2 10.10.40.1/24 up
 brctl addbr br3
 ifconfig br3 10.10.50.1/24 up
+brctl addbr br4
+ifconfig br4 10.10.60.1/24 up
 
 
 # build a very small chroot

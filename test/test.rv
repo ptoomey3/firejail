@@ -1,0 +1,26 @@
+# invalid options
+1 firejail -blablabla
+1 firejail --blablabla
+1 firejail --debug --blablabla
+
+# misc options
+0 firejail --help
+0 firejail --list
+
+# network testing
+0 firejail --net=none exit
+0 firejail --noip --net=none exit
+0 firejail --net=br0 exit
+0 firejail --net=br0 --net=br1 --net=br2 --net=br3 exit
+1 firejail --net
+1 firejail --net=
+1 firejail --net=bingo
+1 firejail --net=loopback
+1 firejail --net=/br0 exit
+1 firejail --net=br0 --net=br1 --net=br2 --net=br3 --net=br4 exit # only 4 networks allowed
+1 firejail --net=eth0
+
+# private mode
+0 firejail --private exit
+1 firejail --private=/etc sleep 1
+1 firejail --private=bingo sleep 1

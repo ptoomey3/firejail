@@ -37,6 +37,9 @@ cd firejail-trunk
 ./configure --prefix=/usr 2>&1 | tee ../output-configure
 make -j4 2>&1 | tee ../output-make
 sudo make install 2>&1 | tee ../output-install
+cd src/tools
+gcc -o rvtest rvtest.c
+cd ../..
 cd test
 sudo ./configure > /dev/null
 cd ../..
@@ -93,6 +96,17 @@ cat report-test1.2
 echo
 echo
 echo
+
+#*****************************************************************
+# TEST 1.3
+#*****************************************************************
+# - rvtest
+#*****************************************************************
+cd firejail-trunk
+cd test
+../src/tools/rvtest test.rv 2>/dev/null | tee ../../output-test1.3 | grep TESTING
+cd ../..
+grep TESTING output-test1.3 > ./report-test1.3
 
 
 #*****************************************************************
@@ -154,6 +168,8 @@ echo "TEST 1.1 Report:"
 cat report-test1.1
 echo "TEST 1.2 Report:"
 cat report-test1.2
+echo "TEST 1.3 Report:"
+cat report-test1.3
 echo "TEST 2 Report:"
 cat ./report-test2 
 echo "TEST 3 Report:"
@@ -167,6 +183,7 @@ echo
 cat report-test1 > output-test1
 cat report-test1.1 > output-test1.1
 cat report-test1.2 > output-test1.2
+grep ERROR report-test1.3 > output-test1.3
 grep ERROR report-test2 > output-test2
 grep ERROR report-test3 > output-test3
 grep ERROR report-test4 > output-test4

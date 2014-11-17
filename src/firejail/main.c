@@ -249,6 +249,36 @@ void check_default_gw(uint32_t defaultgw) {
 	exit(1);
 }
 
+static void network_check_cfg(void) {
+	int net_configured = 0;
+	if (cfg.bridge0.configured)
+		net_configured++;
+	if (cfg.bridge1.configured)
+		net_configured++;
+	if (cfg.bridge2.configured)
+		net_configured++;
+	if (cfg.bridge3.configured)
+		net_configured++;
+
+	// --net=none
+	if (arg_nonetwork && net_configured) {
+		fprintf(stderr, "Error: --net and --net=none are mutually exclusive\n");
+		exit(1);
+	}
+
+	// --noip requires a network
+	if (arg_noip && net_configured == 0) {
+		fprintf(stderr, "Error: option --noip requires at least one network to be configured\n");
+		exit(1);
+	}
+
+	// --defaultgw requires a network
+	if (cfg.defaultgw && net_configured == 0) {
+		fprintf(stderr, "Error: option --defaultgw requires at least one network to be configured\n");
+		exit(1);
+	}
+}
+
 // return 1 if error, 0 if a valid pid was found
 static int read_pid(char *str, pid_t *pid) {
 	char *endptr;
@@ -502,7 +532,7 @@ int main(int argc, char **argv) {
 
 
 		//*************************************
-		// network
+		// hostname
 		//*************************************
 		else if (strncmp(argv[i], "--name=", 7) == 0) {
 			cfg.hostname = argv[i] + 7;
@@ -511,9 +541,13 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 		}
+		
+		//*************************************
+		// network
+		//*************************************
 		else if (strncmp(argv[i], "--net=", 6) == 0) {
 			if (strcmp(argv[i] + 6, "none") == 0) {
-				arg_nonetwork = 1;
+				arg_nonetwork  = 1;
 				cfg.bridge0.configured = 0;
 				cfg.bridge1.configured = 0;
 				cfg.bridge2.configured = 0;
@@ -613,6 +647,9 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
+
+	// check network configuration options - it will exit if anything wrong
+	network_check_cfg();
 
 	// log command
 	logargs(argc, argv);

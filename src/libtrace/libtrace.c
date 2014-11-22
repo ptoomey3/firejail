@@ -536,3 +536,74 @@ int setgid(gid_t gid) {
 	return rv;
 }
 
+typedef int (*orig_setfsuid_t)(uid_t uid);
+static orig_setfsuid_t orig_setfsuid = NULL;
+int setfsuid(uid_t uid) {
+	if (!orig_setfsuid)
+		orig_setfsuid = (orig_setfsuid_t)dlsym(RTLD_NEXT, "setfsuid");
+			
+	int rv = orig_setfsuid(uid);
+	printf("%u:%s:setfsuid %d\n", pid(), name(), uid);
+
+	return rv;
+}
+
+typedef int (*orig_setfsgid_t)(gid_t gid);
+static orig_setfsgid_t orig_setfsgid = NULL;
+int setfsgid(gid_t gid) {
+	if (!orig_setfsgid)
+		orig_setfsgid = (orig_setfsgid_t)dlsym(RTLD_NEXT, "setfsgid");
+			
+	int rv = orig_setfsgid(gid);
+	printf("%u:%s:setfsgid %d\n", pid(), name(), gid);
+
+	return rv;
+}
+
+typedef int (*orig_setreuid_t)(uid_t ruid, uid_t euid);
+static orig_setreuid_t orig_setreuid = NULL;
+int setreuid(uid_t ruid, uid_t euid) {
+	if (!orig_setreuid)
+		orig_setreuid = (orig_setreuid_t)dlsym(RTLD_NEXT, "setreuid");
+			
+	int rv = orig_setreuid(ruid, euid);
+	printf("%u:%s:setreuid %d %d\n", pid(), name(), ruid, euid);
+
+	return rv;
+}
+
+typedef int (*orig_setregid_t)(gid_t rgid, gid_t egid);
+static orig_setregid_t orig_setregid = NULL;
+int setregid(gid_t rgid, gid_t egid) {
+	if (!orig_setregid)
+		orig_setregid = (orig_setregid_t)dlsym(RTLD_NEXT, "setregid");
+			
+	int rv = orig_setregid(rgid, egid);
+	printf("%u:%s:setregid %d %d\n", pid(), name(), rgid, egid);
+
+	return rv;
+}
+
+typedef int (*orig_setresuid_t)(uid_t ruid, uid_t euid, uid_t suid);
+static orig_setresuid_t orig_setresuid = NULL;
+int setresuid(uid_t ruid, uid_t euid, uid_t suid) {
+	if (!orig_setresuid)
+		orig_setresuid = (orig_setresuid_t)dlsym(RTLD_NEXT, "setresuid");
+			
+	int rv = orig_setresuid(ruid, euid, suid);
+	printf("%u:%s:setresuid %d %d %d\n", pid(), name(), ruid, euid, suid);
+
+	return rv;
+}
+
+typedef int (*orig_setresgid_t)(gid_t rgid, gid_t egid, gid_t sgid);
+static orig_setresgid_t orig_setresgid = NULL;
+int setresgid(gid_t rgid, gid_t egid, gid_t sgid) {
+	if (!orig_setresgid)
+		orig_setresgid = (orig_setresgid_t)dlsym(RTLD_NEXT, "setresgid");
+			
+	int rv = orig_setresgid(rgid, egid, sgid);
+	printf("%u:%s:setresgid %d %d %d\n", pid(), name(), rgid, egid, sgid);
+
+	return rv;
+}

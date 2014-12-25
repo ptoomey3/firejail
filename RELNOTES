@@ -1,10 +1,10 @@
-firejail (0.9.18-rc2) baseline; urgency=low
+firejail (0.9.18) baseline; urgency=low
   * Support for tracing system, setuid, setgid, setfsuid, setfsgid syscalls
   * Support for tracing setreuid, setregid, setresuid, setresguid syscalls
   * Added profiles for transmission-gtk and transmission-qt
   * bugfixes
 
- -- netblue30 <netblue30@yahoo.com>  Fri, 14 Nov 2014 10:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Fri, 25 Dec 2014 10:00:00 -0500
 
 firejail (0.9.16) baseline; urgency=low
   * Configurable private home directory

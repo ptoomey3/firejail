@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="0.9.16"
+VERSION="0.9.18"
 rm -fr ~/rpmbuild
 rm -f firejail-$VERSION-1.x86_64.rpm
 
@@ -103,8 +103,8 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}/iceweasel.profile
 %config(noreplace) %{_sysconfdir}/%{name}/login.users
 %config(noreplace) %{_sysconfdir}/%{name}/midori.profile
-%config(noreplace) %{_sysconfdir}/%{name}/transmissin-gtk.profile
-%config(noreplace) %{_sysconfdir}/%{name}/transmissin-qt.profile
+%config(noreplace) %{_sysconfdir}/%{name}/transmission-gtk.profile
+%config(noreplace) %{_sysconfdir}/%{name}/transmission-qt.profile
 /usr/bin/firejail
 /usr/bin/firemon
 /usr/lib/firejail/libtrace.so
@@ -120,6 +120,12 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Sat Dec 27 2014  netblue30 <netblue30@yahoo.com> 0.9.18-1
+ - Support for tracing system, setuid, setgid, setfsuid, setfsgid syscalls
+ - Support for tracing setreuid, setregid, setresuid, setresguid syscalls
+ - Added profiles for transmission-gtk and transmission-qt
+ - bugfixes
+
 * Tue Nov 4 2014  netblue30 <netblue30@yahoo.com> 0.9.16-1
  - Configurable private home directory
  - Configurable default user shell

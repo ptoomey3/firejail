@@ -277,10 +277,13 @@ int sandbox(void* sandbox_arg) {
 		seccomp_filter();
 #endif
 
+	// set cpu affinity
+	if (cfg.cpus)
+		set_cpu_affinity();
+		
 	// drop privileges
 	drop_privs();
-	
-		
+
 	// set the shell
 	char *sh;
 	if (cfg.shell)

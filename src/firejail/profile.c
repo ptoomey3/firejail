@@ -111,6 +111,12 @@ int profile_check_line(char *ptr, int lineno) {
 		return 0;
 	}
 	
+	// cpu affinity
+	if (strncmp(ptr, "cpu ", 4) == 0) {
+		read_cpu_list(ptr + 4);
+		return 0;
+	}
+	
 	// private directory
 	if (strncmp(ptr, "private ", 8) == 0) {
 		cfg.home_private = ptr + 8;

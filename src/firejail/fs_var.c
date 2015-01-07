@@ -123,6 +123,16 @@ void fs_var_log(void) {
 		
 		build_dirs();
 		release_all();
+		
+		// create an empty /var/log/wtmp file
+		FILE *fp = fopen("/var/log/wtmp", "w");
+		if (fp)
+			fclose(fp);
+			
+		// create an empty /var/log/btmp file
+		fp = fopen("/var/log/btmp", "w");
+		if (fp)
+			fclose(fp);
 	}
 	else
 		fprintf(stderr, "Warning: cannot mount tmpfs in top of /var/log\n");

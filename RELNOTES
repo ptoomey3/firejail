@@ -1,3 +1,7 @@
+* firemon enhancements - display the command that started the sandbox
+* create an empty /var/log/wtmp and /var/log/btmp files
+* cpu affinity
+
 firejail (0.9.18) baseline; urgency=low
   * Support for tracing system, setuid, setgid, setfsuid, setfsgid syscalls
   * Support for tracing setreuid, setregid, setresuid, setresguid syscalls

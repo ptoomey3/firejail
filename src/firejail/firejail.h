@@ -73,6 +73,9 @@ typedef struct config_t {
 	unsigned rlimit_nproc;
 	unsigned rlimit_fsize;
 	unsigned rlimit_sigpending;
+	
+	// cpu affinity
+	uint32_t cpus;
 
 	// command line
 	char *command_line;
@@ -80,6 +83,7 @@ typedef struct config_t {
 	char *shell;
 } Config;
 extern Config cfg;
+
 static inline int any_bridge_configured(void) {
 	if (cfg.bridge3.configured || cfg.bridge2.configured || cfg.bridge1.configured || cfg.bridge0.configured)
 		return 1;
@@ -248,5 +252,9 @@ void fs_hostname(const char *hostname);
 
 // rlimit.c
 void set_rlimits(void);
+
+// cpu.c
+void read_cpu_list(const char *str);
+void set_cpu_affinity(void);
 
 #endif

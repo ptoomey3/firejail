@@ -35,6 +35,9 @@ Enable Linux capabilities filter
 \fB\--chroot=dirname
 Chroot into dirname directory.
 .TP
+\fB\--cpu=cpu-number,cpu-number
+Set CPU affinity. Example: --cpu=0,1,2
+.TP
 \fB\--csh
 Use /bin/csh as default user shell.
 .TP

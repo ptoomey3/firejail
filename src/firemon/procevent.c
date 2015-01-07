@@ -239,8 +239,14 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 
 			int sandbox_closed = 0; // exit sandbox flag
 			char *cmd = pids[pid].cmd;
+			if (!cmd) {
+				cmd = pid_proc_cmdline(pid);
+			}
 			if (add_new) {
-				sprintf(lineptr, " NEW SANDBOX\n");
+				if (!cmd)
+					sprintf(lineptr, " NEW SANDBOX\n");
+				else
+					sprintf(lineptr, " NEW SANDBOX: %s\n", cmd);
 				lineptr += strlen(lineptr);
 			}
 			else if (proc_ev->what == PROC_EVENT_EXIT && pids[pid].level == 1) {

@@ -36,6 +36,8 @@ void usage(void) {
 	printf("\t-c - execute command and exit\n");
 	printf("\t--caps - enable Linux capabilities filter\n");
 	printf("\t--chroot=dirname - chroot into dirname directory\n");
+	printf("\t--cpu=cpu-number,cpu-number - set cpu affinity\n");
+	printf("\t\tExample: cpu=0,1,2\n");
 	printf("\t--csh - use /bin/csh as default shell\n");
 	printf("\t--debug - print sandbox debug messages\n");
 	printf("\t--debug-caps - print capabilities for the current session and exit\n");

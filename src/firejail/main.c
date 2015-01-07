@@ -445,6 +445,8 @@ int main(int argc, char **argv) {
 		}	
 		else if (strncmp(argv[i], "--ipc-namespace", 15) == 0)
 			arg_ipc = 1;
+		else if (strncmp(argv[i], "--cpu=", 6) == 0)
+			read_cpu_list(argv[i] + 6);
 			
 		//*************************************
 		// filesystem

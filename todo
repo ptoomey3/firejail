@@ -27,9 +27,6 @@ su: System error
 [netblue@ubuntu firejail-sf]$ 
 
 
-* include /etc/firejail/iceweasel.profile into centos rpm
-
-
 * list dbus sockets
 sudo netstat -nap | grep dbus | grep CONNECTED | awk '{print $8}' | sort | uniq -c
 

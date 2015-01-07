@@ -428,7 +428,7 @@ void fs_proc_sys_dev_boot(void) {
 }
 
 static void sanitize_home(void) {
-	// extract current /var/log directory data
+	// extract current /home directory data
 	struct dirent *dir;
 	DIR *d = opendir("/home");
 	if (d == NULL)

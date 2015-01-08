@@ -386,7 +386,7 @@ void fs_proc_sys_dev_boot(void) {
 //		errExit("mounting /sys");
 
 
-	// mount the kernel module files if the loaded
+	// mounting firejail kernel module files
 	if (stat("/proc/firejail-uptime", &s) == 0) {
 		FILE *fp = fopen("/proc/firejail", "w");
 		if (fp) {
@@ -398,7 +398,7 @@ void fs_proc_sys_dev_boot(void) {
 	}
 
 	// Disable SysRq
-	// a linux box can be shut down easilliy using the following commands (as root):
+	// a linux box can be shut down easily using the following commands (as root):
 	// # echo 1 > /proc/sys/kernel/sysrq
 	// #echo b > /proc/sysrq-trigger
 	// for more information see https://www.kernel.org/doc/Documentation/sysrq.txt
@@ -578,6 +578,7 @@ void fs_overlayfs(void) {
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
+	fs_var_utmp();
 
 	// only in user mode
 	if (getuid())
@@ -642,6 +643,7 @@ void fs_chroot(const char *rootdir) {
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
+	fs_var_utmp();
 
 	// only in user mode
 	if (getuid())

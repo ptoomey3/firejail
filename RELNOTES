@@ -1,5 +1,6 @@
 * firemon enhancements - display the command that started the sandbox
-* create an empty /var/log/wtmp and /var/log/btmp files
+* create empty /var/log/wtmp and /var/log/btmp files
+* generate a brand new /var/run/utmp file
 * cpu affinity
 
 firejail (0.9.18) baseline; urgency=low

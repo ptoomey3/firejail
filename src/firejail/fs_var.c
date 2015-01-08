@@ -29,6 +29,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <pwd.h>
+#include <utmp.h>
 #include "firejail.h"
 
 typedef struct dirdata_t{
@@ -115,6 +116,12 @@ void fs_var_log(void) {
 	// create /var/log if it does't exit
 	struct stat s;
 	if (is_dir("/var/log")) {
+		// extract group id for /var/log/wtmp
+		struct stat s;
+		gid_t wtmp_group = 0;
+		if (stat("/var/log/wtmp", &s) == 0)
+			wtmp_group = s.st_gid;
+		
 		// mount a tmpfs on top of /var/log
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/log\n");
@@ -128,11 +135,19 @@ void fs_var_log(void) {
 		FILE *fp = fopen("/var/log/wtmp", "w");
 		if (fp)
 			fclose(fp);
+		if (chown("/var/log/wtmp", 0, wtmp_group) < 0)
+			errExit("chown");
+		if (chmod("/var/log/wtmp", S_IRUSR | S_IWRITE | S_IRGRP | S_IWGRP | S_IROTH ) < 0)
+			errExit("chmod");
 			
 		// create an empty /var/log/btmp file
 		fp = fopen("/var/log/btmp", "w");
 		if (fp)
 			fclose(fp);
+		if (chown("/var/log/btmp", 0, wtmp_group) < 0)
+			errExit("chown");
+		if (chmod("/var/log/btmp", S_IRUSR | S_IWRITE | S_IRGRP | S_IWGRP) < 0)
+			errExit("chmod");
 	}
 	else
 		fprintf(stderr, "Warning: cannot mount tmpfs in top of /var/log\n");
@@ -286,6 +301,54 @@ void fs_var_tmp(void) {
 		fprintf(stderr, "Warning: /var/tmp not mounted\n");
 		dbg_test_dir("/var/tmp");
 	}
+}
+
+void fs_var_utmp(void) {
+	struct stat s;
+
+	// extract utmp group id
+	gid_t utmp_group = 0;
+	if (stat("/var/run/utmp", &s) == 0)
+		utmp_group = s.st_gid;
+
+	// create /tmp/firejail/mnt directory
+	fs_build_mnt_dir();
+	
+	// create a new utmp file
+	if (arg_debug)
+		printf("Create the new utmp file\n");
+	char *utmp;
+	if (asprintf(&utmp, "%s/utmp", MNT_DIR) == -1)
+		errExit("asprintf");
+	FILE *fp = fopen(utmp, "w");
+	if (!fp)
+		errExit("fopen");
+		
+	// read current utmp
+	struct utmp *u;
+	struct utmp u_boot;
+	setutent();
+	while ((u = getutent()) != NULL) {
+		if (u->ut_type == BOOT_TIME) {
+			memcpy(&u_boot, u, sizeof(u_boot));
+			u_boot.ut_tv.tv_sec = (unsigned) time(NULL);
+		}
+	}
+	endutent();
+			
+	// save new utmp file
+	fwrite(&u_boot, sizeof(u_boot), 1, fp);
+	fclose(fp);
+	if (chown(utmp, 0, utmp_group) < 0)
+		errExit("chown");
+	if (chmod(utmp, S_IRUSR | S_IWRITE | S_IRGRP | S_IWGRP | S_IROTH ) < 0)
+		errExit("chmod");
+	
+	// mount the new utmp file
+	if (arg_debug)
+		printf("Mount the new utmp file\n");
+	if (mount(utmp, "/var/run/utmp", NULL, MS_BIND|MS_REC, NULL) < 0)
+		errExit("mount bind utmp");
 }
 
 

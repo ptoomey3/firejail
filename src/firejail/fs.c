@@ -94,6 +94,8 @@ void fs_build_overlay_dir(void) {
 
 
 
+
+
 //***********************************************
 // process profile file
 //***********************************************
@@ -357,6 +359,8 @@ void fs_rdonly_noexit(const char *dir) {
 
 // mount /proc and /sys directories
 void fs_proc_sys_dev_boot(void) {
+	struct stat s;
+
 	if (arg_debug)
 		printf("Remounting /proc and /proc/sys filesystems\n");
 	if (mount("proc", "/proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_REC, NULL) < 0)
@@ -380,6 +384,18 @@ void fs_proc_sys_dev_boot(void) {
 
 //	if (mount("sysfs", "/sys", "sysfs", MS_RDONLY|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_REC, NULL) < 0)
 //		errExit("mounting /sys");
+
+
+	// mount the kernel module files if the loaded
+	if (stat("/proc/firejail-uptime", &s) == 0) {
+		FILE *fp = fopen("/proc/firejail", "w");
+		if (fp) {
+			fprintf(fp, "register");
+			fclose(fp);
+			if (mount("/proc/firejail-uptime", "/proc/uptime", NULL, MS_BIND|MS_REC, NULL) < 0)
+				fprintf(stderr, "Warning: cannot mount /proc/firejail-uptime\n");
+		}
+	}
 
 	// Disable SysRq
 	// a linux box can be shut down easilliy using the following commands (as root):
@@ -413,7 +429,6 @@ void fs_proc_sys_dev_boot(void) {
 	disable_file(BLACKLIST_FILE, "/proc/kallsyms", "not used", "/dev/null");
 	
 	// disable /boot
-	struct stat s;
 	if (stat("/boot", &s) == 0) {
 		if (arg_debug)
 			printf("Mounting a new /boot directory\n");
@@ -493,6 +508,7 @@ void fs_basic_fs(void) {
 	fs_var_log();
 	fs_var_lib();
 	fs_var_cache();
+	fs_var_utmp();
 
 	// only in user mode
 	if (getuid())

@@ -215,6 +215,7 @@ void fs_var_cache(void); // various other fixes for software in /var/cache direc
 void fs_var_run(void);
 void fs_var_lock(void);
 void fs_var_tmp(void);
+void fs_var_utmp(void);
 void dbg_test_dir(const char *dir);
 
 // fs_dev.c

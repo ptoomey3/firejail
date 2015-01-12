@@ -195,3 +195,49 @@ svn: Commit failed (details follow):
 svn: '/home/netblue/work/firejail-sf/testing' is not under version control
 
 parent is shutting down, bye...
+
+* cgroups
+
+Problem:
+echo 3167 > tasks
+bash: echo: write error: No space left on device
+
+Fix:
+/bin/echo 0 > cpuset.mems
+/bin/echo 0 > cpuset.cpus
+
+Seems that CPUs and Memory Nodes' list for the cpuset were created with empty values when the test folder was created.
+
+
+Debian disables the memory subsystem by default in the kernel, so you need to activate it if you need it:
+set the kernel command line in /etc/default/grub to load the memory subsystem: 
+GRUB_CMDLINE_LINUX_DEFAULT="quiet cgroup_enable=memory".
+Call update-grub and reboot.
+Scheduler auto-grouping is disabled and can be enabled through the sysctl kernel.sched_autogroup_enabled.
+
+Also:
+In /etc/default/grub
+
+GRUB_CMDLINE_LINUX_DEFAULT="quiet cgroup_enable=memory,namespace"
+
+(& don't forget to run update-grub)
+
+HOWTO:
+
+Set control groups without any system-level daemon.
+Debian has cgroup-bin - in fact there are two daemons.
+
+echo "cgroup /sys/fs/cgroup cgroup defaults 0 0" >> /etc/fstab
+mount /sys/fs/cgroup
+
+Create cgroup:
+
+su
+cd /sys/fs/cgroup
+mkdir g1
+cd g1
+/bin/echo 0 > cpuset.mems
+/bin/echo 0 > cpuset.cpus
+
+
+

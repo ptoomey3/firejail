@@ -19,6 +19,7 @@
 */
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <arpa/inet.h>
 #include "firemon.h"
 
 #define PIDS_BUFLEN 4096
@@ -111,12 +112,112 @@ static int procevent_netlink_setup(void) {
 	return sock;
 }
 
-static int procevent_monitor(const int sock, pid_t mypid) {
+static int enable_kernel_trace(void) {
+	// enable trace
+	FILE *fp = fopen("/proc/firejail", "w");
+	if (!fp) {
+		fprintf(stderr, "Error: cannot open /proc/firejail\n");
+		return 1;
+	}
+	if (fprintf(fp, "trace 9876") < 0) {
+		fprintf(stderr, "Error: cannot write to /proc/firejail\n");
+		fclose(fp);
+		return 1;
+	}
+	fflush(0);
+	fclose(fp);
+	return 0;
+}
+
+
+static int procevent_udp_setup(void) {
+	// check if firejail module is loaded
+	struct stat s;
+	if (stat("/proc/firejail", &s) < 0)
+		return 0;
+	
+	// enable trace
+	if (enable_kernel_trace())
+		return 0;
+	
+	// create the udp socket
+	int sock;
+	if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+		fprintf(stderr, "Error: cannot open UDP socket\n");
+		exit(1);
+	}
+
+	// bind the udp socket
+	struct sockaddr_in rxsocket;
+	memset(&rxsocket, 0, sizeof(rxsocket));  
+	rxsocket.sin_family = AF_INET; 
+	rxsocket.sin_addr.s_addr = htonl(INADDR_ANY);
+	rxsocket.sin_port = htons(9876);
+	int rxlen = sizeof(rxsocket);
+	if (bind(sock, (struct sockaddr *) &rxsocket, rxlen) < 0) {
+		fprintf(stderr, "Error: cannot bind UDP socket\n");
+		exit(1);
+	}
+	return sock;
+}
+
+static int procevent_monitor(const int sock, const int sock_udp, pid_t mypid) {
 	ssize_t len;
 	struct nlmsghdr *nlmsghdr;
 
+	// timeout in order to re-enable firejail module trace
+	struct timeval tv;
+	tv.tv_sec = 30;
+	tv.tv_usec = 0;
+
 	while (1) {
-		char __attribute__ ((aligned(NLMSG_ALIGNTO)))buf[4096];
+#define BUFFSIZE 4096 
+		char __attribute__ ((aligned(NLMSG_ALIGNTO)))buf[BUFFSIZE];
+		
+		fd_set readfds;
+		int max;
+		FD_ZERO(&readfds);
+		FD_SET(sock, &readfds);
+		max = sock;
+		if (sock_udp) {
+			FD_SET(sock_udp, &readfds);
+			max = (sock_udp > max)? sock_udp: max;
+		}
+		max++;
+		
+		int rv = select(max, &readfds, NULL, NULL, &tv);
+		if (rv == -1) {
+			fprintf(stderr, "recv: %s\n", strerror(errno));
+			return -1;
+		}
+		
+		// timeout
+		if (rv == 0) {
+			tv.tv_sec = 30;
+			tv.tv_usec = 0;
+			if (sock_udp)
+				enable_kernel_trace();
+			continue;
+		}
+		
+		// udp
+		if (sock_udp && FD_ISSET(sock_udp, &readfds)) {
+			int len;
+			if ((len = recvfrom(sock_udp, buf, BUFFSIZE - 1, 0, NULL, NULL)) < 0){
+				perror("recvfrom");
+				return -1;
+			}
+			buf[len] = '\0';
+			
+			struct tm tm;
+			time_t now;
+			(void)time(&now);
+			(void)localtime_r(&now, &tm);
+			printf("%2.2d:%2.2d:%2.2d ", tm.tm_hour, tm.tm_min, tm.tm_sec);
+			printf("%s", buf);
+			fflush(0);
+			continue;
+		}
 
 		if ((len = recv(sock, buf, sizeof(buf), 0)) == 0) {
 			return 0;
@@ -335,5 +436,6 @@ void procevent(pid_t pid) {
 		fprintf(stderr, "Error: cannot open netlink socket\n");
 		exit(1);
 	}
-	procevent_monitor(sock,pid); // it will never return from here
+	int sock_udp = procevent_udp_setup();
+	procevent_monitor(sock, sock_udp, pid); // it will never return from here
 }

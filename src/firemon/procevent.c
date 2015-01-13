@@ -21,8 +21,9 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include "firemon.h"
-
 #define PIDS_BUFLEN 4096
+#define SERVER_PORT 889	// 889-899 is left unassigned by IANA
+
 static int pid_is_firejail(pid_t pid) {
 	uid_t rv = 0;
 	
@@ -119,7 +120,14 @@ static int enable_kernel_trace(void) {
 		fprintf(stderr, "Error: cannot open /proc/firejail\n");
 		return 1;
 	}
-	if (fprintf(fp, "trace 9876") < 0) {
+	
+	char *cmd;
+	if (asprintf(&cmd, "trace %u", SERVER_PORT) == -1) {
+		fprintf(stderr, "Error: cannot allocate memory\n");
+		return 1;
+	}
+	
+	if (fprintf(fp, "%s", cmd) < 0) {
 		fprintf(stderr, "Error: cannot write to /proc/firejail\n");
 		fclose(fp);
 		return 1;
@@ -152,11 +160,12 @@ static int procevent_udp_setup(void) {
 	memset(&rxsocket, 0, sizeof(rxsocket));  
 	rxsocket.sin_family = AF_INET; 
 	rxsocket.sin_addr.s_addr = htonl(INADDR_ANY);
-	rxsocket.sin_port = htons(9876);
+	rxsocket.sin_port = htons(SERVER_PORT);
 	int rxlen = sizeof(rxsocket);
 	if (bind(sock, (struct sockaddr *) &rxsocket, rxlen) < 0) {
 		fprintf(stderr, "Error: cannot bind UDP socket\n");
-		exit(1);
+		close(sock);
+		return 0;
 	}
 	return sock;
 }
@@ -208,6 +217,25 @@ static int procevent_monitor(const int sock, const int sock_udp, pid_t mypid) {
 				return -1;
 			}
 			buf[len] = '\0';
+			
+			if (mypid) {
+				// extract the pid from the message
+				char *ptr = buf;
+				while (*ptr != ' ' && *ptr != '\0')
+					ptr++;
+				if (*ptr == '\0')
+					continue; // cannot extract pid
+				
+				ptr++;
+				unsigned msgpid;
+				sscanf(ptr, "%u", &msgpid);
+				if (msgpid >= MAX_PIDS)
+					continue; // bad pid number
+
+				// check if the pid is traced
+				if (pids[msgpid].level <= 0)
+					continue;
+			}
 			
 			struct tm tm;
 			time_t now;
@@ -313,7 +341,7 @@ static int procevent_monitor(const int sock, const int sock_udp, pid_t mypid) {
 			int add_new = 0;
 			if (pids[pid].level < 0)	// not a firejail process
 				continue;
-			else if (pids[pid].level == 0) { // new porcess, do we have track it?
+			else if (pids[pid].level == 0) { // new porcess, do we track it?
 				if (pid_is_firejail(pid) && mypid == 0) {
 					pids[pid].level = 1;
 					add_new = 1;

@@ -1,6 +1,10 @@
+# install linux-headers on Debian/Ubuntu:
+# apt-get install linux-headers-$(uname -r)
+
+
 VERSION = 0.1
-KDIR = /usr/kernelsrc/linux-source-3.14
-#KDIR            ?= /lib/modules/$(shell uname -r)/build
+KDIR  ?= /lib/modules/$(shell uname -r)/build
+#KDIR = /usr/kernelsrc/linux-source-3.14
 
 firejail-objs := main.o split.o syscall.o timeout.o uptime.o utils.o
 obj-m = firejail.o

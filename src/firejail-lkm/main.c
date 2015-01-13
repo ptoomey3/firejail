@@ -15,10 +15,13 @@ unsigned short trace_udp_port = 0;
 int trace_cnt = 0;
 
 #if !(LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
-static struct tracepoint *tp;
+static struct tracepoint *tp_sysenter;
+static void set_tracepoint(struct tracepoint *tp, void *priv) {
+printk(KERN_INFO "trace point %s\n", tp->name);
+	if (strcmp(tp->name, "sys_enter") == 0)
+		tp_sysenter = tp;
+}
 #endif
-
-
 
 //*****************************************************
 // Syscall filtering
@@ -278,6 +281,7 @@ static struct file_operations firejail_fops = {
 //*****************************************************
 // module init/exit
 //*****************************************************
+
 //extern struct nsproxy init_nsproxy;
 static int __init init_main(void) {
 	int ret;
@@ -292,12 +296,18 @@ static int __init init_main(void) {
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 	ret = tracepoint_probe_register("sys_enter", syscall_probe, NULL);
 #else
-	ret = tracepoint_probe_register(tp, syscall_probe, NULL);
+	for_each_kernel_tracepoint(set_tracepoint, NULL);
+	if (tp_sysenter == NULL) {
+		printk(KERN_INFO "firejail: failed to find tracepoints.\n");
+		return 1;
+	}
+	ret = tracepoint_probe_register(tp_sysenter, syscall_probe, NULL);
 #endif
 	if (ret) {
 		printk(KERN_INFO "firejail: failed initializing syscall_enter_probe.\n");
 		return 1;
 	}
+
 
 	if (proc_create(PROC_FILE_NAME, 0, NULL, &firejail_fops) == NULL) {
 		printk(KERN_INFO "firejail: failed initializing proc file.\n");
@@ -312,15 +322,17 @@ static int __init init_main(void) {
 	setup_timer(&rate_timer, firejail_timeout, 0);
 	mod_timer(&rate_timer, jiffies + HZ);
 
+printk(KERN_INFO "firejail: here %d\n", __LINE__);
 	return 0;
 	
 errout2:
 	remove_proc_entry(PROC_FILE_NAME, NULL);
 errout1:
+printk(KERN_INFO "firejail: here %d\n", __LINE__);
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 	tracepoint_probe_unregister("sys_enter", syscall_probe, NULL);
 #else
-	tracepoint_probe_unregister(tp, syscall_probe, NULL);
+	tracepoint_probe_unregister(tp_sysenter, syscall_probe, NULL);
 #endif
 	return 1;
 }
@@ -331,7 +343,7 @@ static void __exit cleanup_main(void) {
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 	tracepoint_probe_unregister("sys_enter", syscall_probe, NULL);
 #else
-	tracepoint_probe_unregister(tp, syscall_probe, NULL);
+	tracepoint_probe_unregister(tp_sysenter, syscall_probe, NULL);
 #endif
 	remove_proc_entry(PROC_FILE_NAME, NULL);
 	remove_proc_entry(PROC_UPTIME, NULL);

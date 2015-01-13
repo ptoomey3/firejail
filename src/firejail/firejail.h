@@ -106,6 +106,8 @@ extern int arg_rlimit_nofile;	// rlimit nofile
 extern int arg_rlimit_nproc;	// rlimit nproc
 extern int arg_rlimit_fsize;	// rlimit fsize
 extern int arg_rlimit_sigpending;// rlimit sigpending
+extern int arg_nox11;		// kill the program if x11 unix domain socket is accessed
+extern int arg_nodbus;		// kill the program if D-Bus is accessed
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)

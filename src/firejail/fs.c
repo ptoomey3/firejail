@@ -390,7 +390,22 @@ void fs_proc_sys_dev_boot(void) {
 	if (stat("/proc/firejail-uptime", &s) == 0) {
 		FILE *fp = fopen("/proc/firejail", "w");
 		if (fp) {
-			fprintf(fp, "register");
+			// registration
+			fprintf(fp, "register\n");
+			fflush(0);
+			// filtering x11 connect calls
+			if (arg_nox11) {
+				fprintf(fp, "no connect unix /tmp/.X11\n");
+				fflush(0);
+				printf("X11 access disabled\n");
+			}
+			if (arg_nodbus) {
+				fprintf(fp, "no connect unix /var/run/dbus/system_bus_socket\n");
+				fflush(0);
+				fprintf(fp, "no connect unix /tmp/dbus\n");
+				fflush(0);
+				printf("D-Bus access disabled\n");
+			}
 			fclose(fp);
 			if (mount("/proc/firejail-uptime", "/proc/uptime", NULL, MS_BIND|MS_REC, NULL) < 0)
 				fprintf(stderr, "Warning: cannot mount /proc/firejail-uptime\n");

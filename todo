@@ -1,3 +1,9 @@
+* gnome-keyring
+https://wiki.ubuntu.com/SecurityTeam/Specifications/ApplicationConfinement
+nice article on gnome keyring
+http://mdeslaur.blogspot.com/2009/11/gnome-keyring.html
+
+
 * char " needs to be escaped
 $ firejail svn commit -m "exit program if an invalid option is detected"
 Parent pid 4415, child pid 4416

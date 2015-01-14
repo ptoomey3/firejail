@@ -228,22 +228,43 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet cgroup_enable=memory,namespace"
 
 (& don't forget to run update-grub)
 
+
+
 HOWTO:
 
-Set control groups without any system-level daemon.
-Debian has cgroup-bin - in fact there are two daemons.
+Install cgrups in Debian:
 
-echo "cgroup /sys/fs/cgroup cgroup defaults 0 0" >> /etc/fstab
-mount /sys/fs/cgroup
+# apt-get install libcgroup1
+# echo "cgroup  /sys/fs/cgroup  cgroup  defaults  0   0" >> /etc/fstab
+# mount /sys/fs/cgroup
 
-Create cgroup:
+If cgroup memory subsystem is enabled in the kernel, it uses 40 bytes of memory per physical page on x86_64 systems.
+By default, Debian disables the memory cgrup subsystem in the kernel. To enable it, edit grub command line
+in /etc/default/groub file:
 
-su
-cd /sys/fs/cgroup
-mkdir g1
-cd g1
-/bin/echo 0 > cpuset.mems
-/bin/echo 0 > cpuset.cpus
+GRUB_CMDLINE_LINUX_DEFAULT="quiet cgroup_enable=memory".
+
+and run update-grub and restart the computer. After reboot, check cgroup fiesystem is mounted:
+
+$ grep cgroup /etc/mtab
+cgroup /sys/fs/cgroup cgroup rw,relatime,cpuset,cpu,cpuacct,memory,devices,freezer,net_cls,blkio,perf_event,net_prio 0 0
+
+Create a new cgroup:
+
+$ su
+# cd /sys/fs/cgroup
+# mkdir g1
+# cd g1
+
+In this moment cgroup g1 is created. I will assign the first cpu and the first memry node to this group, and set a total memory
+limit of 100MB to the processes in this group:
+
+# echo 0 > cpuset.mems
+# echo 0 > cpuset.cpus
+# echo 100M > memory.limit_in_bytes
+
+
+
 
 
 

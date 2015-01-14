@@ -33,10 +33,11 @@ NsRule *find_or_create_rule(void) {
 		
 		// clean unix path
 		for (i = 0; i < MAX_UNIX_PATH; i++) {
+			ptr->unix_path_len[i] = 0;
 			if (ptr->unix_path[i]) {
-				kfree(ptr->unix_path[i]);
+				char *tmp = ptr->unix_path[i];
 				ptr->unix_path[i] = NULL;
-				ptr->unix_path_len[i] = 0;
+				kfree(tmp);
 			}
 		}
 		

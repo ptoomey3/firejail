@@ -201,7 +201,7 @@ void syscall_probe_connect(struct pt_regs *regs, long id, NsRule *rule) {
 				}
 
 				for (i = 0; i < MAX_UNIX_PATH; i++) {
-					if (rule->unix_path[i]) {
+					if (rule->unix_path_len[i] && rule->unix_path[i]) {
 						if ((a->sun_path[0] && strncmp(a->sun_path, rule->unix_path[i], rule->unix_path_len[i]) == 0) ||
 						(a->sun_path[0] == '\0' && strncmp(a->sun_path + 1, rule->unix_path[i], rule->unix_path_len[i]) == 0)) {
 

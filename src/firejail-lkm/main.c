@@ -17,7 +17,7 @@ int trace_cnt = 0;
 #if !(LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
 static struct tracepoint *tp_sysenter;
 static void set_tracepoint(struct tracepoint *tp, void *priv) {
-printk(KERN_INFO "trace point %s\n", tp->name);
+//printk(KERN_INFO "trace point %s\n", tp->name);
 	if (strcmp(tp->name, "sys_enter") == 0)
 		tp_sysenter = tp;
 }
@@ -101,15 +101,24 @@ static int firejail_seq_show(struct seq_file *s, void *v) {
 //	if (ptr->active == 0)
 //		return 0;
 	if (ptr->nsproxy == NULL) {
+		int active = 0;
+		int inactive = 0;
+		ptr = head.next;
+		while (ptr) {
+			if (ptr->active)
+				active++;
+			else
+				inactive++;
+			ptr = ptr->next;
+		}
+				
 		seq_printf(s, "Tracing %s, UDP port %u\n", (trace_cnt)? "enabled": "disabled", trace_udp_port);
-		seq_printf(s, "Kernel rules:\n");
+		seq_printf(s, "Kernel rules: %d active, %d inactive\n", active, inactive);
 	}
 		
-	else if (current->nsproxy == main_ns){
+	else if (current->nsproxy == main_ns && ptr->active){
 		int i;
-		seq_printf(s, "sandbox pid %d, %s\n",
-			ptr->sandbox_pid,
-			(ptr->active)? "active": "inactive");
+		seq_printf(s, "sandbox pid %d\n", ptr->sandbox_pid);
 		for (i = 0; i < MAX_UNIX_PATH; i++) {
 			if (ptr->unix_path[i])
 				seq_printf(s, "    no connect unix %s\n", ptr->unix_path[i]);
@@ -208,19 +217,6 @@ static ssize_t firejail_write(struct file *file, const char *buffer, size_t len,
 			printk(KERN_INFO "firejail: cannot create sandbox\n");
 			goto errout;
 		}
-	}
-
-	else if (sargc == 1 && strcmp(sargv[0], "remove") == 0) {
-		if (current->nsproxy == main_ns){
-			printk(KERN_INFO "firejail: cannot remove the sandbox from this namespace\n");
-			goto errout;
-		}
-
-		ptr = find_rule(current->nsproxy);
-		if (ptr) {
-			printk(KERN_INFO "firejail: removing sandbox %d\n", ptr->sandbox_pid);
-			ptr->active = 0;
-		}		
 	}
 
 	else if (sargc == 1 && strcmp(sargv[0], "register") == 0) {

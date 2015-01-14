@@ -1,0 +1,56 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send -- "firejail --nox11 sleep 1 &\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+send -- "firejail --nox11 sleep 1 &\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+send -- "firejail --nox11 sleep 1 &\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+send -- "firejail --nox11 sleep 1 &\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+send -- "firejail --nox11 sleep 1 &\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+after 100
+
+
+send -- "cat /proc/firejail\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"sandbox pid"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"sandbox pid"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"sandbox pid"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"sandbox pid"
+}
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"sandbox pid"
+}
+puts "\n"

@@ -263,6 +263,11 @@ limit of 100MB to the processes in this group:
 # echo 0 > cpuset.cpus
 # echo 100M > memory.limit_in_bytes
 
+Please note, the memory limit applies to RAM. Once the limit is reached, the processes in the group will begin to swap.
+
+Move the current terminal session in cgroup:
+
+# echo $$ > tasks 
 
 
 

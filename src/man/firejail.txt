@@ -32,6 +32,10 @@ Execute command and exit.
 \fB\--caps
 Enable Linux capabilities filter
 .TP
+\fB\--cgroup=tasks-file
+Place the sandbox in the specified control group. tasks-file is the full path of cgroup tasks file.
+Example: --cgroup=/sys/fs/cgroup/g1/tasks
+.TP
 \fB\--chroot=dirname
 Chroot into dirname directory.
 .TP

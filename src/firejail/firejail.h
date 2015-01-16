@@ -260,4 +260,7 @@ void set_rlimits(void);
 void read_cpu_list(const char *str);
 void set_cpu_affinity(void);
 
+// cgroup.c
+void set_cgroup(const char *path);
+
 #endif

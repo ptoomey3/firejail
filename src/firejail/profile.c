@@ -117,6 +117,12 @@ int profile_check_line(char *ptr, int lineno) {
 		return 0;
 	}
 	
+	// cgroup
+	if (strncmp(ptr, "cgroup ", 7) == 0) {
+		set_cgroup(ptr + 7);
+		return 0;
+	}
+	
 	// private directory
 	if (strncmp(ptr, "private ", 8) == 0) {
 		cfg.home_private = ptr + 8;

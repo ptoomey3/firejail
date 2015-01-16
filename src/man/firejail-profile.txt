@@ -98,6 +98,13 @@ Set the CPU cores available for this sandbox. Examples:
 \f\ cpu 1,2,3
 Use only CPU cores 0, 1 and 2.
 
+.SH Control Groups
+Place the sandbox in an existing control group specified by the full path of the task file. Example:
+
+.TP
+\f\ cgroup /sys/fs/cgroup/g1/tasks
+The sandbox is placed in g1 control group.
+
 .SH FILES
 /etc/firejail/filename.profile, $HOME/.config/firejail/filename.profile
 

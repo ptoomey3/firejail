@@ -31,10 +31,11 @@
 static int apply_caps = 0;
 static uint64_t caps = 0;
 static int apply_seccomp = 0;
+static char *apply_cgroup = NULL;
 
 
 #define BUFLEN 4096
-static extract_caps_seccomp(pid_t pid) {
+static void extract_caps_seccomp(pid_t pid) {
 	// open stat file
 	char *file;
 	if (asprintf(&file, "/proc/%u/status", pid) == -1) {
@@ -44,7 +45,7 @@ static extract_caps_seccomp(pid_t pid) {
 	FILE *fp = fopen(file, "r");
 	if (!fp) {
 		free(file);
-		fprintf(stderr, "Error: cannot find process %u\n", pid);
+		fprintf(stderr, "Error: cannot open stat file for process %u\n", pid);
 		exit(1);
 	}
 
@@ -68,6 +69,57 @@ static extract_caps_seccomp(pid_t pid) {
 	}
 	fclose(fp);
 	free(file);
+}
+
+static void extract_cgroup(pid_t pid) {
+	// open cgroup file
+	char *file;
+	if (asprintf(&file, "/proc/%u/cgroup", pid) == -1) {
+		perror("asprintf");
+		exit(1);
+	}
+	FILE *fp = fopen(file, "r");
+	if (!fp) {
+		free(file);
+		fprintf(stderr, "Error: cannot open cgroup file for process %u\n", pid);
+		exit(1);
+	}
+
+	char buf[BUFLEN];
+	if (buf == fgets(buf, BUFLEN - 1, fp)) {
+		// clear eol
+		char *ptr = strchr(buf, '\n');
+		if (ptr)
+			*ptr = '\0';
+		
+		// a tipical line looks like this:
+		// 2:cpuset,cpu,cpuacct,devices,freezer,net_cls,blkio,perf_event:/g1
+		// in this case g1 is the group
+		ptr = strchr(buf, ':');
+		if (!ptr)
+			goto errout;
+		ptr = strchr(++ptr, ':');
+		if (!ptr)
+			goto errout;
+		ptr++;
+		
+		// root cgroup?
+		if (strcmp(ptr, "/") == 0)
+			goto out;
+		
+		if (asprintf(&apply_cgroup, "/sys/fs/cgroup%s/tasks", ptr) == -1)
+			errExit("strdup");
+	}
+
+out:	
+	fclose(fp);
+	free(file);
+	return;
+	
+errout:
+	fclose(fp);
+	free(file);
+	fprintf(stderr, "Warning: cannot find the sandbox control group\n");
 }
 
 void join_name(const char *name, const char *homedir) {
@@ -102,10 +154,6 @@ void join(pid_t pid, const char *homedir) {
 		free(comm);
 	}
 
-	// in user mode apply caps and seccomp filters
-	if (getuid() != 0)
-		extract_caps_seccomp(pid);
-
 	// check privileges for non-root users
 	uid_t uid = getuid();
 	if (uid != 0) {
@@ -119,6 +167,17 @@ void join(pid_t pid, const char *homedir) {
 			fprintf(stderr, "Error: permission is denied to join a sandbox created by a different user.\n");
 			exit(1);
 		}
+	}
+
+	// in user mode set caps and seccomp flags
+	if (getuid() != 0)
+		extract_caps_seccomp(pid);
+	
+	// set cgroup flag and place the session in cgroup if necessary
+	extract_cgroup(pid);
+	if (apply_cgroup) {
+		set_cgroup(apply_cgroup);
+		free(apply_cgroup);
 	}
 
 	// join namespaces

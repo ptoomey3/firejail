@@ -44,6 +44,7 @@ static inline void firemon_clrscr(void) {
 }
 
 // firemon.c
+int find_child(int id);
 void firemon_drop_privs(void);
 void firemon_sleep(int st);
 
@@ -68,5 +69,11 @@ void arp(pid_t pid);
 
 // route.c
 void route(pid_t pid);
+
+// caps.c
+void caps(void);
+
+// seccomp
+void seccomp(void);
 
 #endif

@@ -128,17 +128,6 @@ static void print_sandbox(pid_t pid) {
 	waitpid(child, NULL, 0);
 }
 
-// return -1 if not found
-static int find_child(int id) {
-	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
-		if (pids[i].level == 2 && pids[i].parent == id)
-			return i;
-	}
-	
-	return -1;
-}
-
 void interface(pid_t pid) {
 	if (getuid() != 0) {
 		fprintf(stderr, "Error: you need to be root to run this command\n");

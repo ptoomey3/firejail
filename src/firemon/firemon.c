@@ -41,6 +41,18 @@ static void my_handler(int s){
 	exit(0); 
 }
 
+// find the first child process for the specified pid
+// return -1 if not found
+int find_child(int id) {
+	int i;
+	for (i = 0; i < MAX_PIDS; i++) {
+		if (pids[i].level == 2 && pids[i].parent == id)
+			return i;
+	}
+	
+	return -1;
+}
+
 // drop privileges
 void firemon_drop_privs(void) {
 	// drop privileges
@@ -113,6 +125,14 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--list") == 0) {
 			list();
+			return 0;
+		}
+		else if (strcmp(argv[i], "--seccomp") == 0) {
+			seccomp();
+			return 0;
+		}
+		else if (strcmp(argv[i], "--caps") == 0) {
+			caps();
 			return 0;
 		}
 		else if (strcmp(argv[i], "--tree") == 0) {

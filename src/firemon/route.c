@@ -184,18 +184,6 @@ static void print_route(const char *fname) {
 
 }
 
-// return -1 if not found
-static int find_child(int id) {
-	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
-		if (pids[i].level == 2 && pids[i].parent == id)
-			return i;
-	}
-	
-	return -1;
-}
-
-
 void route(pid_t pid) {
 	if (getuid() == 0)
 		firemon_drop_privs();

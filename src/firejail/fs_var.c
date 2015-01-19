@@ -310,6 +310,10 @@ void fs_var_utmp(void) {
 	gid_t utmp_group = 0;
 	if (stat("/var/run/utmp", &s) == 0)
 		utmp_group = s.st_gid;
+	else {
+		fprintf(stderr, "Warning: cannot find /var/run/utmp\n");
+		return;
+	}
 
 	// create /tmp/firejail/mnt directory
 	fs_build_mnt_dir();

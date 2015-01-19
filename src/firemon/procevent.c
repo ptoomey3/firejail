@@ -124,6 +124,7 @@ static int enable_kernel_trace(void) {
 	char *cmd;
 	if (asprintf(&cmd, "trace %u", SERVER_PORT) == -1) {
 		fprintf(stderr, "Error: cannot allocate memory\n");
+		fclose(fp);
 		return 1;
 	}
 	

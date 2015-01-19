@@ -1,7 +1,10 @@
 * firemon enhancements - display the command that started the sandbox
-* create empty /var/log/wtmp and /var/log/btmp files
-* generate a brand new /var/run/utmp file
+* utmp, btmp and wtmp enhancements:
+*    create empty /var/log/wtmp and /var/log/btmp files in sandbox
+*    generate a brand new /var/run/utmp file in sandbox
 * cpu affinity
+* Linux control groups support
+* Opera web browser support
 
 firejail (0.9.18) baseline; urgency=low
   * Support for tracing system, setuid, setgid, setfsuid, setfsgid syscalls

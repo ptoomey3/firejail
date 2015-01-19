@@ -27,10 +27,11 @@
 #define MAX_READ 1024				  // line buffer for profile files
 
 // find and read the profile specified by name from dir directory
-void profile_find(const char *name, const char *dir) {
+int profile_find(const char *name, const char *dir) {
 	assert(name);
 	assert(dir);
 	
+	int rv = 0;	
 	DIR *dp;
 	char *pname;
 	if (asprintf(&pname, "%s.profile", name) == -1)
@@ -48,6 +49,7 @@ void profile_find(const char *name, const char *dir) {
 					errExit("asprintf");
 				profile_read(etcpname);
 				free(etcpname);
+				rv = 1;
 				break;
 			}
 		}
@@ -55,6 +57,7 @@ void profile_find(const char *name, const char *dir) {
 	}
 
 	free(pname);
+	return rv;
 }
 
 
@@ -261,7 +264,7 @@ void profile_read(const char *fname) {
 		exit(1);
 	}
 
-	printf("Reading %s\n", fname);
+	printf("Reading profile %s\n", fname);
 
 	// linked list of lines
 	struct mylist {

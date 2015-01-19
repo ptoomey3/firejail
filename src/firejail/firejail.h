@@ -153,7 +153,7 @@ void fs_chroot(const char *rootdir);
 
 // profile.c
 // find and read the profile specified by name from dir directory
-void profile_find(const char *name, const char *dir);
+int profile_find(const char *name, const char *dir);
 // read a profile file
 void profile_read(const char *fname);
 // check profile line; if line == 0, this was generated from a command line option

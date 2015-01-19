@@ -57,6 +57,7 @@ cp etc/firefox.profile debian/etc/firejail/.
 cp etc/iceweasel.profile debian/etc/firejail/.
 cp etc/login* debian/etc/firejail/.
 cp etc/midori.profile debian/etc/firejail/.
+cp etc/opera.profile debian/etc/firejail/.
 cp etc/transmission-gtk.profile debian/etc/firejail/.
 cp etc/transmission-qt.profile debian/etc/firejail/.
 cp platform/debian/conffiles $DEBIAN_CTRL_DIR/.

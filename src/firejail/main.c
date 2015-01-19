@@ -741,14 +741,14 @@ int main(int argc, char **argv) {
 			char *usercfgdir;
 			if (asprintf(&usercfgdir, "%s/.config/firejail", cfg.homedir) == -1)
 				errExit("asprintf");
-			profile_find(cfg.command_name, usercfgdir);
+			int rv = profile_find(cfg.command_name, usercfgdir);
 			free(usercfgdir);
-			custom_profile = 1;
+			custom_profile = rv;
 		}
 		if (!custom_profile) {
 			// look for a user profile in /etc/firejail directory
-			profile_find(cfg.command_name, "/etc/firejail");
-			custom_profile = 1;
+			int rv = profile_find(cfg.command_name, "/etc/firejail");
+			custom_profile = rv;
 		}
 	}
 

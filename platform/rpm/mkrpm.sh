@@ -41,6 +41,7 @@ install -m 644 /etc/firejail/evince.profile firejail-$VERSION/etc/firejail/evinc
 install -m 644 /etc/firejail/firefox.profile firejail-$VERSION/etc/firejail/firefox.profile
 install -m 644 /etc/firejail/iceweasel.profile firejail-$VERSION/etc/firejail/iceweasel.profile
 install -m 644 /etc/firejail/midori.profile firejail-$VERSION/etc/firejail/midori.profile
+install -m 644 /etc/firejail/opera.profile firejail-$VERSION/etc/firejail/opera.profile
 install -m 644 /etc/firejail/transmission-gtk.profile firejail-$VERSION/etc/firejail/transmission-gtk.profile
 install -m 644 /etc/firejail/transmission-qt.profile firejail-$VERSION/etc/firejail/transmission-qt.profile
 install -m 644 /etc/firejail/login.users firejail-$VERSION/etc/firejail/login.users
@@ -103,6 +104,7 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}/iceweasel.profile
 %config(noreplace) %{_sysconfdir}/%{name}/login.users
 %config(noreplace) %{_sysconfdir}/%{name}/midori.profile
+%config(noreplace) %{_sysconfdir}/%{name}/opera.profile
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-gtk.profile
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-qt.profile
 /usr/bin/firejail

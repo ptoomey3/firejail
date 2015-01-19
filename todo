@@ -208,5 +208,15 @@ http://lists.freedesktop.org/archives/systemd-devel/2014-February/016917.html
 https://code.google.com/p/psutil/issues/detail?id=483
 
 
+* Ubuntu cgroups:
+
+cgroups are not mounted by default!
+
+$ sudo su -
+# cd /sys/fs/cgroup
+# mkdir
+# modprobe cls_cgroup
+# mount -t cgroup -o cpuset,cpuacct,devices,memory,net_cls cgroup root
+# mkdir root/g1
 
 

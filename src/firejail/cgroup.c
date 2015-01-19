@@ -5,8 +5,6 @@
 #include "firejail.h"
 
 void set_cgroup(const char *path) {
-// todo: reenable it - problems on Ubuntu or on systems run by systemd
-return; 
 	// path starts with /sys/fs/cgroup
 	if (strncmp(path, "/sys/fs/cgroup", 14) != 0)
 		goto errout;

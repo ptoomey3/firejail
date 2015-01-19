@@ -79,15 +79,67 @@ echo "TESTING: csh"
 echo "TESTING: dash"
 ./shell_dash.exp
 
-grep "Ubuntu" /etc/os-release
+which firefox
 if [ "$?" -eq 0 ];
 then
 	echo "TESTING: firefox"
 	./firefox.exp
+else
+	echo "TESTING: firefox not found"
+fi
+
+which midori
+if [ "$?" -eq 0 ];
+then
 	echo "TESTING: midori"
 	./midori.exp
+else
+	echo "TESTING: midori not found"
+fi
+
+which chromium-browser
+if [ "$?" -eq 0 ];
+then
 	echo "TESTING: chromium"
 	./chromium.exp
+else
+	echo "TESTING: chromium not found"
+fi
+
+which opera
+if [ "$?" -eq 0 ];
+then
+	echo "TESTING: opera"
+	./opera.exp
+else
+	echo "TESTING: opera not found"
+fi
+
+which transmission-gtk
+if [ "$?" -eq 0 ];
+then
+	echo "TESTING: transmission-gtk"
+	./transmission-gtk.exp
+else
+	echo "TESTING: transmission-gtk not found"
+fi
+
+which transmission-qt
+if [ "$?" -eq 0 ];
+then
+	echo "TESTING: transmission-qt"
+	./transmission-qt.exp
+else
+	echo "TESTING: transmission-qt not found"
+fi
+
+which evince
+if [ "$?" -eq 0 ];
+then
+	echo "TESTING: evince"
+	./evince.exp
+else
+	echo "TESTING: evince not found"
 fi
 
 echo "TESTING: PID"

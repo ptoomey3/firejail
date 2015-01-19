@@ -4,9 +4,13 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
-send -- "firejail --caps firefox www.gentoo.org\r"
+send -- "firejail firefox www.gentoo.org\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
+	"Reading profile /etc/firejail/firefox.profile"
+}
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
 	"Child process initialized"
 }
 sleep 10

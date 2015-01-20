@@ -56,10 +56,14 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 6.1\n";exit}
-	"CapBnd:	0000001bfb1cffff"
+	"CapBnd"
 }
 expect {
-	timeout {puts "TESTING ERROR 6.1\n";exit}
+	timeout {puts "TESTING ERROR 6.2\n";exit}
+	"bfb1cffff"
+}
+expect {
+	timeout {puts "TESTING ERROR 6.3\n";exit}
 	"name=blablabla"
 }
 sleep 1

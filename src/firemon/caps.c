@@ -30,7 +30,7 @@ static void print_caps(int pid) {
 
 	FILE *fp = fopen(file, "r");
 	if (!fp) {
-		printf("\tError: cannot open %s\n", file);
+		printf("  Error: cannot open %s\n", file);
 		free(file);
 		return;
 	}
@@ -38,7 +38,7 @@ static void print_caps(int pid) {
 	char buf[MAXBUF];
 	while (fgets(buf, MAXBUF, fp)) {
 		if (strncmp(buf, "CapBnd:", 7) == 0) {
-			printf("\t%s", buf);
+			printf("  %s", buf);
 			fflush(0);
 			free(file);
 			fclose(fp);

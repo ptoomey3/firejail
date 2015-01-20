@@ -27,11 +27,15 @@ void usage(void) {
 	printf("are also being monitored.\n\n");
 	printf("Options:\n");
 	printf("\t--arp - print ARP table for each sandbox\n");
+	printf("\t--caps - print capabilities configuration for each sandbox\n");
+	printf("\t--cgroup - print control group information for each sandbox\n");
+	printf("\t--cpu - print CPU affinity for each sandbox\n");
 	printf("\t--help, -? - this help screen\n");
 	printf("\t--interface - print network interface information for each sandbox\n");
 	printf("\t--list - list all sandboxes\n");
 	printf("\t--name=name - print information only about named sandbox\n");
 	printf("\t--route - print route table for each sandbox\n");
+	printf("\t--seccomp - print seccomp configuration for each sandbox\n");
 	printf("\t--tree - print a tree of all sandboxed processes\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes\n");
 	printf("\t--version - print program version and exit\n\n");

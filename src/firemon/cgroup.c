@@ -21,9 +21,9 @@
 #include "../include/pid.h"
 
 #define MAXBUF 4098
-static void print_cpu(int pid) {
+static void print_cgroup(int pid) {
 	char *file;
-	if (asprintf(&file, "/proc/%d/status", pid) == -1) {
+	if (asprintf(&file, "/proc/%d/cgroup", pid) == -1) {
 		errExit("asprintf");
 		exit(1);
 	}
@@ -36,20 +36,16 @@ static void print_cpu(int pid) {
 	}
 	
 	char buf[MAXBUF];
-	while (fgets(buf, MAXBUF, fp)) {
-		if (strncmp(buf, "Cpus_allowed_list:", 18) == 0) {
-			printf("  %s", buf);
-			fflush(0);
-			free(file);
-			fclose(fp);
-			return;
-		}
+	if (fgets(buf, MAXBUF, fp)) {
+		printf("  %s", buf);
+		fflush(0);
 	}
+
 	fclose(fp);
 	free(file);
 }
 			
-void cpu(void) {
+void cgroup(void) {
 	if (getuid() == 0)
 		firemon_drop_privs();
 	
@@ -62,7 +58,7 @@ void cpu(void) {
 			pid_print_list(i, 0);
 			int child = find_child(i);
 			if (child != -1)
-				print_cpu(child);
+				print_cgroup(child);
 		}
 	}
 }

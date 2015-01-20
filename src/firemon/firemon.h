@@ -79,4 +79,7 @@ void seccomp(void);
 // cpu.c
 void cpu(void);
 
+// cgroup.c
+void cgroup(void);
+
 #endif

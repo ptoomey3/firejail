@@ -12,6 +12,15 @@ these processes are also being monitored.
 \fB\--arp
 Print ARP table for each sandbox.
 .TP
+\fB\--caps
+Print capabilities configuration for each sandbox.
+.TP
+\fB\--cgroup
+Print control group information for each sandbox.
+.TP
+\fB\--cpu
+Print CPU affinity for each sandbox.
+.TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
@@ -26,6 +35,9 @@ Print information only about named sandbox.
 .TP
 \fB\--route
 Print route table for each sandbox.
+.TP
+\fB\--seccomp
+Print seccomp configuration for each sandbox.
 .TP
 \fB\--top
 Monitor the most CPU-intensive sandboxes.

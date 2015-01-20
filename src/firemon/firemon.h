@@ -73,7 +73,10 @@ void route(pid_t pid);
 // caps.c
 void caps(void);
 
-// seccomp
+// seccomp.c
 void seccomp(void);
+
+// cpu.c
+void cpu(void);
 
 #endif

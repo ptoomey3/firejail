@@ -31,9 +31,36 @@
 static int apply_caps = 0;
 static uint64_t caps = 0;
 static int apply_seccomp = 0;
-
-
 #define BUFLEN 4096
+
+static void extract_cpu(pid_t pid) {
+	char *fname;
+	if (asprintf(&fname, "/proc/%d/root%s/cpu", pid, MNT_DIR) == -1)
+		errExit("asprintf");
+		
+	struct stat s;
+	if (stat(fname, &s) == -1)
+		return;
+	
+	// there is a cpu file in MNT_DIR; load the information from the file
+	load_cpu(fname);
+	free(fname);
+}
+
+static void extract_cgroup(pid_t pid) {
+	char *fname;
+	if (asprintf(&fname, "/proc/%d/root%s/cgroup", pid, MNT_DIR) == -1)
+		errExit("asprintf");
+		
+	struct stat s;
+	if (stat(fname, &s) == -1)
+		return;
+	
+	// there is a cgroup file in MNT_DIR; load the information from the file
+	load_cgroup(fname);
+	free(fname);
+}
+
 static void extract_caps_seccomp(pid_t pid) {
 	// open stat file
 	char *file;
@@ -117,10 +144,17 @@ void join(pid_t pid, const char *homedir) {
 		}
 	}
 
-	// in user mode set caps and seccomp flags
-	if (getuid() != 0)
+	// in user mode set caps seccomp, cpu, cgroup
+	if (getuid() != 0) {
 		extract_caps_seccomp(pid);
+		extract_cpu(pid);
+		extract_cgroup(pid);
+	}
 	
+	// set cgroup
+	if (cfg.cgroup)
+		set_cgroup(cfg.cgroup);
+		
 	// join namespaces
 	if (join_namespace(pid, "ipc"))
 		exit(1);
@@ -157,6 +191,10 @@ void join(pid_t pid, const char *homedir) {
 			}
 		}
 		
+		// set cpu affinity
+		if (cfg.cpus)
+			set_cpu_affinity();
+					
 		// set caps filter
 		if (apply_caps == 1)
 			caps_set(caps);

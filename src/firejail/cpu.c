@@ -3,6 +3,7 @@
 #include <sched.h>
 #include "firejail.h"
 
+// converts a numeric cpu value in the corresponding bit mask
 static void set_cpu(const char *str) {
 	if (strlen(str) == 0)
 		return;
@@ -47,6 +48,44 @@ void read_cpu_list(const char *str) {
 	}
 	set_cpu(start);
 	free(tmp);
+}
+
+void save_cpu(void) {
+	if (cfg.cpus == 0)
+		return;
+
+	char *fname;
+	if (asprintf(&fname, "%s/cpu", MNT_DIR) == -1)
+		errExit("asprintf");
+	FILE *fp = fopen(fname, "w");
+	if (fp) {
+		fprintf(fp, "%x\n", cfg.cpus);
+		fclose(fp);
+		if (chown(fname, 0, 0) < 0)
+			errExit("chown");
+	}
+	else {
+		fprintf(stderr, "Error: cannot save cpu affinity mask\n");
+		free(fname);
+		exit(1);
+	}
+	
+	free(fname);
+}
+
+void load_cpu(const char *fname) {
+	if (!fname)
+		return;
+
+	FILE *fp = fopen(fname, "r");
+	if (fp) {
+		unsigned tmp;
+		fscanf(fp, "%x", &tmp);
+		cfg.cpus = (uint32_t) tmp;
+		fclose(fp);
+	}
+	else
+		fprintf(stderr, "Warning: cannot load cpu affinity mask\n");
 }
 
 void set_cpu_affinity(void) {

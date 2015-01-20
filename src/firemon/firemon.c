@@ -135,6 +135,10 @@ int main(int argc, char **argv) {
 			caps();
 			return 0;
 		}
+		else if (strcmp(argv[i], "--cpu") == 0) {
+			cpu();
+			return 0;
+		}
 		else if (strcmp(argv[i], "--tree") == 0) {
 			tree();
 			return 0;

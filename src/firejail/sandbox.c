@@ -274,12 +274,18 @@ int sandbox(void* sandbox_arg) {
 	// set seccomp
 #ifdef HAVE_SECCOMP
 	if (arg_seccomp == 1)
-		seccomp_filter();
+		seccomp_filter(); // this will also save the filter to MNT_DIR/seccomp file
 #endif
 
 	// set cpu affinity
-	if (cfg.cpus)
+	if (cfg.cpus) {
+		save_cpu(); // save cpu affinity mask to MNT_DIR/cpu file
 		set_cpu_affinity();
+	}
+	
+	// save cgroup in MNT_DIR/cgroup file
+	if (cfg.cgroup)
+		save_cgroup();
 		
 	// drop privileges
 	drop_privs();

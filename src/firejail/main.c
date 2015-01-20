@@ -309,8 +309,8 @@ int main(int argc, char **argv) {
 	int lockfd = -1;
 #endif
 	int arg_ipc = 0;
-	int custom_profile = 0;	// custom profile loaded
 	int arg_cgroup = 0;
+	int custom_profile = 0;	// custom profile loaded
 	
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
@@ -477,7 +477,10 @@ int main(int argc, char **argv) {
 				exit(1);
 			}
 			arg_cgroup = 1;
-			set_cgroup(argv[i] + 9);
+			cfg.cgroup = strdup(argv[i] + 9);
+			if (!cfg.cgroup)
+				errExit("strdup");
+			set_cgroup(cfg.cgroup);
 		}
 		
 		//*************************************

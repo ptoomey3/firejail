@@ -74,8 +74,10 @@ typedef struct config_t {
 	unsigned rlimit_fsize;
 	unsigned rlimit_sigpending;
 	
-	// cpu affinity
+	// cpu affinity and control groups
 	uint32_t cpus;
+	char *cgroup;
+	
 
 	// command line
 	char *command_line;
@@ -259,8 +261,11 @@ void set_rlimits(void);
 // cpu.c
 void read_cpu_list(const char *str);
 void set_cpu_affinity(void);
+void load_cpu(const char *fname);
 
 // cgroup.c
+void save_cgroup(void);
+void load_cgroup(const char *fname);
 void set_cgroup(const char *path);
 
 #endif

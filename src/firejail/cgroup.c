@@ -4,6 +4,56 @@
 #include <string.h>
 #include "firejail.h"
 
+#define MAXBUF 4096
+
+void save_cgroup(void) {
+	if (cfg.cgroup == NULL)
+		return;
+	
+	char *fname;
+	if (asprintf(&fname, "%s/cgroup", MNT_DIR) == -1)
+		errExit(fname);
+	
+	FILE *fp = fopen(fname, "w");
+	if (fp) {
+		fprintf(fp, "%s", cfg.cgroup);
+		fflush(0);
+		fclose(fp);
+		if (chown(fname, 0, 0) < 0)
+			errExit("chown");
+	}
+	else {
+		fprintf(stderr, "Error: cannot save cgroup\n");
+		free(fname);
+		exit(1);
+	}
+	
+	free(fname);
+}
+
+void load_cgroup(const char *fname) {
+	if (!fname)
+		return;
+
+	FILE *fp = fopen(fname, "r");
+	if (fp) {
+		char buf[MAXBUF];
+		if (fgets(buf, MAXBUF, fp)) {
+			cfg.cgroup = strdup(buf);
+			if (!cfg.cgroup)
+				errExit("strdup");
+		}
+		else
+			goto errout;
+		
+		fclose(fp);
+		return;
+	}
+errout:
+	fprintf(stderr, "Warrning: cannot load control group\n");
+}
+
+
 void set_cgroup(const char *path) {
 	// path starts with /sys/fs/cgroup
 	if (strncmp(path, "/sys/fs/cgroup", 14) != 0)

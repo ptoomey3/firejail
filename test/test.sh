@@ -210,6 +210,9 @@ echo "TESTING: seccomp chmod (seccomp lists)"
 echo "TESTING: seccomp chmod profile (seccomp lists)"
 ./seccomp-chmod-profile.exp
 
+echo "TESTING: seccomp empty"
+./seccomp-empty.exp
+
 echo "TESTING: read/write /var/tmp"
 ./fs_var_tmp.exp
 

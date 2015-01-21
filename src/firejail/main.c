@@ -49,6 +49,7 @@ int arg_zsh = 0;				// use zsh as default shell
 int arg_csh = 0;				// use csh as default shell
 int arg_seccomp = 0;				// enable seccomp filter
 char *arg_seccomp_list = NULL;		// optional seccomp list
+int arg_seccomp_empty = 0;			// start with an empty syscall list
 int arg_caps = 0;				// enable capabilities filter
 int arg_trace = 0;				// syscall tracing support
 int arg_rlimit_nofile = 0;			// rlimit nofile

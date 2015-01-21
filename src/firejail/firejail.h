@@ -98,6 +98,7 @@ extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
 extern int arg_seccomp;	// enable seccomp filter
 extern char *arg_seccomp_list;//  optional seccomp list
+extern int arg_seccomp_empty;// start with an empty syscall list
 extern int arg_caps;		// enable capabilities filter
 extern int arg_trace;		// syscall tracing support
 extern int arg_rlimit_nofile;	// rlimit nofile

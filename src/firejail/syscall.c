@@ -4903,7 +4903,10 @@ int syscall_check_list(const char *slist, void (*callback)(int)) {
 		else if (*ptr == ',') {
 			*ptr = '\0';
 			int nr = syscall_find_name(start);
-			if (nr == -1) {
+			if (nr == -1 && strcmp(start, "empty") == 0) {
+				arg_seccomp_empty = 1;
+			}
+			else if (nr == -1) {
 				fprintf(stderr, "Error: syscall %s not found\n", start);
 				return -1;
 			}

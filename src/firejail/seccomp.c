@@ -313,22 +313,27 @@ static void read_seccomp_file(void) {
 // enabled only for --seccomp option
 int seccomp_filter(void) {
 	filter_init();
-	filter_add(SYS_mount);
-	filter_add(SYS_umount2);
-	filter_add(SYS_ptrace);
-	filter_add(SYS_kexec_load);
-	filter_add(SYS_open_by_handle_at);
-	filter_add(SYS_init_module);
+	if (arg_seccomp_empty) {
+		if (arg_debug)
+			printf("Default seccomp list not included\n");
+	}
+	else {
+		filter_add(SYS_mount);
+		filter_add(SYS_umount2);
+		filter_add(SYS_ptrace);
+		filter_add(SYS_kexec_load);
+		filter_add(SYS_open_by_handle_at);
+		filter_add(SYS_init_module);
 #ifdef SYS_finit_module // introduced in 2013
-	filter_add(SYS_finit_module);
+		filter_add(SYS_finit_module);
 #endif
-	filter_add(SYS_delete_module);
-	filter_add(SYS_iopl);
-	filter_add(SYS_ioperm);
-	filter_add(SYS_swapon);
-	filter_add(SYS_swapoff);
-	filter_add(SYS_syslog);
-	
+		filter_add(SYS_delete_module);
+		filter_add(SYS_iopl);
+		filter_add(SYS_ioperm);
+		filter_add(SYS_swapon);
+		filter_add(SYS_swapoff);
+		filter_add(SYS_syslog);
+	}
 	if (arg_seccomp_list) {
 		if (syscall_check_list(arg_seccomp_list, filter_add)) {
 			fprintf(stderr, "Error: cannot load seccomp filter\n");

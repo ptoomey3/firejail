@@ -23,7 +23,8 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 3.1\n";exit}
-	"firefox"
+	"firefox" {puts "firefox detected\n";}
+	"iceweasel" {puts "iceweasel detected\n";}
 }
 sleep 1
 send -- "firejail --name=blablabla\r"
@@ -37,7 +38,8 @@ spawn $env(SHELL)
 send -- "firemon --seccomp\r"
 expect {
 	timeout {puts "TESTING ERROR 5\n";exit}
-	":firejail firefox"
+	":firejail firefox" {puts "firefox detected\n";}
+	":firejail iceweasel" {puts "iceweasel detected\n";}
 }
 expect {
 	timeout {puts "TESTING ERROR 5.1\n";exit}
@@ -51,7 +53,8 @@ sleep 1
 send -- "firemon --caps\r"
 expect {
 	timeout {puts "TESTING ERROR 6\n";exit}
-	":firejail firefox"
+	":firejail firefox" {puts "firefox detected\n";}
+	":firejail iceweasel" {puts "iceweasel detected\n";}
 }
 expect {
 	timeout {puts "TESTING ERROR 6.1\n";exit}

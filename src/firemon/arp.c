@@ -18,12 +18,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firemon.h"
-#include "../include/pid.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <assert.h>
 #define MAXBUF 4096
 
 static void print_arp(const char *fname) {
@@ -92,7 +86,7 @@ void arp(pid_t pid) {
 			int child = find_child(i);
 			if (child != -1) {
 				char *fname;
-				if (!asprintf(&fname, "/proc/%d/net/arp", child) == -1)
+				if (asprintf(&fname, "/proc/%d/net/arp", child) == -1)
 					errExit("asprintf");
 				print_arp(fname);
 				free(fname);

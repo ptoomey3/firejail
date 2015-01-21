@@ -18,9 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firemon.h"
-#include "../include/pid.h"
-
 #define MAXBUF 4098
+
 static void print_cgroup(int pid) {
 	char *file;
 	if (asprintf(&file, "/proc/%d/cgroup", pid) == -1) {

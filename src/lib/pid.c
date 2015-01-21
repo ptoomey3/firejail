@@ -17,25 +17,26 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-#include <dirent.h>
-#include <pwd.h>
-#include <termios.h>
-#include <sys/ioctl.h>
+//#define _GNU_SOURCE
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <sys/stat.h>
+//#include <fcntl.h>
+//#include <string.h>
+//#include <dirent.h>
+//#include <pwd.h>
+//#include <termios.h>
+//#include <sys/ioctl.h>
 #include "../include/common.h"
 #include "../include/pid.h"
-
+#include <string.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <sys/ioctl.h>
+#include <dirent.h>
+       
 #define PIDS_BUFLEN 4096
 Process pids[MAX_PIDS];
-static unsigned long long sysuptime = 0;
-static unsigned clocktick = 0;
-static unsigned pgs_rss = 0;
-static unsigned pgs_shared = 0;
 
 // get the memory associated with this pid
 void pid_getmem(unsigned pid, unsigned *rss, unsigned *shared) {

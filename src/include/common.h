@@ -20,10 +20,16 @@
 
 #ifndef COMMON_H
 #define COMMON_H
+#define _GNU_SOURCE
+#include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include <ctype.h>
+#include <assert.h>
 
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s:%s(%d)", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 

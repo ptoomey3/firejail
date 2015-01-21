@@ -17,12 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
+#include "firemon.h"
 #include <termios.h>
 #include <sys/ioctl.h>
-#include "firemon.h"
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+       
 static unsigned pgs_rss = 0;
 static unsigned pgs_shared = 0;
 static unsigned clocktick = 0;

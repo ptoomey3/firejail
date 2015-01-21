@@ -17,19 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include "firejail.h"
 #include <sys/mount.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/limits.h>
 #include <glob.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <pwd.h>
-#include "firejail.h"
 
 void fs_trace_preload(void) {
 	struct stat s;
@@ -50,8 +45,6 @@ void fs_trace_preload(void) {
 }
 
 void fs_trace(void) {
-	struct stat s;
-
 	// create /tmp/firejail/mnt directory
 	fs_build_mnt_dir();
 	

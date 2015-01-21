@@ -17,19 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include "firejail.h"
 #include <sys/mount.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/limits.h>
 #include <glob.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <pwd.h>
-#include "firejail.h"
 
 void fs_dev_shm(void) {
 	uid_t uid = getuid(); // set a new shm only if we started as root

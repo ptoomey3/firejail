@@ -19,20 +19,12 @@
 */
 #ifndef FIREMON_H
 #define FIREMON_H
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <time.h>
-#include <dirent.h>
-#include <linux/connector.h>
-#include <linux/netlink.h>
-#include <linux/cn_proc.h>
 #include <stdint.h>
 #include "../include/pid.h"
 #include "../include/common.h"
@@ -81,5 +73,8 @@ void cpu(void);
 
 // cgroup.c
 void cgroup(void);
+
+// tree
+void tree(void);
 
 #endif

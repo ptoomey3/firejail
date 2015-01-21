@@ -18,19 +18,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 	
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include "firejail.h"
 #include <sys/mount.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <assert.h>
 #include <sys/prctl.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include "firejail.h"
 
 #define BUFLEN 500 // generic read buffer
 

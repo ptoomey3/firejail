@@ -17,12 +17,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <dirent.h>
 #include "firejail.h"
+#include <dirent.h>
 
 #define MAX_READ 1024				  // line buffer for profile files
 
@@ -265,17 +261,6 @@ void profile_read(const char *fname) {
 	}
 
 	printf("Reading profile %s\n", fname);
-
-	// linked list of lines
-	struct mylist {
-		char *line;
-		struct mylist *next;
-	}
-	m = {
-		NULL, NULL
-	};
-	struct mylist *mptr = &m;
-	int mylist_cnt = 1;
 
 	// read the file line by line
 	char buf[MAX_READ + 1];

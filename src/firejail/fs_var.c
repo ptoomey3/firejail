@@ -17,12 +17,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include "firejail.h"
 #include <sys/mount.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/limits.h>
 #include <glob.h>
@@ -30,7 +26,7 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <utmp.h>
-#include "firejail.h"
+#include <time.h>
 
 typedef struct dirdata_t{
 	struct dirdata_t *next;
@@ -114,7 +110,6 @@ void fs_var_log(void) {
 	build_list("/var/log");
 	
 	// create /var/log if it does't exit
-	struct stat s;
 	if (is_dir("/var/log")) {
 		// extract group id for /var/log/wtmp
 		struct stat s;

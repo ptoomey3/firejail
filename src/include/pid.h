@@ -21,6 +21,8 @@
 #define PID_H
 #define MAX_PIDS 32769
 
+#define _GNU_SOURCE
+#include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 typedef struct {

@@ -18,14 +18,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firemon.h"
-#include <sys/syscall.h>
-#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <net/if.h>
-#include <net/route.h>
-#include <linux/if_bridge.h>
+#include <linux/connector.h>
+#include <linux/netlink.h>
 #include <linux/if_link.h>
+
+//#include <net/route.h>
+//#include <linux/if_bridge.h>
 
 // print IP addresses for all interfaces
 static void net_ifprint(void) {

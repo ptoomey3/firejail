@@ -18,17 +18,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "firejail.h"
 #include <errno.h>
 #include <linux/filter.h>
-#include <unistd.h>
-#include <stdio.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 #include <linux/capability.h>
 #include <linux/audit.h>
-#include "firejail.h"
 #include <sys/prctl.h>
+
+// todo: figure out where this definitins should be; on Debian 7 capget and <sys/capability.h> are not found
+extern int capget(cap_user_header_t hdrp, cap_user_data_t datap);
+extern int capset(cap_user_header_t hdrp, const cap_user_data_t datap);
 
 void caps_print(void) {
 	cap_user_header_t       hdr;

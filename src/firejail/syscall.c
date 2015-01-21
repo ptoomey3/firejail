@@ -19,9 +19,8 @@
 */
 
 #ifdef HAVE_SECCOMP
-#include <sys/syscall.h>
-#include <string.h>
 #include "firejail.h"
+#include <sys/syscall.h>
 
 typedef struct {
 	char *name;

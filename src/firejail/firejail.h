@@ -19,10 +19,6 @@
 */
 #ifndef FIREJAIL_H
 #define FIREJAIL_H
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <assert.h>
 #include "../include/common.h"
 
 #define USELOCK
@@ -262,6 +258,7 @@ void set_rlimits(void);
 void read_cpu_list(const char *str);
 void set_cpu_affinity(void);
 void load_cpu(const char *fname);
+void save_cpu(void);
 
 // cgroup.c
 void save_cgroup(void);

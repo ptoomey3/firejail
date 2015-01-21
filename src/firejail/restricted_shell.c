@@ -18,7 +18,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firejail.h"
-#include <string.h>
 
 #define MAX_READ 4096	// maximum line length
 char *restricted_user = NULL;
@@ -61,7 +60,7 @@ int restricted_shell(const char *user) {
 		if (strcmp(user, usr) == 0) {
 			restricted_user = strdup(user);
 		    	// extract program arguments
-		    	char *arg[MAX_ARGS + 1];
+
 		    	fullargv[0] = "firejail";
 		    	int i;
 		    	ptr = args;

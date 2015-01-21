@@ -17,16 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include "firemon.h"
+#include <signal.h>
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
-#include <signal.h>
 #include <grp.h>
-#include "firemon.h"
+
+
 static int arg_route = 0;
 static int arg_arp = 0;
 static int arg_interface = 0;
@@ -161,7 +159,7 @@ int main(int argc, char **argv) {
 
 		else if (strncmp(argv[i], "--name=", 7) == 0) {
 			char *name = argv[i] + 7;
-			if (name2pid(name, &pid)) {
+			if (name2pid(name, (pid_t *) &pid)) {
 				fprintf(stderr, "Error: cannot find sandbox %s\n", name);
 				return 1;
 			}

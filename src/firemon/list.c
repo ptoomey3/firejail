@@ -18,7 +18,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firemon.h"
-#include "../include/pid.h"
 
 void list(void) {
 	if (getuid() == 0)

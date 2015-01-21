@@ -17,10 +17,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <arpa/inet.h>
 #include "firemon.h"
+#include <sys/socket.h>
+#include <linux/connector.h>
+#include <linux/netlink.h>
+#include <linux/cn_proc.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <time.h>
 #define PIDS_BUFLEN 4096
 #define SERVER_PORT 889	// 889-899 is left unassigned by IANA
 
@@ -267,7 +273,6 @@ static int procevent_monitor(const int sock, const int sock_udp, pid_t mypid) {
 			struct cn_msg *cn_msg;
 			struct proc_event *proc_ev;
 			struct tm tm;
-			struct timeval tv;
 			time_t now;
 
 			if ((nlmsghdr->nlmsg_type == NLMSG_ERROR) ||

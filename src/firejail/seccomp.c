@@ -42,19 +42,12 @@
 	};
 */
 #ifdef HAVE_SECCOMP
+#include "firejail.h"
 #include <errno.h>
 #include <linux/filter.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/syscall.h>
 #include <linux/capability.h>
 #include <linux/audit.h>
-#include "firejail.h"
-#include <assert.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -99,8 +92,7 @@ struct seccomp_data {
 		 (offsetof(struct seccomp_data, nr)))
 #define BLACKLIST(syscall_nr)	\
 	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, syscall_nr, 0, 1),	\
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL) //	\
-//		 SECCOMP_RET_ERRNO|(SECCOMP_RET_DATA))
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
 
 #define RETURN_ALLOW BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 

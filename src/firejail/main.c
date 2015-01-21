@@ -17,16 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#include "firejail.h"
+#include "../include/pid.h"
 #define _GNU_SOURCE
 #include <sys/utsname.h>
 #include <sched.h>
-#include <string.h>
-#include <unistd.h>
 #include <sys/mount.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <assert.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <pwd.h>
@@ -37,8 +35,6 @@
 #include <signal.h>
 #include <time.h>
 
-#include "firejail.h"
-#include "../include/pid.h"
 
 #define STACK_SIZE (1024 * 1024)
 static char child_stack[STACK_SIZE];		// space for child's stack

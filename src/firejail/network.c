@@ -17,10 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "firejail.h"
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -29,7 +26,6 @@
 #include <net/if.h>
 #include <net/route.h>
 #include <linux/if_bridge.h>
-#include "firejail.h"
 
 // print IP addresses for all interfaces
 void net_ifprint(void) {

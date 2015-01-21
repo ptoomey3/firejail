@@ -17,16 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <sys/types.h>
+#include "firejail.h"
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/prctl.h>
-#include <string.h>
-#include "firejail.h"
 
 static int apply_caps = 0;
 static uint64_t caps = 0;

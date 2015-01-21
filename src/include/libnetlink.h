@@ -18,7 +18,10 @@
 #ifndef __LIBNETLINK_H__
 #define __LIBNETLINK_H__ 1
 
+#define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <asm/types.h>
 #include <linux/netlink.h>
@@ -26,9 +29,6 @@
 #include <linux/if_link.h>
 #include <linux/if_addr.h>
 #include <linux/neighbour.h>
-//#include <linux/netconf.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 struct rtnl_handle
 {

@@ -18,12 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firemon.h"
-#include "../include/pid.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
 #include <assert.h>
+#include <arpa/inet.h>
 #define MAXBUF 4096
 
 typedef struct  iflist_t {
@@ -198,12 +194,12 @@ void route(pid_t pid) {
 			int child = find_child(i);
 			if (child != -1) {
 				char *fname;
-				if (!asprintf(&fname, "/proc/%d/net/fib_trie", child) == -1)
+				if (asprintf(&fname, "/proc/%d/net/fib_trie", child) == -1)
 					errExit("asprintf");
 				extract_if(fname);
 				free(fname);
 
-				if (!asprintf(&fname, "/proc/%d/net/route", child) == -1)
+				if (asprintf(&fname, "/proc/%d/net/route", child) == -1)
 					errExit("asprintf");
 				print_route(fname);
 				free(fname);

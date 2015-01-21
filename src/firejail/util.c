@@ -17,15 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include <sys/types.h>
+#include "firejail.h"
 #include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 #include <syslog.h>
 #include <errno.h>
 #include <dirent.h>
-#include "firejail.h"
 
 void logsignal(int s) {
 	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_DAEMON);

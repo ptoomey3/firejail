@@ -36,14 +36,6 @@ su: System error
 * list dbus sockets
 sudo netstat -nap | grep dbus | grep CONNECTED | awk '{print $8}' | sort | uniq -c
 
-* syscalls
-/usr/include/x86_64-linux-gnu/bits/syscall.h
-strace -f -c iceweasel
-
-Trace files being opened by firefox
-firejail strace -f -e open -o strace.out firefox
-
-
 * libvirt-lxc:
  - /sys the host "sysfs" instance remounted read-only
  - /proc a new instance of the "proc" filesystem
@@ -158,20 +150,6 @@ netblue@debian:~/work/firejail/trunk$ lspci | grep Audio
 netblue@debian:~/work/firejail/trunk$ 
 
 
-* function interposition
-
- A few caveats before we close. First, LD_PRELOAD is ignored for programs with the SUID
- permission bits set for security reasons. Since function interposition lets you make a program
- do almost anything you want it to, Linux prevents you from modifying the behavior of a program
-  running on behalf of another user or group. Second, you cannot interpose internal library 
-  function calls, since these are resolved before runtime. For instance, if some function in libc 
-  calls malloc, it will never call a wrapper function from a different library.
-
-Aside from these limitations, function interposition is a very powerful technique that is useful
- for monitoring programs or modifying their behavior. Happy interposing! 
- 	
- Library call interposition
- 
 * bug???
 netblue@debian:~/work/firejail-sf$ firejail --trace svn commit -m "0.9.14 testing"
 Parent pid 7848, child pid 7849

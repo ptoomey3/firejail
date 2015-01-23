@@ -335,3 +335,33 @@ void check_private_dir(void) {
 		exit(1);
 	}
 }
+
+void extract_command_name(const char *str) {
+	assert(str);
+	cfg.command_name = strdup(str);
+	if (!cfg.command_name)
+		errExit("strdup");
+
+	// restrict the command name to the first word
+	char *ptr = cfg.command_name;
+	while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
+		ptr++;
+	*ptr = '\0';
+	
+	// remove the path: /usr/bin/firefox becomes firefox
+	ptr = strrchr(cfg.command_name, '/');
+	if (ptr) {
+		ptr++;
+		if (*ptr == '\0') {
+			fprintf(stderr, "Error: invalid command name\n");
+			exit(1);
+		}
+		
+		char *tmp = strdup(ptr);
+		if (!tmp)
+			errExit("strdup");
+		free(cfg.command_name);
+		cfg.command_name = tmp;
+printf("here %d\n", __LINE__);
+	}
+}

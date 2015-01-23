@@ -195,6 +195,7 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask);
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);
 
 // util.c
+void extract_command_name(const char *str);
 void logsignal(int s);
 void logmsg(const char *msg);
 void logargs(int argc, char **argv) ;

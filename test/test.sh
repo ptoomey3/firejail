@@ -25,6 +25,9 @@ rm -f index.html*
 ./trace.exp
 rm -f index.html*
 
+echo "TESTING: extract command"
+./extract_command.exp
+
 echo "TESTING: rlimit"
 ./option_rlimit.exp
 

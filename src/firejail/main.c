@@ -668,15 +668,9 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: invalid %s command line option\n", argv[i]);
 				return 1;
 			}
-		
+			
 			// we have a program name coming
-			if (asprintf(&cfg.command_name, "%s", argv[i]) == -1)
-				errExit("asprintf");
-			// restrict the command name to the first word
-			char *ptr = cfg.command_name;
-			while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
-				ptr++;
-			*ptr = '\0';
+			extract_command_name(argv[i]);
 			prog_index = i;
 			break;
 		}

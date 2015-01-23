@@ -197,4 +197,6 @@ $ sudo su -
 # mount -t cgroup -o cpuset,cpuacct,devices,memory,net_cls cgroup root
 # mkdir root/g1
 
+* Icon theme
+http://tiheum.deviantart.com/art/Faenza-Icons-173323228
 

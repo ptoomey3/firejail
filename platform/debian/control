@@ -10,8 +10,9 @@ Homepage: http://firejail.sourceforge.net
 Description: Linux namepaces sandbox program.
  Firejail  is  a  SUID sandbox program that reduces the risk of security
  breaches by restricting the running environment of untrusted applications
- using Linux namespaces. It includes a sandbox profile for Iceweasel/Mozilla
- Firefox.
+ using Linux namespaces and seccmp-bpf. It includes sandbox profiles for
+ Iceweasel/Mozilla Firefox, Chromium, Midori, Opera, Evince, Transmission
+ and VLC.
  .
  Firejail also expands the restricted shell facility found in bash by
  adding Linux namespace support. It also supports sandboxing SSH users

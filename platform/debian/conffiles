@@ -11,3 +11,4 @@
 /etc/firejail/opera.profile
 /etc/firejail/transmission-gtk.profile
 /etc/firejail/transmission-qt.profile
+/etc/firejail/vlc.profile

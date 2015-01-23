@@ -44,6 +44,7 @@ install -m 644 /etc/firejail/midori.profile firejail-$VERSION/etc/firejail/midor
 install -m 644 /etc/firejail/opera.profile firejail-$VERSION/etc/firejail/opera.profile
 install -m 644 /etc/firejail/transmission-gtk.profile firejail-$VERSION/etc/firejail/transmission-gtk.profile
 install -m 644 /etc/firejail/transmission-qt.profile firejail-$VERSION/etc/firejail/transmission-qt.profile
+install -m 644 /etc/firejail/vlc.profile firejail-$VERSION/etc/firejail/vlc.profile
 install -m 644 /etc/firejail/login.users firejail-$VERSION/etc/firejail/login.users
 
 mkdir -p firejail-$VERSION/usr/share/bash-completion/completions
@@ -107,6 +108,7 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}/opera.profile
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-gtk.profile
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-qt.profile
+%config(noreplace) %{_sysconfdir}/%{name}/vlc.profile
 /usr/bin/firejail
 /usr/bin/firemon
 /usr/lib/firejail/libtrace.so

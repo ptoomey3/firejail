@@ -200,3 +200,7 @@ $ sudo su -
 * Icon theme
 http://tiheum.deviantart.com/art/Faenza-Icons-173323228
 
+* systemd integration
+see playpen: https://github.com/thestinger/playpen
+allows setting: memory limit, devices, cpu accounting, blockio accounting
+it has a learn mode where he records all syscalls for whitelisting purposes

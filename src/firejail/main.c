@@ -372,23 +372,28 @@ int main(int argc, char **argv) {
 		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			logargs(argc, argv);
-
+			
+			// join sandbox by pid or by name
 			pid_t pid;
 			if (read_pid(argv[i] + 7, &pid) == 0)		
-				join(pid, cfg.homedir);
+				join(pid, cfg.homedir, argc, argv, i + 1);
 			else
-				join_name(argv[i] + 7, cfg.homedir);
+				join_name(argv[i] + 7, cfg.homedir, argc, argv, i + 1);
+				
 			// it will never get here!!!
 			exit(0);
 		}
 		else if (strncmp(argv[i], "--shutdown=", 11) == 0) {
 			logargs(argc, argv);
 			
+			// shutdown sandbox by pid or by name
 			pid_t pid;
 			if (read_pid(argv[i] + 11, &pid) == 0)
 				shut(pid);
 			else
 				shut_name(argv[i] + 11);
+
+			// it will never get here!!!
 			exit(0);
 		}
 		

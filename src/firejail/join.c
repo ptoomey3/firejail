@@ -29,6 +29,38 @@ static uint64_t caps = 0;
 static int apply_seccomp = 0;
 #define BUFLEN 4096
 
+static void extract_command(int argc, char **argv, int index) {
+	if (index >= argc)
+		return;
+printf("index %d\n", index);
+
+	// first argv needs to be a valid command
+	if (argv[index] == '-') {
+		fprintf(stderr, "Error: invalid option %s after --join\n", argv[index]);
+		exit(1);
+	}
+
+
+	int len = 0;
+	int i;
+	// calculate command length
+	for (i = index; i < argc; i++) {
+printf("#%s#\n", argv[i]);		
+		len += strlen(argv[i]) + 1;
+	}
+	assert(len > 0);
+
+	// build command
+	cfg.command_line = malloc(len + 1);
+	*cfg.command_line = '\0';
+	for (i = index; i < argc; i++) {
+		strcat(cfg.command_line, argv[i]);
+		strcat(cfg.command_line, " ");
+	}
+	if (arg_debug)
+		printf("Extracted command #%s#\n", cfg.command_line);
+}
+
 static void extract_cpu(pid_t pid) {
 	char *fname;
 	if (asprintf(&fname, "/proc/%d/root%s/cpu", pid, MNT_DIR) == -1)
@@ -93,7 +125,7 @@ static void extract_caps_seccomp(pid_t pid) {
 	free(file);
 }
 
-void join_name(const char *name, const char *homedir) {
+void join_name(const char *name, const char *homedir, int argc, char **argv, int index) {
 	if (!name || strlen(name) == 0) {
 		fprintf(stderr, "Error: invalid sandbox name\n");
 		exit(1);
@@ -104,10 +136,12 @@ void join_name(const char *name, const char *homedir) {
 		exit(1);
 	}
 
-	join(pid, homedir);
+	join(pid, homedir, argc, argv, index);
 }
 
-void join(pid_t pid, const char *homedir) {
+void join(pid_t pid, const char *homedir, int argc, char **argv, int index) {
+	extract_command(argc, argv, index);
+
 	// if the pid is that of a firejail  process, use the pid of a child process inside the sandbox
 	char *comm = pid_proc_comm(pid);
 	if (comm) {
@@ -213,8 +247,25 @@ void join(pid_t pid, const char *homedir) {
 		if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
 			errExit("setenv");
 
-		// replace the process with a regular bash session
-		execlp("/bin/bash", "/bin/bash", NULL);
+		// run icmdline trough /bin/bash
+		if (cfg.command_line == NULL)
+			// replace the process with a regular bash session
+			execlp("/bin/bash", "/bin/bash", NULL);
+		else {
+			// run the command supplied by the user
+
+
+			char *arg[4];
+			arg[0] = "/bin/bash";
+			arg[1] = "-c";
+			if (arg_debug)
+				printf("Starting %s\n", cfg.command_line);
+			arg[2] = cfg.command_line;
+			arg[3] = NULL;
+			execvp("/bin/bash", arg);
+		}
+
+//		execlp("/bin/bash", "/bin/bash", NULL);
 		// it will never get here!!!
 	}
 

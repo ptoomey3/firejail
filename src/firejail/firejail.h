@@ -172,8 +172,8 @@ void drop_privs(void);
 void usage(void);
 
 // join.c
-void join(pid_t pid, const char *homedir);
-void join_name(const char *name, const char *homedir);
+void join(pid_t pid, const char *homedir, int argc, char **argv, int index);
+void join_name(const char *name, const char *homedir, int argc, char **argv, int index);
 void shut(pid_t pid);
 void shut_name(const char *name);
 

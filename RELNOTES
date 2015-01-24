@@ -6,7 +6,7 @@ firejail (0.9.20-rc2) baseline; urgency=low
  * Linux control groups support, --cgroup option
  * Opera web browser support
  * VLC support
- * Add an empty attribute to seccomp command to remove the default
+ * Added "empty" attribute to seccomp command to remove the default
  *    syscall list form seccomp blacklist
  * firemon enhancements
  *   display the command that started the sandbox

@@ -129,6 +129,9 @@ iopl, ioperm, swapon, swapoff and syslog.
 \fB\--seccomp=syscall,syscall,syscall
 Enable seccomp filter, apply the default list and the syscalls specified by the command.
 .TP
+\fB\--seccomp=empty,syscall,syscall
+Enable seccomp filter, and apply the syscalls specified by the command. The default syscall list is not applied.
+.TP
 \fB\--shell=program
 Set default user shell. Use this shell to run the application using -c shell option.
 For example "firejail --shell=/bin/dash firefox" will start Mozilla Firefox as "/bin/dash -c firefox".

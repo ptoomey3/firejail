@@ -91,6 +91,9 @@ void usage(void) {
 	printf("\t\tand syslog.\n");
 	printf("\t--seccomp=syscall,syscall,syscall - enable seccomp filter, apply the\n");
 	printf("\t\tdefault syscall list and the syscalls specified by the command.\n");
+	printf("\t--seccomp=empty,syscall,syscall - enable seccomp filter, and apply\n");
+	printf("\t\tthe syscalls specified by the command. The default syscall list\n");
+	printf("\t\tis not applied.\n");
 #endif
 	printf("\t--shell=program - set default user shell.\n");
 	printf("\t--shutdown=name - shutdown the sandbox started using --name option.\n");

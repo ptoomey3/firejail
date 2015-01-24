@@ -165,6 +165,12 @@ int main(int argc, char **argv) {
 			}
 		}
 		
+		// invalid option
+		else if (*argv[i] == '-') {
+			fprintf(stderr, "Error: invalid option\n");		
+			return 1;
+		}
+		
 		// PID argument
 		else {
 			// this should be a pid number

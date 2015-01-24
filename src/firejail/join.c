@@ -32,7 +32,6 @@ static int apply_seccomp = 0;
 static void extract_command(int argc, char **argv, int index) {
 	if (index >= argc)
 		return;
-printf("index %d\n", index);
 
 	// first argv needs to be a valid command
 	if (argv[index] == '-') {
@@ -45,7 +44,6 @@ printf("index %d\n", index);
 	int i;
 	// calculate command length
 	for (i = index; i < argc; i++) {
-printf("#%s#\n", argv[i]);		
 		len += strlen(argv[i]) + 1;
 	}
 	assert(len > 0);

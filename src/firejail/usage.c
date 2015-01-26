@@ -30,15 +30,19 @@ void usage(void) {
 	printf("namespaces. If no program is specified as an argument, /bin/bash is started by\n");
 	printf("default in the sandbox.\n\n");
 	printf("Options:\n");
+#ifdef HAVE_BIND		
 	printf("\t--bind=dirname1,dirname2 - mount-bind dirname1 on top of dirname2.\n");
 	printf("\t--bind=filename1,dirname2 - mount-bind filename1 on top of filename2.\n");
+#endif
 	printf("\t--blacklist=dirname_or_filename - blacklist directory or file.\n");
 	printf("\t-c - execute command and exit.\n");
 	printf("\t--caps - enable Linux capabilities filter.\n");
 	printf("\t--cgroup=tasks-file - place the sandbox in the specified control group.\n");
 	printf("\t\ttasks-file is the full path of cgroup tasks file.\n");
 	printf("\t\tExample: --cgroup=/sys/fs/cgroup/g1/tasks\n");
+#ifdef HAVE_CHROOT		
 	printf("\t--chroot=dirname - chroot into dirname directory.\n");
+#endif
 	printf("\t--cpu=cpu-number,cpu-number - set cpu affinity.\n");
 	printf("\t\tExample: cpu=0,1,2\n");
 	printf("\t--csh - use /bin/csh as default shell.\n");

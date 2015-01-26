@@ -488,6 +488,7 @@ int main(int argc, char **argv) {
 		//*************************************
 		// filesystem
 		//*************************************
+#ifdef HAVE_BIND		
 		else if (strncmp(argv[i], "--bind=", 7) == 0) {
 			char *line;
 			if (asprintf(&line, "bind %s", argv[i] + 7) == -1)
@@ -496,6 +497,7 @@ int main(int argc, char **argv) {
 			profile_check_line(line, 0);	// will exit if something wrong
 			profile_add(line);
 		}
+#endif
 		else if (strncmp(argv[i], "--tmpfs=", 8) == 0) {
 			char *line;
 			if (asprintf(&line, "tmpfs %s", argv[i] + 8) == -1)
@@ -537,6 +539,7 @@ int main(int argc, char **argv) {
 			profile_read(argv[i] + 10);
 			custom_profile = 1;
 		}
+#ifdef HAVE_CHROOT		
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
 			if (arg_overlay) {
 				fprintf(stderr, "Error: --overlay and --chroot options are mutually exclusive\n");
@@ -560,6 +563,7 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 		}
+#endif
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
 		else if (strncmp(argv[i], "--private=", 10) == 0) {

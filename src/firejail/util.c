@@ -362,6 +362,5 @@ void extract_command_name(const char *str) {
 			errExit("strdup");
 		free(cfg.command_name);
 		cfg.command_name = tmp;
-printf("here %d\n", __LINE__);
 	}
 }

@@ -17,6 +17,22 @@ AS_IF([test "x$enable_seccomp" != "xno"], [
 	AC_SUBST(HAVE_SECCOMP)
 ])
 
+HAVE_CHROOT=""
+AC_ARG_ENABLE([chroot],
+    AS_HELP_STRING([--disable-chroot], [Disable chroot]))
+AS_IF([test "x$enable_chroot" != "xno"], [
+	HAVE_CHROOT="-DHAVE_CHROOT"
+	AC_SUBST(HAVE_CHROOT)
+])
+
+HAVE_BIND=""
+AC_ARG_ENABLE([bind],
+    AS_HELP_STRING([--disable-bind], [Disable bind]))
+AS_IF([test "x$enable_bind" != "xno"], [
+	HAVE_BIND="-DHAVE_BIND"
+	AC_SUBST(HAVE_BIND)
+])
+
 
 # checking pthread library
 AC_CHECK_LIB([pthread], [main], [], AC_MSG_ERROR([*** POSIX thread support not installed ***]))
@@ -29,4 +45,6 @@ AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile s
 echo "Configuration options:"
 echo "   seccomp: $HAVE_SECCOMP"
 echo "   found <linux/seccomp.h> header: $HAVE_SECCOMP_H"
+echo "   chroot: $HAVE_CHROOT"
+echo "   bind: $HAVE_BIND"
 echo

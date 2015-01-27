@@ -93,6 +93,7 @@ int sandbox(void* sandbox_arg) {
 		// force caps and seccomp if not started as root
 		if (getuid() != 0) {
 			arg_seccomp = 1;
+			arg_seccomp_empty = 0; // force the default syscall list in case the user disabled it
 			arg_caps = 0;
 			drop_caps = 1;
 			printf("Dropping all Linux capabilities and enforcing default seccomp filter\n");

@@ -34,7 +34,7 @@ static void extract_command(int argc, char **argv, int index) {
 		return;
 
 	// first argv needs to be a valid command
-	if (argv[index] == '-') {
+	if (*argv[index] == '-') {
 		fprintf(stderr, "Error: invalid option %s after --join\n", argv[index]);
 		exit(1);
 	}

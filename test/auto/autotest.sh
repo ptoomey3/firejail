@@ -2,7 +2,7 @@
 
 arr[1]="TEST 1: svn and standard compilation"
 arr[2]="TEST 2: cppcheck"
-arr[3]="TEST 3: compile seccomp disabled"
+arr[3]="TEST 3: compile seccomp disabled, chroot disabled, bind disabled"
 arr[4]="TEST 4: rvtest"
 arr[5]="TEST 5: expect test as root, no malloc perturb"
 arr[6]="TEST 6: expect test as user, no malloc perturb"
@@ -88,6 +88,7 @@ cat report-test2 > out-test2
 # - check compilation
 #*****************************************************************
 print_title "${arr[3]}"
+# seccomp
 cd firejail-trunk
 make distclean
 ./configure --prefix=/usr --disable-seccomp 2>&1 | tee ../output-configure-noseccomp
@@ -95,6 +96,23 @@ make -j4 2>&1 | tee ../output-make-noseccomp
 cd ..
 grep warning output-configure-noseccomp output-make-noseccomp > ./report-test3
 grep error output-configure-noseccomp output-make-noseccomp >> ./report-test3
+# chroot
+cd firejail-trunk
+make distclean
+./configure --prefix=/usr --disable-chroot 2>&1 | tee ../output-configure-nochroot
+make -j4 2>&1 | tee ../output-make-nochroot
+cd ..
+grep warning output-configure-nochroot output-make-nochroot >> ./report-test3
+grep error output-configure-nochroot output-make-nochroot >> ./report-test3
+# bind
+cd firejail-trunk
+make distclean
+./configure --prefix=/usr --disable-bind 2>&1 | tee ../output-configure-nobind
+make -j4 2>&1 | tee ../output-make-nobind
+cd ..
+grep warning output-configure-nobind output-make-nobind >> ./report-test3
+grep error output-configure-nobind output-make-nobind >> ./report-test3
+# save result
 cat report-test3 > out-test3
 
 #*****************************************************************

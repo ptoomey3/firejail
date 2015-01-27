@@ -42,9 +42,10 @@ AC_SUBST(HAVE_SECCOMP_H)
 
 AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile src/libtrace/Makefile)
 
+echo
 echo "Configuration options:"
 echo "   seccomp: $HAVE_SECCOMP"
-echo "   found <linux/seccomp.h> header: $HAVE_SECCOMP_H"
+echo "   <linux/seccomp.h>: $HAVE_SECCOMP_H"
 echo "   chroot: $HAVE_CHROOT"
 echo "   bind: $HAVE_BIND"
 echo

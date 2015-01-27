@@ -5014,9 +5014,10 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
+echo
 echo "Configuration options:"
 echo "   seccomp: $HAVE_SECCOMP"
-echo "   found <linux/seccomp.h> header: $HAVE_SECCOMP_H"
+echo "   <linux/seccomp.h>: $HAVE_SECCOMP_H"
 echo "   chroot: $HAVE_CHROOT"
 echo "   bind: $HAVE_BIND"
 echo

@@ -5016,6 +5016,7 @@ fi
 
 echo
 echo "Configuration options:"
+echo "   prefix: $prefix"
 echo "   seccomp: $HAVE_SECCOMP"
 echo "   <linux/seccomp.h>: $HAVE_SECCOMP_H"
 echo "   chroot: $HAVE_CHROOT"

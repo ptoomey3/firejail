@@ -44,6 +44,7 @@ AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile s
 
 echo
 echo "Configuration options:"
+echo "   prefix: $prefix"
 echo "   seccomp: $HAVE_SECCOMP"
 echo "   <linux/seccomp.h>: $HAVE_SECCOMP_H"
 echo "   chroot: $HAVE_CHROOT"

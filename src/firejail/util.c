@@ -25,14 +25,14 @@
 #include <dirent.h>
 
 void logsignal(int s) {
-	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_DAEMON);
+	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "Signal %d caught", s);
 	closelog();
 
 }
 
 void logmsg(const char *msg) {
-	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_DAEMON);
+	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "%s\n", msg);
 	closelog();
 }
@@ -59,7 +59,7 @@ void logargs(int argc, char **argv) {
 
 
 void logerr(const char *msg) {
-	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_DAEMON);
+	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_USER);
 	syslog(LOG_ERR, "%s\n", msg);
 	closelog();
 }

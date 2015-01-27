@@ -1,0 +1,31 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send --  "firejail --seccomp=\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Error: empty syscall lists are not allowed"
+}
+
+send --  "firejail --seccomp=empty\r"
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"Error: empty syscall lists are not allowed"
+}
+
+send --  "firejail --seccomp=empty,\r"
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"Error: empty syscall lists are not allowed"
+}
+send --  "firejail --profile=seccomp-bad-empty.profile\r"
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"Error: empty syscall lists are not allowed"
+}
+sleep 1
+puts "\n"
+

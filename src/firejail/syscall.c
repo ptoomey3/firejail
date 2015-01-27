@@ -4890,6 +4890,12 @@ static int syscall_find_name(const char *name) {
 
 // return 1 if error, 0 if OK
 int syscall_check_list(const char *slist, void (*callback)(int)) {
+	// don't allow empty lists
+	if (slist == NULL || *slist == '\0' || strcmp(slist, "empty") == 0 || strcmp(slist, "empty,") == 0) {
+		fprintf(stderr, "Error: empty syscall lists are not allowed\n");
+		return -1;
+	}
+
 	// work on a copy of the string
 	char *str = strdup(slist);
 	if (!str)

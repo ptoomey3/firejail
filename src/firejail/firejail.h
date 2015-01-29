@@ -166,7 +166,6 @@ void profile_add(char *str);
 void list(void);
 void tree(void);
 void top(void);
-void drop_privs(void);
 
 // usage.c
 void usage(void);
@@ -195,6 +194,7 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask);
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);
 
 // util.c
+void drop_privs(int nogroups);
 void extract_command_name(const char *str);
 void logsignal(int s);
 void logmsg(const char *msg);

@@ -23,12 +23,61 @@
 #include <syslog.h>
 #include <errno.h>
 #include <dirent.h>
+#include <grp.h>
+
+#define MAX_GROUPS 1024
+// drop privileges
+// - for root group or if nogroups is set, supplementary groups are not configured
+void drop_privs(int nogroups) {
+	gid_t gid = getgid();
+
+	// configure supplementary groups
+	if (gid == 0 || nogroups) {
+		if (setgroups(0, NULL) < 0)
+			errExit("setgroups");
+	}
+	else {
+		assert(cfg.username);
+		gid_t groups[MAX_GROUPS];
+		int ngroups = MAX_GROUPS;
+		int rv = getgrouplist(cfg.username, gid, groups, &ngroups);
+
+		if (arg_debug && rv) {
+			printf("username %s, groups ", cfg.username);		
+			int i;
+			for (i = 0; i < ngroups; i++)
+				printf("%u, ", groups[i]);
+			printf("\n");
+		}
+		
+		if (rv == -1) {
+			fprintf(stderr, "Warning: cannot extract supplementary group list, dropping them\n");
+			if (setgroups(0, NULL) < 0)
+				errExit("setgroups");
+		}
+		else {
+			rv = setgroups(ngroups, groups);
+			if (rv) {
+				fprintf(stderr, "Warning: cannot set supplementary group list, dropping them\n");
+				if (setgroups(0, NULL) < 0)
+					errExit("setgroups");
+			}
+		}
+	}
+
+	// set uid/gid	
+	if (setgid(getgid()) < 0)
+		errExit("setgid/getgid");
+	if (setuid(getuid()) < 0)
+		errExit("setuid/getuid");
+}
+
+
 
 void logsignal(int s) {
 	openlog("firejail", LOG_NDELAY | LOG_PID, LOG_USER);
 	syslog(LOG_INFO, "Signal %d caught", s);
 	closelog();
-
 }
 
 void logmsg(const char *msg) {

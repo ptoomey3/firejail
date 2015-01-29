@@ -18,20 +18,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 #include "firejail.h"
-#include <grp.h>
-
-void drop_privs(void) {
-	// drop privileges
-	if (setgroups(0, NULL) < 0)
-		errExit("setgroups");
-	if (setgid(getgid()) < 0)
-		errExit("setgid/getgid");
-	if (setuid(getuid()) < 0)
-		errExit("setuid/getuid");
-}
 
 void top(void) {
-	drop_privs();
+	drop_privs(1);
 	
 	char *arg[4];
 	arg[0] = "bash";
@@ -42,7 +31,7 @@ void top(void) {
 }
 
 void list(void) {
-	drop_privs();
+	drop_privs(1);
 	
 	char *arg[4];
 	arg[0] = "bash";
@@ -53,7 +42,7 @@ void list(void) {
 }
 
 void tree(void) {
-	drop_privs();
+	drop_privs(1);
 	
 	char *arg[4];
 	arg[0] = "bash";

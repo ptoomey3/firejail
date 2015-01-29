@@ -8,6 +8,8 @@ firejail (0.9.20-rc2) baseline; urgency=low
  * VLC support
  * Added "empty" attribute to seccomp command to remove the default
  *    syscall list form seccomp blacklist
+ * Added --nogroups option to disable supplementary groups for regular
+ *   users. root user always runs without supplementary groups.
  * firemon enhancements
  *   display the command that started the sandbox
  *   added --caps option to display capabilities for all sandboxes

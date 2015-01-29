@@ -69,6 +69,10 @@ void usage(void) {
 	printf("\t\tbridge device IP address. Up to four --net bridge devices can\n");
 	printf("\t\tbe defined.\n");
 	printf("\t--net=none - enable a new, unconnected network namespace.\n");
+	printf("\t--nogroups - disable supplementary groups. Without this option,\n");
+	printf("\t\tsupplementary groups are enabled for the user starting the\n");
+	printf("\t\tsandbox. For root user supplementary groups are always\n");
+	printf("\t\tdisabled.\n");
 	printf("\t--noip - no IP address and no default gateway address are configured in\n");
 	printf("\t\tthe new network namespace. Use this option in case you intend\n");
 	printf("\t\tto start a DHCP client in the sandbox.\n");

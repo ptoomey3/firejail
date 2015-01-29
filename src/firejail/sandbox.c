@@ -283,7 +283,7 @@ int sandbox(void* sandbox_arg) {
 		save_cgroup();
 		
 	// drop privileges
-	drop_privs(0);
+	drop_privs(arg_nogroups);
 
 	// set the shell
 	char *sh;

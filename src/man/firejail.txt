@@ -86,6 +86,10 @@ automatically to the sandbox. The IP address is checked using ARP before assignm
 assigned as default gateway is the bridge device IP address. Up to four --net
 bridge devices can be defined.
 .TP
+\fB\--nogroups
+Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
+andbox. For root user supplementary groups are always disabled.
+.TP
 \fB\--noip
 No IP address and no default gateway are configured in the new network namespace. Use this option
 in case you intend to start a DHCP client in the sandbox.

@@ -49,7 +49,7 @@ Mount-bind /root/config/ssh on /etc/ssh.
 Remove all gcc files in /usr/bin (file globbing).
 .TP
 \f\blacklist ${PATH}/ifconfig
-Remove ifconfig from the regular path directories.
+Remove ifconfig command from the regular path directories.
 .TP
 \f\blacklist ${HOME}/.ssh
 Remove .ssh directory from user home directory.

@@ -88,7 +88,7 @@ bridge devices can be defined.
 .TP
 \fB\--nogroups
 Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
-andbox. For root user supplementary groups are always disabled.
+sandbox. For root user supplementary groups are always disabled.
 .TP
 \fB\--noip
 No IP address and no default gateway are configured in the new network namespace. Use this option
@@ -167,7 +167,7 @@ Print program version and exit.
 Use /usr/bin/zsh as default user shell.
 
 .SH MONITORING
-Option --list prints a list of all sandboxe. The format
+Option --list prints a list of all sandboxes. The format
 for each process entry is as follows:
 
 	PID:USER:Command

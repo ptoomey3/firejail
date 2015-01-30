@@ -49,7 +49,7 @@ Print a tree of all sandboxed processes.
 Print program version and exit.
 
 .PP
-Option --list prints a list of all sandboxe. The format
+Option --list prints a list of all sandboxes. The format
 for each entry is as follows:
 
 	PID:USER:Command

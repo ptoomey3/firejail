@@ -59,6 +59,19 @@ static void extract_command(int argc, char **argv, int index) {
 		printf("Extracted command #%s#\n", cfg.command_line);
 }
 
+static void extract_nogroups(pid_t pid) {
+	char *fname;
+	if (asprintf(&fname, "/proc/%d/root%s/groups", pid, MNT_DIR) == -1)
+		errExit("asprintf");
+		
+	struct stat s;
+	if (stat(fname, &s) == -1)
+		return;
+
+	arg_nogroups = 1;
+	free(fname);
+}
+
 static void extract_cpu(pid_t pid) {
 	char *fname;
 	if (asprintf(&fname, "/proc/%d/root%s/cpu", pid, MNT_DIR) == -1)
@@ -140,7 +153,7 @@ void join_name(const char *name, const char *homedir, int argc, char **argv, int
 void join(pid_t pid, const char *homedir, int argc, char **argv, int index) {
 	extract_command(argc, argv, index);
 
-	// if the pid is that of a firejail  process, use the pid of a child process inside the sandbox
+	// if the pid is that of a firejail  process, use the pid of the first child process
 	char *comm = pid_proc_comm(pid);
 	if (comm) {
 		// remove \n
@@ -172,11 +185,12 @@ void join(pid_t pid, const char *homedir, int argc, char **argv, int index) {
 		}
 	}
 
-	// in user mode set caps seccomp, cpu, cgroup
+	// in user mode set caps seccomp, cpu, cgroup, etc
 	if (getuid() != 0) {
 		extract_caps_seccomp(pid);
 		extract_cpu(pid);
 		extract_cgroup(pid);
+		extract_nogroups(pid);
 	}
 	
 	// set cgroup
@@ -238,7 +252,7 @@ void join(pid_t pid, const char *homedir, int argc, char **argv, int index) {
 		if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
 			errExit("setenv");
 		// drop privileges
-		drop_privs(0);
+		drop_privs(arg_nogroups);
 
 		// set prompt color to green
 		//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '

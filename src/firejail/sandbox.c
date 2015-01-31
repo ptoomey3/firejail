@@ -28,6 +28,32 @@
 
 #define BUFLEN 500 // generic read buffer
 
+
+void save_nogroups(void) {
+	if (arg_nogroups == 0)
+		return;
+
+	char *fname;
+	if (asprintf(&fname, "%s/groups", MNT_DIR) == -1)
+		errExit("asprintf");
+	FILE *fp = fopen(fname, "w");
+	if (fp) {
+		fprintf(fp, "\n");
+		fclose(fp);
+		if (chown(fname, 0, 0) < 0)
+			errExit("chown");
+	}
+	else {
+		fprintf(stderr, "Error: cannot save nogroups state\n");
+		free(fname);
+		exit(1);
+	}
+	
+	free(fname);
+}
+
+
+
 int sandbox(void* sandbox_arg) {
 	if (arg_debug)
 		printf("Initializing child process\n");	
@@ -92,10 +118,17 @@ int sandbox(void* sandbox_arg) {
 		fs_chroot(cfg.chrootdir);
 		// force caps and seccomp if not started as root
 		if (getuid() != 0) {
+			// force seccomp inside the chroot
 			arg_seccomp = 1;
 			arg_seccomp_empty = 0; // force the default syscall list in case the user disabled it
+			
+			// disable all capabilities
 			arg_caps = 0;
 			drop_caps = 1;
+			
+			// drop all supplementary groups; /etc/group file inside chroot
+			// is controlled by a regular usr
+			arg_nogroups = 1;
 			printf("Dropping all Linux capabilities and enforcing default seccomp filter\n");
 		}
 						
@@ -283,6 +316,7 @@ int sandbox(void* sandbox_arg) {
 		save_cgroup();
 		
 	// drop privileges
+	save_nogroups();
 	drop_privs(arg_nogroups);
 
 	// set the shell

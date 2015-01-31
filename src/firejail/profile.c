@@ -95,6 +95,10 @@ int profile_check_line(char *ptr, int lineno) {
 		arg_private = 1;
 		return 0;
 	}
+	else if (strcmp(ptr, "nogroups") == 0) {
+		arg_nogroups = 1;
+		return 0;
+	}
 	
 	// seccomp list
 	if (strncmp(ptr, "seccomp ", 8) == 0) {

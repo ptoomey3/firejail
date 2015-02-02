@@ -1,22 +1,25 @@
-firejail (0.9.20-rc2) baseline; urgency=low
- * utmp, btmp and wtmp enhancements:
- *    create empty /var/log/wtmp and /var/log/btmp files in sandbox
- *    generate a new /var/run/utmp file in sandbox
- * CPU affinity, --cpu option
- * Linux control groups support, --cgroup option
- * Opera web browser support
- * VLC support
- * Added "empty" attribute to seccomp command to remove the default
- *    syscall list form seccomp blacklist
- * Added --nogroups option to disable supplementary groups for regular
- *   users. root user always runs without supplementary groups.
- * firemon enhancements
- *   display the command that started the sandbox
- *   added --caps option to display capabilities for all sandboxes
- *   added --cgroup option to display the control groups for all sandboxes
- *   added --cpu option to display CPU affinity for all sandboxes
- *   added --seccomp option to display seccomp setting for all sandboxes
- -- netblue30 <netblue30@yahoo.com>  Thu, 22 Jan 2015 08:25:00 -0500
+firejail (0.9.20) baseline; urgency=low
+  * utmp, btmp and wtmp enhancements
+  *    create empty /var/log/wtmp and /var/log/btmp files in sandbox
+  *    generate a new /var/run/utmp file in sandbox
+  * CPU affinity, --cpu option
+  * Linux control groups support, --cgroup option
+  * Opera web browser support
+  * VLC support
+  * Added "empty" attribute to seccomp command to remove the default
+  *    syscall list form seccomp blacklist
+  * Added --nogroups option to disable supplementary groups for regular
+  *   users. root user always runs without supplementary groups.
+  * firemon enhancements
+  *   display the command that started the sandbox
+  *   added --caps option to display capabilities for all sandboxes
+  *   added --cgroup option to display the control groups for all sandboxes
+  *   added --cpu option to display CPU affinity for all sandboxes
+  *   added --seccomp option to display seccomp setting for all sandboxes
+  * New compile time options: --disable-chroot, --disable-bind
+  * bugfixes
+
+ -- netblue30 <netblue30@yahoo.com>  Mon, 02 Feb 2015 08:00:00 -0500
 
 firejail (0.9.18) baseline; urgency=low
   * Support for tracing system, setuid, setgid, setfsuid, setfsgid syscalls

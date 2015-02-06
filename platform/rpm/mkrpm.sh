@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="0.9.18"
+VERSION="0.9.20"
 rm -fr ~/rpmbuild
 rm -f firejail-$VERSION-1.x86_64.rpm
 
@@ -124,6 +124,27 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Fri Feb 6 2015   netblue30 <netblue30@yahoo.com> 0.9.20-1
+ - utmp, btmp and wtmp enhancements
+ -    create empty /var/log/wtmp and /var/log/btmp files in sandbox
+ -    generate a new /var/run/utmp file in sandbox
+ - CPU affinity, --cpu option
+ - Linux control groups support, --cgroup option
+ - Opera web browser support
+ - VLC support
+ - Added "empty" attribute to seccomp command to remove the default
+ -    syscall list form seccomp blacklist
+ - Added --nogroups option to disable supplementary groups for regular
+ -   users. root user always runs without supplementary groups.
+ - firemon enhancements
+ -   display the command that started the sandbox
+ -   added --caps option to display capabilities for all sandboxes
+ -   added --cgroup option to display the control groups for all sandboxes
+ -   added --cpu option to display CPU affinity for all sandboxes
+ -   added --seccomp option to display seccomp setting for all sandboxes
+ - New compile time options: --disable-chroot, --disable-bind
+ - bugfixes
+
 * Sat Dec 27 2014  netblue30 <netblue30@yahoo.com> 0.9.18-1
  - Support for tracing system, setuid, setgid, setfsuid, setfsgid syscalls
  - Support for tracing setreuid, setregid, setresuid, setresguid syscalls

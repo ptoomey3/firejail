@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT(firejail, 0.9.20, netblue30@yahoo.com, , http://firejail.sourceforge.net)
+AC_INIT(firejail, 0.9.21, netblue30@yahoo.com, , http://firejail.sourceforge.net)
 AC_CONFIG_SRCDIR([src/firejail/main.c])
 #AC_CONFIG_HEADERS([config.h])
 
@@ -40,7 +40,7 @@ AC_CHECK_HEADER(pthread.h,,AC_MSG_ERROR([*** POSIX thread support not installed 
 AC_CHECK_HEADER([linux/seccomp.h], HAVE_SECCOMP_H="-DHAVE_SECCOMP_H", HAVE_SECCOMP_H="")
 AC_SUBST(HAVE_SECCOMP_H)
 
-AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile src/libtrace/Makefile)
+AC_OUTPUT(Makefile src/lib/Makefile src/firejail/Makefile src/firemon/Makefile src/libtrace/Makefile src/ftee/Makefile)
 
 echo
 echo "Configuration options:"

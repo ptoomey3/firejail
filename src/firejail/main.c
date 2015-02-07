@@ -328,7 +328,11 @@ int main(int argc, char **argv) {
 			argc = j;
 		}
 	}
-
+	else {
+		// check --output option and execute it;
+		check_output(argc, argv); // the function will not return if --output option was found
+	}
+		
 	// parse arguments
 	for (i = 1; i < argc; i++) {
 		//*************************************

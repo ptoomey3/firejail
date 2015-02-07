@@ -1,6 +1,6 @@
 all: apps firejail.1 firemon.1 firejail-profile.5
 MYLIBS = src/lib
-APPS = src/firejail src/firemon src/libtrace
+APPS = src/firejail src/firemon src/libtrace src/ftee
 
 datarootdir=@datarootdir@
 PREFIX=@prefix@
@@ -55,6 +55,9 @@ install: all
 	# firemon executable
 	strip src/firemon/firemon
 	install -c -m 0755 src/firemon/firemon $(DESTDIR)/$(PREFIX)/bin/.
+	# ftee executable
+	strip src/ftee/ftee
+	install -c -m 0755 src/ftee/ftee $(DESTDIR)/$(PREFIX)/bin/.
 	# libraries and plugins
 	strip src/libtrace/libtrace.so
 	mkdir -p $(DESTDIR)/$(PREFIX)/lib/firejail

@@ -268,4 +268,7 @@ void save_cgroup(void);
 void load_cgroup(const char *fname);
 void set_cgroup(const char *path);
 
+// output.c
+void check_output(int argc, char **argv);
+
 #endif

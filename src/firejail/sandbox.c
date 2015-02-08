@@ -113,7 +113,6 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// configure filesystem
 	//****************************
-	int drop_caps = 0;
 	if (cfg.chrootdir) {
 		fs_chroot(cfg.chrootdir);
 		// force caps and seccomp if not started as root
@@ -123,8 +122,11 @@ int sandbox(void* sandbox_arg) {
 			arg_seccomp_empty = 0; // force the default syscall list in case the user disabled it
 			
 			// disable all capabilities
-			arg_caps = 0;
-			drop_caps = 1;
+			if (arg_caps_default_filter || arg_caps_custom_filter)
+				fprintf(stderr, "Warning: all capabilities disabled for a regular user during chroot\n");
+			arg_caps_default_filter = 0;
+			arg_caps_custom_filter = 0;
+			arg_caps_drop_all = 1;
 			
 			// drop all supplementary groups; /etc/group file inside chroot
 			// is controlled by a regular usr
@@ -291,10 +293,12 @@ int sandbox(void* sandbox_arg) {
 		
 
 	// set capabilities
-	if (arg_caps == 1)
-		caps_filter();
-	if (drop_caps)
+	if (arg_caps_drop_all)
 		caps_drop_all();
+	else if (arg_caps_custom_filter)
+		caps_set(arg_caps_custom_filter);
+	else if (arg_caps_default_filter)
+		caps_default_filter();
 
 	// set rlimits
 	set_rlimits();

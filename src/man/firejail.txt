@@ -48,9 +48,6 @@ Use /bin/csh as default user shell.
 \fB\--debug\fR
 Print debug messages.
 .TP
-\fB\--debug-caps
-Print capabilities for the current session and exit.
-.TP
 \fB\--debug-syscalls
 Print all recognized system calls in the current Firejail software build and exit.
 .TP

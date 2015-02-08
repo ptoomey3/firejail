@@ -50,7 +50,9 @@ int arg_csh = 0;				// use csh as default shell
 int arg_seccomp = 0;				// enable seccomp filter
 char *arg_seccomp_list = NULL;		// optional seccomp list
 int arg_seccomp_empty = 0;			// start with an empty syscall list
-int arg_caps = 0;				// enable capabilities filter
+int arg_caps_default_filter;			// enable default capabilities filter
+int arg_caps_drop_all;				// drop all capabilities
+uint64_t arg_caps_custom_filter;			// set custom capabilities filter
 int arg_trace = 0;				// syscall tracing support
 int arg_rlimit_nofile = 0;			// rlimit nofile
 int arg_rlimit_nproc = 0;			// rlimit nproc
@@ -353,10 +355,6 @@ int main(int argc, char **argv) {
 		//*************************************
 		// independent commands - the program will exit!
 		//*************************************
-		else if (strcmp(argv[i], "--debug-caps") == 0) {
-			caps_print();
-			exit(0);
-		}
 #ifdef HAVE_SECCOMP
 		else if (strcmp(argv[i], "--debug-syscalls") == 0) {
 			syscall_print();
@@ -419,7 +417,18 @@ int main(int argc, char **argv) {
 		}
 #endif		
 		else if (strcmp(argv[i], "--caps") == 0)
-			arg_caps = 1;
+			arg_caps_default_filter = 1;
+		else if (strcmp(argv[i], "--caps=none") == 0)
+			arg_caps_drop_all = 1;
+		else if (strncmp(argv[i], "--caps=", 7) == 0) {
+			unsigned long long tmp;
+			int rv = sscanf(argv[i] + 7, "%llx", &tmp);
+			if (rv != 1) {
+				fprintf(stderr, "Error: cannot read custom caps filter\n");
+				exit(1);
+			}
+			arg_caps_custom_filter = tmp;
+		}
 		else if (strcmp(argv[i], "--trace") == 0)
 			arg_trace = 1;
 		else if (strncmp(argv[i], "--rlimit-nofile=", 16) == 0) {

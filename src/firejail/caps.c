@@ -30,31 +30,9 @@
 extern int capget(cap_user_header_t hdrp, cap_user_data_t datap);
 extern int capset(cap_user_header_t hdrp, const cap_user_data_t datap);
 
-void caps_print(void) {
-	cap_user_header_t       hdr;
-	cap_user_data_t         data;
-	hdr = malloc(sizeof(*hdr));
-	data = malloc(sizeof(*data));
-	memset(hdr, 0, sizeof(*hdr));
-	hdr->version = _LINUX_CAPABILITY_VERSION;
-
-	if (capget(hdr, data) < 0) {
-		perror("capget");
-		goto doexit;
-	}
-
-	printf("effective\t%x\n", data->effective);
-	printf("permitted\t%x\n", data->permitted);
-	printf("inheritable\t%x\n", data->inheritable);
-
-	doexit:
-	free(hdr);
-	free(data);
-}
-
 
 // enabled by default
-int caps_filter(void) {
+int caps_default_filter(void) {
 	// drop capabilities
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_MODULE, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: cannot drop CAP_SYS_MODULE");
@@ -94,8 +72,10 @@ int caps_filter(void) {
 	return 0;
 }
 
-
 void caps_drop_all(void) {
+	if (arg_debug)
+		printf("Droping all capabilities\n");
+
 	unsigned long cap;
 	for (cap=0; cap <= 63; cap++) {
 		int code = prctl(PR_CAPBSET_DROP, cap, 0, 0, 0);
@@ -104,9 +84,10 @@ void caps_drop_all(void) {
 	}
 }
 
+
 void caps_set(uint64_t caps) {
 	if (arg_debug)
-		printf("Set caps filter\n");
+		printf("Set caps filter %llx\n", (unsigned long long) caps);
 
 	unsigned long i;
 	uint64_t mask = 1LLU;

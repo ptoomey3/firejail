@@ -209,3 +209,12 @@ it has a learn mode where he records all syscalls for whitelisting purposes
 http://www.jwz.org/xscreensaver/toolkits.html
 
 * nice linux namespaces article: http://www.toptal.com/linux/separation-anxiety-isolating-your-system-with-linux-namespaces
+
+* check default caps blacklist for docker version 0.12
+
+* The proof of concept exploit relies on a kernel capability that allows a process to open any file in the
+ host based on its inode. On most systems, the inode of the / (root) filesystem is 2. With this information 
+ and the kernel capability it is possible to walk the host’s filesystem tree until you find the object you wish 
+ to open and then extract sensitive information like passwords.
+
+* nice explanation of chmod g+s: http://www.library.yale.edu/wsg/docs/permissions/sgid.htm

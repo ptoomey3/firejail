@@ -88,7 +88,7 @@ int profile_check_line(char *ptr, int lineno) {
 		return 0;
 	}
 	else if (strcmp(ptr, "caps") == 0) {
-		arg_caps = 1;
+		arg_caps_default_filter = 1;
 		return 0;
 	}
 	else if (strcmp(ptr, "private") == 0) {

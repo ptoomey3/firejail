@@ -1,3 +1,8 @@
+New development (0.9.21) baseline; urgency=low
+  * Container stdout logging and log rotation 
+
+ -- netblue30 <netblue30@yahoo.com>  Mon, 08 Feb 2015 08:00:00 -0500
+
 firejail (0.9.20) baseline; urgency=low
   * utmp, btmp and wtmp enhancements
   *    create empty /var/log/wtmp and /var/log/btmp files in sandbox

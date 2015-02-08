@@ -207,3 +207,5 @@ it has a learn mode where he records all syscalls for whitelisting purposes
 
 * login box article
 http://www.jwz.org/xscreensaver/toolkits.html
+
+* nice linux namespaces article: http://www.toptal.com/linux/separation-anxiety-isolating-your-system-with-linux-namespaces

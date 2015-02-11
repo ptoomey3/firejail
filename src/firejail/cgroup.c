@@ -92,9 +92,9 @@ void set_cgroup(const char *path) {
 	if (stat(path, &s) == -1)
 		goto errout;
 	
-	// task file belongs to root
-	if (s.st_uid || s.st_gid)
-		goto errout;
+	// task file belongs to the user running the sandbox
+	if (s.st_uid != getuid() && s.st_gid != getgid())
+		goto errout2;
 		
 	// add the task to cgroup
 	FILE *fp = fopen(path,	"a");
@@ -108,5 +108,8 @@ void set_cgroup(const char *path) {
 
 errout:		
 	fprintf(stderr, "Error: invalid cgroup\n");
+	exit(1);
+errout2:		
+	fprintf(stderr, "Error: you don't have permissions to use this control group\n");
 	exit(1);
 }

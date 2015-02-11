@@ -102,12 +102,55 @@ static void skel(const char *homedir, uid_t u, gid_t g) {
 	}
 }
 
+static void store_xauthority(void) {
+	// put a copy of .Xauthority in MNT_DIR
+	fs_build_mnt_dir();
+
+	char *src;
+	char *dest;
+	if (asprintf(&src, "%s/.Xauthority", cfg.homedir) == -1)
+		errExit("asprintf");
+	if (asprintf(&dest, "%s/.Xauthority", MNT_DIR) == -1)
+		errExit("asprintf");
+	int rv = copy_file(src, dest);
+	if (rv)
+		fprintf(stderr, "Warning: cannot transfer .Xauthority in private home directory\n");
+}
+
+static void copy_xauthority(void) {
+	// put a copy of .Xauthority in MNT_DIR
+	fs_build_mnt_dir();
+
+	char *src;
+	char *dest;
+	if (asprintf(&dest, "%s/.Xauthority", cfg.homedir) == -1)
+		errExit("asprintf");
+	if (asprintf(&src, "%s/.Xauthority", MNT_DIR) == -1)
+		errExit("asprintf");
+	int rv = copy_file(src, dest);
+	if (rv)
+		fprintf(stderr, "Warning: cannot transfer .Xauthority in private home directory\n");
+
+	// set permissions and ownership
+	if (chown(dest, getuid(), getgid()) < 0)
+		errExit("chown");
+	if (chmod(dest, S_IRUSR | S_IWUSR) < 0)
+		errExit("chmod");
+
+	// delete the temporary file
+	unlink(src);
+}
+
+
 // private mode: mount tmpfs over /home and /tmp
 void fs_private_home(void) {
 	char *homedir = cfg.homedir;
 	char *private_homedir = cfg.home_private;
 	assert(homedir);
 	assert(private_homedir);
+	
+	store_xauthority();
+	
 	uid_t u = getuid();
 	gid_t g = getgid();
 	struct stat s;
@@ -115,6 +158,7 @@ void fs_private_home(void) {
 		fprintf(stderr, "Error: cannot find user home directory, aborting\n");
 		exit(1);
 	}
+	
 
 	// mount bind private_homedir on top of homedir
 	if (arg_debug)
@@ -150,6 +194,7 @@ void fs_private_home(void) {
 	
 
 	skel(homedir, u, g);
+	copy_xauthority();
 }
 
 
@@ -163,6 +208,8 @@ void fs_private(void) {
 	assert(homedir);
 	uid_t u = getuid();
 	gid_t g = getgid();
+
+	store_xauthority();
 
 	// mask /home
 	if (arg_debug)
@@ -193,4 +240,5 @@ void fs_private(void) {
 	}
 	
 	skel(homedir, u, g);
+	copy_xauthority();
 }

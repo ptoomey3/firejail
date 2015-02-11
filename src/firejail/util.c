@@ -136,14 +136,14 @@ int copy_file(const char *srcname, const char *destname) {
 	// open source
 	int src = open(srcname, O_RDONLY);
 	if (src < 0) {
-		fprintf(stderr, "Warning: cannot open %s\n", srcname);
+		fprintf(stderr, "Warning: cannot open %s, file not copied\n", srcname);
 		return -1;
 	}
 
 	// open destination
 	int dst = open(destname, O_CREAT|O_WRONLY|O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (dst < 0) {
-		fprintf(stderr, "Warning: cannot open %s\n", destname);
+		fprintf(stderr, "Warning: cannot open %s, file not copied\n", destname);
 		return -1;
 	}
 

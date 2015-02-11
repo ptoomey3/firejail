@@ -1,3 +1,25 @@
+* configure a macvlan interface
+
+# ip link add virtual0 link eth0 type macvlan mode bridge
+(you can configure it with # ifconfig virtual0 192.168.1.52/24 up)
+
+create a new network namespace and move the interface in the new network namespace
+
+# ip netns add dummy0
+# ip link set virtual0 netns dummy0
+
+join the namespace and configure the interfaces
+
+# ip netns exec dummy0 bash
+# ifconfig lo up
+# ifconfig virtual0 192.168.1.52/24
+
+Investigate ipvlan interface - added to linux kernel 3.19
+https://github.com/torvalds/linux/blob/master/Documentation/networking/ipvlan.txt
+
+
+
+
 * gnome-keyring
 https://wiki.ubuntu.com/SecurityTeam/Specifications/ApplicationConfinement
 nice article on gnome keyring

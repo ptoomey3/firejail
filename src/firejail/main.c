@@ -152,17 +152,18 @@ static int read_pid(char *str, pid_t *pid) {
 int main(int argc, char **argv) {
 	int i;
 	int prog_index = -1;			  // index in argv where the program command starts
-#ifdef USELOCK
 	int lockfd = -1;
-#endif
 	int arg_ipc = 0;
 	int arg_cgroup = 0;
 	int custom_profile = 0;	// custom profile loaded
 	
 	memset(&cfg, 0, sizeof(cfg));
 	extract_user_data();
-//	const pid_t ppid = getppid();
 	const pid_t mypid = getpid();
+
+	// initialize random number generator
+	time_t t = time(NULL);
+	srand(t ^ mypid);
 
 	// is this a login shell?
 	if (*argv[0] == '-') {
@@ -620,20 +621,11 @@ int main(int argc, char **argv) {
 
 	// check and assign an IP address
 	if (any_bridge_configured()) {
-#ifdef USELOCK
 		if (!arg_noip) {
 			lockfd = open("/var/lock/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 			if (lockfd != -1)
 				flock(lockfd, LOCK_EX);
 		}
-#endif
-		// initialize random number generator
-		time_t t = time(NULL);
-		srand(t ^ mypid);
-
-		// check default gateway address
-		if (cfg.defaultgw)
-			net_check_default_gw(cfg.defaultgw);
 
 		net_configure_sandbox_ip(&cfg.bridge0);
 		net_configure_sandbox_ip(&cfg.bridge1);
@@ -685,7 +677,6 @@ int main(int argc, char **argv) {
 	fflush(stream);
 	close(fds[1]);
 
-#ifdef USELOCK
 	if (lockfd != -1) {
 		net_bridge_wait_ip(&cfg.bridge0);
 		net_bridge_wait_ip(&cfg.bridge1);
@@ -693,7 +684,6 @@ int main(int argc, char **argv) {
 		net_bridge_wait_ip(&cfg.bridge3);
 		flock(lockfd, LOCK_UN);
 	}
-#endif
 
 	{
 		char *msg;

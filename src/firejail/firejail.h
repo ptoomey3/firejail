@@ -124,7 +124,6 @@ void net_configure_bridge(Bridge *br, char *dev_name);
 void net_configure_sandbox_ip(Bridge *br);
 void net_configure_veth_pair(Bridge *br, const char *ifname, pid_t child);
 void net_bridge_wait_ip(Bridge *br);
-void net_check_default_gw(uint32_t defaultgw);
 void net_check_cfg(void);
 
 // network.c

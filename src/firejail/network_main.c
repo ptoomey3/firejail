@@ -128,7 +128,7 @@ void net_bridge_wait_ip(Bridge *br) {
 }
 
 // the default address should be in the range of at least on of the bridge devices
-void net_check_default_gw(uint32_t defaultgw) {
+void check_default_gw(uint32_t defaultgw) {
 	assert(defaultgw);
 
 	if (cfg.bridge0.configured) {
@@ -184,4 +184,9 @@ void net_check_cfg(void) {
 		fprintf(stderr, "Error: option --defaultgw requires at least one network to be configured\n");
 		exit(1);
 	}
+
+	// check default gateway address
+	if (cfg.defaultgw)
+		check_default_gw(cfg.defaultgw);
+
 }

@@ -12,10 +12,6 @@ net_configure_bridge(br, device) {
 	check available network range; /31 networks are not supported
 }
 
-net_check_default_gw(cfg.defaultgw) {
-	the default gw should be in the range of at least one bridge
-}
-
 net_configure_sandbox_ip(br) {
 	if br->ip_snadbox
 		check br->ipsandbox inside the bridge network
@@ -52,7 +48,6 @@ main() {
 
 	if (any bridge configured) {
 		lock /var/lock/firejail.lock file
-		net_check_default_gw(cfg.defaultgw)
 		for each bridge
 			net_configure_sandbox_ip(br)
 	}

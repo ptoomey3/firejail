@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <net/if.h>
 
 // configure bridge structure
 // - extract ip address and mask from the bridge interface
@@ -36,10 +37,20 @@ void net_configure_bridge(Bridge *br, char *dev_name) {
 	sprintf(sysbridge, "/sys/class/net/%s/bridge", br->dev);
 	struct stat s;
 	int rv = stat(sysbridge, &s);
-	if (rv < 0) {
-		fprintf(stderr, "Error: cannot find bridge device %s, aborting\n", br->dev);
-		exit(1);
+	if (rv == 0) {
+		// this is a bridge device
+		br->macvlan = 0;
 	}
+	else {
+		// is this a regular Ethernet interface
+		if (if_nametoindex(br->dev) > 0)
+			br->macvlan = 1;
+		else {
+			fprintf(stderr, "Error: cannot find network device %s, aborting\n", br->dev);
+			exit(1);
+		}
+	}
+
 	if (net_get_bridge_addr(br->dev, &br->ip, &br->mask)) {
 		fprintf(stderr, "Error: bridge device %s not configured, aborting\n",br->dev);
 		exit(1);

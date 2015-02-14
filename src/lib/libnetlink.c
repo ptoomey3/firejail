@@ -586,6 +586,36 @@ int addattrstrz(struct nlmsghdr *n, int maxlen, int type, const char *str)
 int addattr_l(struct nlmsghdr *n, int maxlen, int type, const void *data,
 	      int alen)
 {
+
+#if 0
+printf("%d: %s\n", __LINE__, __FUNCTION__);
+printf("\ttype %d - ", type);
+if (type == IFLA_LINK) {
+	printf("IFLA_LINK\n");
+	int i;
+	printf("\tdata - ");
+	for (i = 0; i < alen; i++)
+		printf("%02x, ", *((unsigned char *)data + i));
+	printf("\n");
+}	
+else if (type == IFLA_IFNAME) {
+	printf("IFLA_IFNAME\n");
+	printf("\tdata - #%s#\n", data);
+}
+else if (type == IFLA_LINKINFO) printf("IFLA_LINKINFO\n");
+else if (type == IFLA_ADDRESS) {
+	printf("IFLA_ADDRESS or IFLA_INFO_KIND\n");
+	int i;
+	printf("\tdata - ");
+	for (i = 0; i < alen; i++)
+		printf("%02x, ", *((unsigned char *)data + i));
+	printf("\n");
+}
+else if (type == IFLA_BROADCAST) printf("IFLA_BROADCAST or IFLA_INFO_DATA\n");
+	
+printf("\tdata length: %d\n", alen);	
+#endif
+
 	int len = RTA_LENGTH(alen);
 	struct rtattr *rta;
 

@@ -37,8 +37,9 @@ typedef struct bridge_t {
 	uint32_t ip;		// bridge device IP address
 	uint32_t mask;		// bridge device mask
 	uint32_t ipsandbox;	// sandbox interface IP address connected to this bridge using a veth pair
-	int arg_ip_none;	// --ip=none
-	unsigned char configured;
+	uint8_t arg_ip_none;	// --ip=none
+	uint8_t macvlan;	// set by --net=eth0 (or eth1, ...); reset by --net=br0 (or br1, ...)
+	uint8_t configured;
 }  Bridge;
 
 typedef struct profile_entry_t {
@@ -195,6 +196,7 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask);
 
 // veth.c
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);
+int net_create_macvlan(const char *dev, const char *parent, unsigned pid);
 
 // util.c
 void drop_privs(int nogroups);

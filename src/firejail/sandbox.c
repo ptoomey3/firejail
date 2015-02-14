@@ -204,13 +204,19 @@ int sandbox(void* sandbox_arg) {
 		net_if_up("lo");
 		if (cfg.bridge0.configured) {
 			Bridge *br = &cfg.bridge0;
-			net_if_up("eth0");
+			char *dev;
+			if (br->macvlan)
+				dev = "virtual0";
+			else
+				dev = "eth0";
+
+			net_if_up(dev);
 			if (br->arg_ip_none == 0) {
 				assert(br->ipsandbox);
 				if (arg_debug)
 					printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(br->ipsandbox));
-				net_if_ip("eth0", br->ipsandbox, br->mask);
-				net_if_up("eth0");
+				net_if_ip(dev, br->ipsandbox, br->mask);
+				net_if_up(dev);
 			}
 		}
 		if (cfg.bridge1.configured) {

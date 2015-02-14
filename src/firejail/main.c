@@ -668,13 +668,20 @@ int main(int argc, char **argv) {
 	if (!arg_command)
 		printf("Parent pid %u, child pid %u\n", mypid, child);
 
+printf("here %d\n", __LINE__);
 	// create veth pair
 	if (any_bridge_configured() && !arg_nonetwork) {
-		net_configure_veth_pair(&cfg.bridge0, "eth0", child);
+		if (cfg.bridge0.macvlan == 0)
+			net_configure_veth_pair(&cfg.bridge0, "eth0", child);
+		else {
+			net_create_macvlan("virtual0", cfg.bridge0.dev, child);
+printf("here %d\n", __LINE__);
+		}
 		net_configure_veth_pair(&cfg.bridge1, "eth1", child);
 		net_configure_veth_pair(&cfg.bridge2, "eth2", child);
 		net_configure_veth_pair(&cfg.bridge3, "eth3", child);
 	}
+printf("here %d\n", __LINE__);
 
 	// notify the child the initialization is done
 	FILE* stream;

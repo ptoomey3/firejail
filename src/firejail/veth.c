@@ -96,6 +96,7 @@ int net_create_veth(const char *dev, const char *nsdev, unsigned pid) {
 	addattr_l (&req.n, sizeof(req), VETH_INFO_PEER, NULL, 0);
 	req.n.nlmsg_len += sizeof(struct ifinfomsg);
 
+	// place the link in the child namespace
 	addattr_l (&req.n, sizeof(req), IFLA_NET_NS_PID, &pid, 4);
 
 	if (nsdev) {
@@ -107,13 +108,74 @@ int net_create_veth(const char *dev, const char *nsdev, unsigned pid) {
 	data->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)data;
 	linkinfo->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)linkinfo;
 
-//	if (arg_debug)
-//		printf("netlink message length %u, it should be 104 bytes\n", req.n.nlmsg_len);
+	// send message
 	if (rtnl_talk(&rth, &req.n, 0, 0, NULL) < 0)
 		exit(2);
 
 	return 0;
 }
+
+
+int net_create_macvlan(const char *dev, const char *parent, unsigned pid) {
+	int len;
+	struct iplink_req req;
+	if (arg_debug)
+		printf("create macvlan %s, parent %s\n", dev, parent);
+	assert(dev);
+	assert(parent);
+
+	if (rtnl_open(&rth, 0) < 0) {
+		fprintf(stderr, "cannot open netlink\n");
+		exit(1);
+	}
+
+	memset(&req, 0, sizeof(req));
+
+	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(struct ifinfomsg));
+	req.n.nlmsg_flags = NLM_F_REQUEST|NLM_F_CREATE|NLM_F_EXCL;
+	req.n.nlmsg_type = RTM_NEWLINK;
+	req.i.ifi_family = 0;
+	
+	// we start with the parent
+	int parent_ifindex = 2;
+	addattr_l(&req.n, sizeof(req), IFLA_LINK, &parent_ifindex, 4);
+
+	// add new interface name
+	len = strlen(dev) + 1;
+	addattr_l(&req.n, sizeof(req), IFLA_IFNAME, dev, len);
+	
+	// place the interface in child namespace
+	addattr_l (&req.n, sizeof(req), IFLA_NET_NS_PID, &pid, 4);
+
+
+	// add  link info for the new interface
+	struct rtattr *linkinfo = NLMSG_TAIL(&req.n);
+	addattr_l(&req.n, sizeof(req), IFLA_LINKINFO, NULL, 0);
+	addattr_l(&req.n, sizeof(req), IFLA_INFO_KIND, "macvlan", strlen("macvlan"));
+
+	// set macvlan bridge mode
+	struct rtattr * data = NLMSG_TAIL(&req.n);
+	addattr_l(&req.n, sizeof(req), IFLA_INFO_DATA, NULL, 0);
+	int macvlan_type = MACVLAN_MODE_BRIDGE;
+	addattr_l (&req.n, sizeof(req), IFLA_INFO_KIND, &macvlan_type, 4);
+	req.n.nlmsg_len += sizeof(struct ifinfomsg);
+
+
+	data->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)data;
+	linkinfo->rta_len = (void *)NLMSG_TAIL(&req.n) - (void *)linkinfo;
+
+	// send message
+	if (rtnl_talk(&rth, &req.n, 0, 0, NULL) < 0)
+		exit(2);
+
+	return 0;
+}
+
+void test(unsigned pid) {
+	int rv = net_create_macvlan("virtual0", "eth0", pid);
+	printf("rv %d\n", rv);
+}
+
 
 /*
 int main(int argc, char **argv) {

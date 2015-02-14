@@ -3,6 +3,7 @@ New development (0.9.21) baseline; urgency=low
   * Added process_vm_readv and process_vm_writev to default seccomp blacklist
   * Custom Linux capabilities whitefilter support - todo: add help and man
   * bugfix: check uid/gid for cgroup
+  * replaced --noip option with --ip=none
 
  -- netblue30 <netblue30@yahoo.com>  Mon, 08 Feb 2015 08:00:00 -0500
 

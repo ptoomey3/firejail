@@ -63,7 +63,8 @@ void net_configure_sandbox_ip(Bridge *br) {
 	if (br->configured == 0)
 		return;
 
-	if (arg_noip);
+	if (br->arg_ip_none)
+		br->ipsandbox = 0;
 	else if (br->ipsandbox) {
 		// check network range
 		char *rv = in_netrange(br->ipsandbox, br->ip, br->mask);
@@ -115,7 +116,7 @@ void net_configure_veth_pair(Bridge *br, const char *ifname, pid_t child) {
 
 void net_bridge_wait_ip(Bridge *br) {
 	assert(br);
-	if (br->configured == 0)
+	if (br->configured == 0 || br->arg_ip_none)
 		return;
 
 	// wait for the ip address to come up
@@ -170,12 +171,6 @@ void net_check_cfg(void) {
 	// --net=none
 	if (arg_nonetwork && net_configured) {
 		fprintf(stderr, "Error: --net and --net=none are mutually exclusive\n");
-		exit(1);
-	}
-
-	// --noip requires a network
-	if (arg_noip && net_configured == 0) {
-		fprintf(stderr, "Error: option --noip requires at least one network to be configured\n");
 		exit(1);
 	}
 

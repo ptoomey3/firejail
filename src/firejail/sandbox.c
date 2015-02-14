@@ -186,6 +186,7 @@ int sandbox(void* sandbox_arg) {
 	if (arg_nonetwork) {
 		net_if_up("lo");
 	}
+/*
 	else if (arg_noip) {
 		net_if_up("lo");
 		if (cfg.bridge0.configured)
@@ -197,44 +198,53 @@ int sandbox(void* sandbox_arg) {
 		if (cfg.bridge3.configured)
 			net_if_up("eth3");
 	}
+*/
 	else if (any_bridge_configured()) {
 		// configure lo and eth0...eth3
 		net_if_up("lo");
 		if (cfg.bridge0.configured) {
 			Bridge *br = &cfg.bridge0;
 			net_if_up("eth0");
-			assert(br->ipsandbox);
-			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(br->ipsandbox));
-			net_if_ip("eth0", br->ipsandbox, br->mask);
-			net_if_up("eth0");
+			if (br->arg_ip_none == 0) {
+				assert(br->ipsandbox);
+				if (arg_debug)
+					printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(br->ipsandbox));
+				net_if_ip("eth0", br->ipsandbox, br->mask);
+				net_if_up("eth0");
+			}
 		}
 		if (cfg.bridge1.configured) {
 			Bridge *br = &cfg.bridge1;
 			net_if_up("eth1");
-			assert(br->ipsandbox);
-			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth1\n", PRINT_IP(br->ipsandbox));
-			net_if_ip("eth1", br->ipsandbox, br->mask);
-			net_if_up("eth1");
+			if (br->arg_ip_none == 0) {
+				assert(br->ipsandbox);
+				if (arg_debug)
+					printf("Configuring %d.%d.%d.%d address on interface eth1\n", PRINT_IP(br->ipsandbox));
+				net_if_ip("eth1", br->ipsandbox, br->mask);
+				net_if_up("eth1");
+			}
 		}
 		if (cfg.bridge2.configured) {
 			Bridge *br = &cfg.bridge2;
 			net_if_up("eth2");
-			assert(br->ipsandbox);
-			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth2\n", PRINT_IP(br->ipsandbox));
-			net_if_ip("eth2", br->ipsandbox, br->mask);
-			net_if_up("eth2");
+			if (br->arg_ip_none == 0) {
+				assert(br->ipsandbox);
+				if (arg_debug)
+					printf("Configuring %d.%d.%d.%d address on interface eth2\n", PRINT_IP(br->ipsandbox));
+				net_if_ip("eth2", br->ipsandbox, br->mask);
+				net_if_up("eth2");
+			}
 		}
 		if (cfg.bridge3.configured) {
 			Bridge *br = &cfg.bridge3;
 			net_if_up("eth3");
-			assert(br->ipsandbox);
-			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth3\n", PRINT_IP(br->ipsandbox));
-			net_if_ip("eth3", br->ipsandbox, br->mask);
-			net_if_up("eth3");
+			if (br->arg_ip_none == 0) {
+				assert(br->ipsandbox);
+				if (arg_debug)
+					printf("Configuring %d.%d.%d.%d address on interface eth3\n", PRINT_IP(br->ipsandbox));
+				net_if_ip("eth3", br->ipsandbox, br->mask);
+				net_if_up("eth3");
+			}
 		}
 		
 		// add a default route

@@ -37,6 +37,7 @@ typedef struct bridge_t {
 	uint32_t ip;		// bridge device IP address
 	uint32_t mask;		// bridge device mask
 	uint32_t ipsandbox;	// sandbox interface IP address connected to this bridge using a veth pair
+	int arg_ip_none;	// --ip=none
 	unsigned char configured;
 }  Bridge;
 
@@ -91,7 +92,6 @@ static inline int any_bridge_configured(void) {
 extern int arg_private;		// mount private /home and /tmp directory
 extern int arg_debug;		// print debug messages
 extern int arg_nonetwork;	// --net=none
-extern int arg_noip;		// --ip=none
 extern int arg_command;	// -c
 extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell

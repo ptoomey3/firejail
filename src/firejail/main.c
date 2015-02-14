@@ -42,7 +42,6 @@ Config cfg;					// configuration
 int arg_private = 0;				// mount private /home and /tmp directoryu
 int arg_debug = 0;				// print debug messages
 int arg_nonetwork = 0;				// --net=none
-int arg_noip = 0;				// --ip=none
 int arg_command = 0;				// -c
 int arg_overlay = 0;				// --overlay
 int arg_zsh = 0;				// use zsh as default shell
@@ -477,16 +476,26 @@ int main(int argc, char **argv) {
 			}
 			net_configure_bridge(br, argv[i] + 6);
 		}
-		else if (strcmp(argv[i], "--noip") == 0)
-			arg_noip = 1;
+//TODO: remove --noip message after a few releases
+		else if (strcmp(argv[i], "--noip") == 0) {
+			fprintf(stderr, "Error: --noip option is deprecated. Please use --ip=none\n");
+			return 1;
+		}
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();
 			if (br == NULL) {
 				fprintf(stderr, "Error: no bridge device configured\n");
 				return 1;
 			}
+			if (br->arg_ip_none || br->ipsandbox) {
+				fprintf(stderr, "Error: cannot configure the IP address twice for the same interface\n");
+				return 1;
+			}
+
 			// configure this IP address for the last bridge defined
-			if (atoip(argv[i] + 5, &br->ipsandbox)) {
+			if (strcmp(argv[i] + 5, "none") == 0)
+				br->arg_ip_none = 1;
+			else if (atoip(argv[i] + 5, &br->ipsandbox)) {
 				fprintf(stderr, "Error: invalid IP address, aborting\n");
 				return 1;
 			}
@@ -621,11 +630,9 @@ int main(int argc, char **argv) {
 
 	// check and assign an IP address
 	if (any_bridge_configured()) {
-		if (!arg_noip) {
-			lockfd = open("/var/lock/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-			if (lockfd != -1)
-				flock(lockfd, LOCK_EX);
-		}
+		lockfd = open("/var/lock/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+		if (lockfd != -1)
+			flock(lockfd, LOCK_EX);
 
 		net_configure_sandbox_ip(&cfg.bridge0);
 		net_configure_sandbox_ip(&cfg.bridge1);

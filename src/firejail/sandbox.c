@@ -203,37 +203,37 @@ int sandbox(void* sandbox_arg) {
 		if (cfg.bridge0.configured) {
 			Bridge *br = &cfg.bridge0;
 			net_if_up("eth0");
-			assert(br->ipaddress);
+			assert(br->ipsandbox);
 			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(br->ipaddress));
-			net_if_ip("eth0", br->ipaddress, br->mask);
+				printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(br->ipsandbox));
+			net_if_ip("eth0", br->ipsandbox, br->mask);
 			net_if_up("eth0");
 		}
 		if (cfg.bridge1.configured) {
 			Bridge *br = &cfg.bridge1;
 			net_if_up("eth1");
-			assert(br->ipaddress);
+			assert(br->ipsandbox);
 			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth1\n", PRINT_IP(br->ipaddress));
-			net_if_ip("eth1", br->ipaddress, br->mask);
+				printf("Configuring %d.%d.%d.%d address on interface eth1\n", PRINT_IP(br->ipsandbox));
+			net_if_ip("eth1", br->ipsandbox, br->mask);
 			net_if_up("eth1");
 		}
 		if (cfg.bridge2.configured) {
 			Bridge *br = &cfg.bridge2;
 			net_if_up("eth2");
-			assert(br->ipaddress);
+			assert(br->ipsandbox);
 			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth2\n", PRINT_IP(br->ipaddress));
-			net_if_ip("eth2", br->ipaddress, br->mask);
+				printf("Configuring %d.%d.%d.%d address on interface eth2\n", PRINT_IP(br->ipsandbox));
+			net_if_ip("eth2", br->ipsandbox, br->mask);
 			net_if_up("eth2");
 		}
 		if (cfg.bridge3.configured) {
 			Bridge *br = &cfg.bridge3;
 			net_if_up("eth3");
-			assert(br->ipaddress);
+			assert(br->ipsandbox);
 			if (arg_debug)
-				printf("Configuring %d.%d.%d.%d address on interface eth3\n", PRINT_IP(br->ipaddress));
-			net_if_ip("eth3", br->ipaddress, br->mask);
+				printf("Configuring %d.%d.%d.%d address on interface eth3\n", PRINT_IP(br->ipsandbox));
+			net_if_ip("eth3", br->ipsandbox, br->mask);
 			net_if_up("eth3");
 		}
 		

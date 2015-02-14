@@ -36,7 +36,7 @@ typedef struct bridge_t {
 	char *dev;		// bridge device name
 	uint32_t ip;		// bridge device IP address
 	uint32_t mask;		// bridge device mask
-	uint32_t ipaddress;	// sandbox interface IP address
+	uint32_t ipsandbox;	// sandbox interface IP address connected to this bridge using a veth pair
 	unsigned char configured;
 }  Bridge;
 
@@ -119,19 +119,20 @@ extern int fullargc;
 // sandbox.c
 int sandbox(void* sandbox_arg);
 
+// network_main.c
+void net_configure_bridge(Bridge *br, char *dev_name);
+void net_configure_sandbox_ip(Bridge *br);
+void net_configure_veth_pair(Bridge *br, const char *ifname, pid_t child);
+void net_bridge_wait_ip(Bridge *br);
+void net_check_default_gw(uint32_t defaultgw);
+void net_check_cfg(void);
 
 // network.c
-// bring interface up
 void net_if_up(const char *ifname);
-// configure interface
 void net_if_ip(const char *ifname, uint32_t ip, uint32_t mask);
-// return -1 if the bridge was not found; if the bridge was found retrun 0 and fill in IP address and mask
-int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
-// add an IP route, return -1 if error, 0 if OK
+int net_get_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
-// print IP addresses for all interfaces
 void net_ifprint(void);
-// add a veth device to a bridge
 void net_bridge_add_interface(const char *bridge, const char *dev);
 
 // fs.c

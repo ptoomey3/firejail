@@ -111,102 +111,6 @@ static void extract_user_data(void) {
 }
 
 
-static void configure_bridge(Bridge *br, char *name) {
-	assert(br);
-	assert(name);
-
-	br->dev = name;
-
-	// check the bridge device exists
-	char sysbridge[24 + strlen(br->dev)];
-	sprintf(sysbridge, "/sys/class/net/%s/bridge", br->dev);
-	struct stat s;
-	int rv = stat(sysbridge, &s);
-	if (rv < 0) {
-		fprintf(stderr, "Error: cannot find bridge device %s, aborting\n", br->dev);
-		exit(1);
-	}
-	if (net_bridge_addr(br->dev, &br->ip, &br->mask)) {
-		fprintf(stderr, "Error: bridge device %s not configured, aborting\n",br->dev);
-		exit(1);
-	}
-	if (arg_debug)
-		printf("Bridge device %s at %d.%d.%d.%d/%d\n",
-			br->dev, PRINT_IP(br->ip), mask2bits(br->mask));
-
-	uint32_t range = ~br->mask + 1;		  // the number of potential addresses
-	// this software is not supported for /31 networks
-	if (range < 4) {
-		fprintf(stderr, "Error: the software is not supported for /31 networks\n");
-		exit(1);
-	}
-	br->configured = 1;
-}
-
-
-static void configure_ip(Bridge *br) {
-	assert(br);
-	if (br->configured == 0)
-		return;
-
-	if (arg_noip);
-	else if (br->ipaddress) {
-		// check network range
-		char *rv = in_netrange(br->ipaddress, br->ip, br->mask);
-		if (rv) {
-			fprintf(stderr, "%s", rv);
-			exit(1);
-		}
-		// send an ARP request and check if there is anybody on this IP address
-		if (arp_check(br->dev, br->ipaddress, br->ip)) {
-			fprintf(stderr, "Error: IP address %d.%d.%d.%d is already in use\n", PRINT_IP(br->ipaddress));
-			exit(1);
-		}
-	}
-	else
-		br->ipaddress = arp_assign(br->dev, br->ip, br->mask);
-}
-
-
-static void configure_veth_pair(Bridge *br, const char *ifname, pid_t child) {
-	assert(br);
-	if (br->configured == 0)
-		return;
-
-	// create a veth pair
-	char *dev;
-	if (asprintf(&dev, "veth%u%s", getpid(), ifname) < 0)
-		errExit("asprintf");
-	net_create_veth(dev, ifname, child);
-
-	// bring up the interface
-	net_if_up(dev);
-
-	// add interface to the bridge
-	net_bridge_add_interface(br->dev, dev);
-
-	char *msg;
-	if (asprintf(&msg, "%d.%d.%d.%d address assigned to sandbox", PRINT_IP(br->ipaddress)) == -1)
-		errExit("asprintf");
-	logmsg(msg);
-	fflush(0);
-	free(msg);
-}
-
-
-static void bridge_wait_ip(Bridge *br) {
-	assert(br);
-	if (br->configured == 0)
-		return;
-
-	// wait for the ip address to come up
-	int cnt = 0;
-	while (cnt < 5) {			  // arp_check has a 1s wait
-		if (arp_check(br->dev, br->ipaddress, br->ip) == 0)
-			break;
-		cnt++;
-	}
-}
 
 
 static inline Bridge *last_bridge_configured(void) {
@@ -223,63 +127,6 @@ static inline Bridge *last_bridge_configured(void) {
 }
 
 
-void check_default_gw(uint32_t defaultgw) {
-	assert(defaultgw);
-
-	if (cfg.bridge0.configured) {
-		char *rv = in_netrange(defaultgw, cfg.bridge0.ip, cfg.bridge0.mask);
-		if (rv == 0)
-			return;
-	}
-	if (cfg.bridge1.configured) {
-		char *rv = in_netrange(defaultgw, cfg.bridge1.ip, cfg.bridge1.mask);
-		if (rv == 0)
-			return;
-	}
-	if (cfg.bridge2.configured) {
-		char *rv = in_netrange(defaultgw, cfg.bridge2.ip, cfg.bridge2.mask);
-		if (rv == 0)
-			return;
-	}
-	if (cfg.bridge3.configured) {
-		char *rv = in_netrange(defaultgw, cfg.bridge3.ip, cfg.bridge3.mask);
-		if (rv == 0)
-			return;
-	}
-
-	fprintf(stderr, "Error: default gateway %d.%d.%d.%d is not in the range of any network\n", PRINT_IP(defaultgw));
-	exit(1);
-}
-
-static void network_check_cfg(void) {
-	int net_configured = 0;
-	if (cfg.bridge0.configured)
-		net_configured++;
-	if (cfg.bridge1.configured)
-		net_configured++;
-	if (cfg.bridge2.configured)
-		net_configured++;
-	if (cfg.bridge3.configured)
-		net_configured++;
-
-	// --net=none
-	if (arg_nonetwork && net_configured) {
-		fprintf(stderr, "Error: --net and --net=none are mutually exclusive\n");
-		exit(1);
-	}
-
-	// --noip requires a network
-	if (arg_noip && net_configured == 0) {
-		fprintf(stderr, "Error: option --noip requires at least one network to be configured\n");
-		exit(1);
-	}
-
-	// --defaultgw requires a network
-	if (cfg.defaultgw && net_configured == 0) {
-		fprintf(stderr, "Error: option --defaultgw requires at least one network to be configured\n");
-		exit(1);
-	}
-}
 
 // return 1 if error, 0 if a valid pid was found
 static int read_pid(char *str, pid_t *pid) {
@@ -627,7 +474,7 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: maximum 4 bridge devices allowed\n");
 				return 1;
 			}
-			configure_bridge(br, argv[i] + 6);
+			net_configure_bridge(br, argv[i] + 6);
 		}
 		else if (strcmp(argv[i], "--noip") == 0)
 			arg_noip = 1;
@@ -638,7 +485,7 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			// configure this IP address for the last bridge defined
-			if (atoip(argv[i] + 5, &br->ipaddress)) {
+			if (atoip(argv[i] + 5, &br->ipsandbox)) {
 				fprintf(stderr, "Error: invalid IP address, aborting\n");
 				return 1;
 			}
@@ -701,8 +548,8 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// check network configuration options - it will exit if anything wrong
-	network_check_cfg();
+	// check network configuration options - it will exit if anything went wrong
+	net_check_cfg();
 
 	// log command
 	logargs(argc, argv);
@@ -786,12 +633,12 @@ int main(int argc, char **argv) {
 
 		// check default gateway address
 		if (cfg.defaultgw)
-			check_default_gw(cfg.defaultgw);
+			net_check_default_gw(cfg.defaultgw);
 
-		configure_ip(&cfg.bridge0);
-		configure_ip(&cfg.bridge1);
-		configure_ip(&cfg.bridge2);
-		configure_ip(&cfg.bridge3);
+		net_configure_sandbox_ip(&cfg.bridge0);
+		net_configure_sandbox_ip(&cfg.bridge1);
+		net_configure_sandbox_ip(&cfg.bridge2);
+		net_configure_sandbox_ip(&cfg.bridge3);
 	}
 
 	// create the parrent-child communication pipe
@@ -824,10 +671,10 @@ int main(int argc, char **argv) {
 
 	// create veth pair
 	if (any_bridge_configured() && !arg_nonetwork) {
-		configure_veth_pair(&cfg.bridge0, "eth0", child);
-		configure_veth_pair(&cfg.bridge1, "eth1", child);
-		configure_veth_pair(&cfg.bridge2, "eth2", child);
-		configure_veth_pair(&cfg.bridge3, "eth3", child);
+		net_configure_veth_pair(&cfg.bridge0, "eth0", child);
+		net_configure_veth_pair(&cfg.bridge1, "eth1", child);
+		net_configure_veth_pair(&cfg.bridge2, "eth2", child);
+		net_configure_veth_pair(&cfg.bridge3, "eth3", child);
 	}
 
 	// notify the child the initialization is done
@@ -840,10 +687,10 @@ int main(int argc, char **argv) {
 
 #ifdef USELOCK
 	if (lockfd != -1) {
-		bridge_wait_ip(&cfg.bridge0);
-		bridge_wait_ip(&cfg.bridge1);
-		bridge_wait_ip(&cfg.bridge2);
-		bridge_wait_ip(&cfg.bridge3);
+		net_bridge_wait_ip(&cfg.bridge0);
+		net_bridge_wait_ip(&cfg.bridge1);
+		net_bridge_wait_ip(&cfg.bridge2);
+		net_bridge_wait_ip(&cfg.bridge3);
 		flock(lockfd, LOCK_UN);
 	}
 #endif

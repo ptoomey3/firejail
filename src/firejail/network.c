@@ -27,7 +27,7 @@
 #include <net/route.h>
 #include <linux/if_bridge.h>
 
-// print IP addresses for all interfaces
+// scan interfaces in current namespace and print IP address/mask for each interface
 void net_ifprint(void) {
 	uint32_t ip;
 	uint32_t mask;
@@ -69,7 +69,7 @@ void net_ifprint(void) {
 
 
 // return -1 if the bridge was not found; if the bridge was found retrun 0 and fill in IP address and mask
-int net_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
+int net_get_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 	assert(bridge);
 	assert(ip);
 	assert(mask);

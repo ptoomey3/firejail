@@ -33,10 +33,16 @@
 
 // main.c
 typedef struct bridge_t {
-	char *dev;		// bridge device name
-	uint32_t ip;		// bridge device IP address
-	uint32_t mask;		// bridge device mask
-	uint32_t ipsandbox;	// sandbox interface IP address connected to this bridge using a veth pair
+	// on the host
+	char *dev;		// interface device name: bridge or regular ethernet
+	uint32_t ip;		// interface device IP address
+	uint32_t mask;		// interface device mask
+	
+	// inside the sandbox
+	char *devsandbox;	// name of the device inside the sandbox
+	uint32_t ipsandbox;	// ipaddress inside the sandbox
+	
+	// flags
 	uint8_t arg_ip_none;	// --ip=none
 	uint8_t macvlan;	// set by --net=eth0 (or eth1, ...); reset by --net=br0 (or br1, ...)
 	uint8_t configured;

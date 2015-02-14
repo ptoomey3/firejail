@@ -143,7 +143,16 @@ static int read_pid(char *str, pid_t *pid) {
 	return 0;
 }
 
-
+static void init_cfg(void) {
+	memset(&cfg, 0, sizeof(cfg));
+	
+	cfg.bridge0.devsandbox = "eth0";
+	cfg.bridge1.devsandbox = "eth1";
+	cfg.bridge2.devsandbox = "eth2";
+	cfg.bridge3.devsandbox = "eth3";
+	
+	extract_user_data();
+}
 
 //*******************************************
 // Main program
@@ -156,11 +165,11 @@ int main(int argc, char **argv) {
 	int arg_cgroup = 0;
 	int custom_profile = 0;	// custom profile loaded
 	
-	memset(&cfg, 0, sizeof(cfg));
-	extract_user_data();
-	const pid_t mypid = getpid();
+	// initialize globals
+	init_cfg();
 
 	// initialize random number generator
+	const pid_t mypid = getpid();
 	time_t t = time(NULL);
 	srand(t ^ mypid);
 
@@ -668,20 +677,34 @@ int main(int argc, char **argv) {
 	if (!arg_command)
 		printf("Parent pid %u, child pid %u\n", mypid, child);
 
-printf("here %d\n", __LINE__);
-	// create veth pair
-	if (any_bridge_configured() && !arg_nonetwork) {
+	// create veth pair or macvlan device
+	if (cfg.bridge0.configured && !arg_nonetwork) {
 		if (cfg.bridge0.macvlan == 0)
 			net_configure_veth_pair(&cfg.bridge0, "eth0", child);
-		else {
-			net_create_macvlan("virtual0", cfg.bridge0.dev, child);
-printf("here %d\n", __LINE__);
-		}
-		net_configure_veth_pair(&cfg.bridge1, "eth1", child);
-		net_configure_veth_pair(&cfg.bridge2, "eth2", child);
-		net_configure_veth_pair(&cfg.bridge3, "eth3", child);
+		else
+			net_create_macvlan(cfg.bridge0.devsandbox, cfg.bridge0.dev, child);
 	}
-printf("here %d\n", __LINE__);
+	
+	if (cfg.bridge1.configured && !arg_nonetwork) {
+		if (cfg.bridge1.macvlan == 0)
+			net_configure_veth_pair(&cfg.bridge1, "eth1", child);
+		else
+			net_create_macvlan(cfg.bridge1.devsandbox, cfg.bridge1.dev, child);
+	}
+	
+	if (cfg.bridge2.configured && !arg_nonetwork) {
+		if (cfg.bridge2.macvlan == 0)
+			net_configure_veth_pair(&cfg.bridge2, "eth2", child);
+		else
+			net_create_macvlan(cfg.bridge2.devsandbox, cfg.bridge2.dev, child);
+	}
+	
+	if (cfg.bridge3.configured && !arg_nonetwork) {
+		if (cfg.bridge3.macvlan == 0)
+			net_configure_veth_pair(&cfg.bridge3, "eth3", child);
+		else
+			net_create_macvlan(cfg.bridge3.devsandbox, cfg.bridge3.dev, child);
+	}
 
 	// notify the child the initialization is done
 	FILE* stream;

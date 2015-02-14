@@ -43,8 +43,13 @@ void net_configure_bridge(Bridge *br, char *dev_name) {
 	}
 	else {
 		// is this a regular Ethernet interface
-		if (if_nametoindex(br->dev) > 0)
+		if (if_nametoindex(br->dev) > 0) {
 			br->macvlan = 1;
+			char *newname;
+			if (asprintf(&newname, "%s-%u", br->devsandbox, getpid()) == -1)
+				errExit("asprintf");
+			br->devsandbox = newname;
+		}			
 		else {
 			fprintf(stderr, "Error: cannot find network device %s, aborting\n", br->dev);
 			exit(1);
@@ -52,7 +57,7 @@ void net_configure_bridge(Bridge *br, char *dev_name) {
 	}
 
 	if (net_get_bridge_addr(br->dev, &br->ip, &br->mask)) {
-		fprintf(stderr, "Error: bridge device %s not configured, aborting\n",br->dev);
+		fprintf(stderr, "Error: bridge device %s not configured, aborting\n", br->dev);
 		exit(1);
 	}
 	if (arg_debug)
@@ -194,5 +199,7 @@ void net_check_cfg(void) {
 	// check default gateway address
 	if (cfg.defaultgw)
 		check_default_gw(cfg.defaultgw);
+	else
+		cfg.defaultgw = cfg.bridge0.ip;
 
 }

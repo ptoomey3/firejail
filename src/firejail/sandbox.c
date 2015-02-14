@@ -52,6 +52,21 @@ void save_nogroups(void) {
 	free(fname);
 }
 
+static void sandbox_if_up(Bridge *br) {
+	assert(br);
+	if (!br->configured)
+		return;
+		
+	char *dev = br->devsandbox;
+	net_if_up(dev);
+	if (br->arg_ip_none == 0) {
+		assert(br->ipsandbox);
+		if (arg_debug)
+			printf("Configuring %d.%d.%d.%d address on interface %s\n", PRINT_IP(br->ipsandbox), dev);
+		net_if_ip(dev, br->ipsandbox, br->mask);
+		net_if_up(dev);
+	}
+}
 
 
 int sandbox(void* sandbox_arg) {
@@ -202,66 +217,17 @@ int sandbox(void* sandbox_arg) {
 	else if (any_bridge_configured()) {
 		// configure lo and eth0...eth3
 		net_if_up("lo");
-		if (cfg.bridge0.configured) {
-			Bridge *br = &cfg.bridge0;
-			char *dev;
-			if (br->macvlan)
-				dev = "virtual0";
-			else
-				dev = "eth0";
-
-			net_if_up(dev);
-			if (br->arg_ip_none == 0) {
-				assert(br->ipsandbox);
-				if (arg_debug)
-					printf("Configuring %d.%d.%d.%d address on interface eth0\n", PRINT_IP(br->ipsandbox));
-				net_if_ip(dev, br->ipsandbox, br->mask);
-				net_if_up(dev);
-			}
-		}
-		if (cfg.bridge1.configured) {
-			Bridge *br = &cfg.bridge1;
-			net_if_up("eth1");
-			if (br->arg_ip_none == 0) {
-				assert(br->ipsandbox);
-				if (arg_debug)
-					printf("Configuring %d.%d.%d.%d address on interface eth1\n", PRINT_IP(br->ipsandbox));
-				net_if_ip("eth1", br->ipsandbox, br->mask);
-				net_if_up("eth1");
-			}
-		}
-		if (cfg.bridge2.configured) {
-			Bridge *br = &cfg.bridge2;
-			net_if_up("eth2");
-			if (br->arg_ip_none == 0) {
-				assert(br->ipsandbox);
-				if (arg_debug)
-					printf("Configuring %d.%d.%d.%d address on interface eth2\n", PRINT_IP(br->ipsandbox));
-				net_if_ip("eth2", br->ipsandbox, br->mask);
-				net_if_up("eth2");
-			}
-		}
-		if (cfg.bridge3.configured) {
-			Bridge *br = &cfg.bridge3;
-			net_if_up("eth3");
-			if (br->arg_ip_none == 0) {
-				assert(br->ipsandbox);
-				if (arg_debug)
-					printf("Configuring %d.%d.%d.%d address on interface eth3\n", PRINT_IP(br->ipsandbox));
-				net_if_ip("eth3", br->ipsandbox, br->mask);
-				net_if_up("eth3");
-			}
-		}
+		sandbox_if_up(&cfg.bridge0);
+		sandbox_if_up(&cfg.bridge0);
+		sandbox_if_up(&cfg.bridge0);
+		sandbox_if_up(&cfg.bridge0);
 		
 		// add a default route
-		if (!cfg.defaultgw) {
-			// set the default route as IP address of first bridge
-			cfg.defaultgw = cfg.bridge0.ip;
-			if (arg_debug)
-				printf("Using first bridge address as default route\n");
+		if (cfg.defaultgw) {
+			// set the default route
+			if (net_add_route(0, 0, cfg.defaultgw))
+				fprintf(stderr, "Warning: cannot configure default route\n");
 		}
-		if (net_add_route(0, 0, cfg.defaultgw))
-			fprintf(stderr, "Warning: cannot configure default route\n");
 			
 		if (arg_debug)
 			printf("Network namespace enabled\n");

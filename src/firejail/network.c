@@ -242,3 +242,35 @@ void net_bridge_add_interface(const char *bridge, const char *dev) {
 	}
 	(void) err;
 }
+
+#define BUFSIZE 1024
+uint32_t network_get_defaultgw(void) {
+	FILE *fp = fopen("/proc/self/net/route", "r");
+	if (!fp)
+		errExit("fopen");
+	
+	char buf[BUFSIZE];
+	uint32_t retval = 0;
+	while (fgets(buf, BUFSIZE, fp)) {
+		if (strncmp(buf, "Iface", 5) == 0)
+			continue;
+		
+		char *ptr = buf;
+		while (*ptr != ' ' && *ptr != '\t')
+			ptr++;
+		while (*ptr == ' ' || *ptr == '\t')
+			ptr++;
+			
+		unsigned dest;
+		unsigned gw;
+		int rv = sscanf(ptr, "%x %x", &dest, &gw);
+		if (rv == 2 && dest == 0) {
+			retval = ntohl(gw);
+			break;
+		}
+	}
+
+	fclose(fp);
+	return retval;
+}
+

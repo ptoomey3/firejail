@@ -140,6 +140,7 @@ int net_get_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
 void net_ifprint(void);
 void net_bridge_add_interface(const char *bridge, const char *dev);
+uint32_t network_get_defaultgw(void);
 
 // fs.c
 // build /tmp/firejail directory

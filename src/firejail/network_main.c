@@ -183,6 +183,9 @@ void net_check_cfg(void) {
 		net_configured++;
 	if (cfg.bridge3.configured)
 		net_configured++;
+	
+	if (net_configured == 0) // nothing to check
+		return;
 
 	// --net=none
 	if (arg_nonetwork && net_configured) {
@@ -196,10 +199,27 @@ void net_check_cfg(void) {
 		exit(1);
 	}
 
-	// check default gateway address
+	// check default gateway address or assign one
+	assert(cfg.bridge0.configured);
 	if (cfg.defaultgw)
 		check_default_gw(cfg.defaultgw);
-	else
-		cfg.defaultgw = cfg.bridge0.ip;
+	else {
+		// first network is a regular bridge
+		if (cfg.bridge0.macvlan == 0)
+			cfg.defaultgw = cfg.bridge0.ip;
+		// first network is a mac device
+		else {
+			// get the host default gw
+			uint32_t gw = network_get_defaultgw();
+			// check the gateway is network range
+			if (in_netrange(gw, cfg.bridge0.ip, cfg.bridge0.mask))
+				gw = 0;
+			cfg.defaultgw = gw;
+		}
 
+		if (cfg.defaultgw == 0)
+			fprintf(stderr, "Warning: default network gateway not set.\n");
+		else
+			fprintf(stderr, "Using %d.%d.%d.%d as default gateway.\n", PRINT_IP(cfg.defaultgw));
+	}
 }

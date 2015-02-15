@@ -17,7 +17,7 @@ ROOTDIR="/tmp/chroot"			# default chroot directory
 DEFAULT_FILES="/bin/bash /bin/sh "	# basic chroot files
 DEFAULT_FILES+="/etc/passwd /etc/nsswitch.conf /etc/group "
 DEFAULT_FILES+=`find /lib -name libnss*`	# files required by glibc
-DEFAULT_FILES+=" /bin/ls /bin/cat /bin/ps /usr/bin/id /usr/bin/whoami /usr/bin/wc "
+DEFAULT_FILES+=" /bin/ls /bin/cat /bin/ps /usr/bin/id /usr/bin/whoami /usr/bin/wc /usr/bin/wget"
 
 rm -fr $ROOTDIR
 mkdir -p $ROOTDIR/{root,bin,lib,lib64,usr,home,etc,dev/shm,tmp,var/run,var/tmp,var/lock,proc}
@@ -30,5 +30,8 @@ cp --parents /lib64/ld-linux-x86-64.so.2 $ROOTDIR
 #cp --parents /lib/ld-linux.so.2 $ROOTDIR
 
 cd $ROOTDIR; find .
+mkdir -p usr/lib/firejail/
+cp /usr/lib/firejail/libtrace.so usr/lib/firejail/.
+
 
 echo "To enter the chroot directory run: firejail --chroot=$ROOTDIR"

@@ -267,9 +267,18 @@ echo "TESTING: login SSH"
 echo "TESTING: ARP"
 ./net_arp.exp
 
+echo "TESTING: DNS"
+./dns.exp
+
 echo "TESTING: firemon --arp"
 ./firemon-arp.exp
 
 echo "TESTING: firemon --route"
 ./firemon-route.exp
+
+echo "TESTING: firemon --seccomp"
+./firemon-seccomp.exp
+
+echo "TESTING: firemon --caps"
+./firemon-caps.exp
 

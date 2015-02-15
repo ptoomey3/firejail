@@ -1,0 +1,78 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send --  "firejail --name=bingo1 --caps\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 1
+
+spawn $env(SHELL)
+send --  "firejail --name=bingo2\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 1
+
+spawn $env(SHELL)
+send --  "firejail --name=bingo3 --caps=none\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 1
+
+spawn $env(SHELL)
+send --  "firejail --name=bingo4 --caps=aaaa5555aaaa5555\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"Child process initialized"
+}
+sleep 1
+
+
+
+
+spawn $env(SHELL)
+send -- "firemon --caps\r"
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"bingo1"
+}
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"b1cffff"
+}
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"bingo2"
+}
+expect {
+	timeout {puts "TESTING ERROR 4\n";exit}
+	"fffffff"
+}
+expect {
+	timeout {puts "TESTING ERROR 5\n";exit}
+	"bingo3"
+}
+expect {
+	timeout {puts "TESTING ERROR 6\n";exit}
+	"000000000000"
+}
+expect {
+	timeout {puts "TESTING ERROR 7\n";exit}
+	"bingo4"
+}
+expect {
+	timeout {puts "TESTING ERROR 8\n";exit}
+	"aaaa5555"
+}
+sleep 1
+
+puts "\n"
+

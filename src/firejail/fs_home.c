@@ -102,7 +102,7 @@ static void skel(const char *homedir, uid_t u, gid_t g) {
 	}
 }
 
-static void store_xauthority(void) {
+static int store_xauthority(void) {
 	// put a copy of .Xauthority in MNT_DIR
 	fs_build_mnt_dir();
 
@@ -112,9 +112,18 @@ static void store_xauthority(void) {
 		errExit("asprintf");
 	if (asprintf(&dest, "%s/.Xauthority", MNT_DIR) == -1)
 		errExit("asprintf");
-	int rv = copy_file(src, dest);
-	if (rv)
-		fprintf(stderr, "Warning: cannot transfer .Xauthority in private home directory\n");
+	
+	struct stat s;
+	if (stat(src, &s) == 0) {	
+		int rv = copy_file(src, dest);
+		if (rv) {
+			fprintf(stderr, "Warning: cannot transfer .Xauthority in private home directory\n");
+			return 0;
+		}
+		return 1; // file copied
+	}
+	
+	return 0;
 }
 
 static void copy_xauthority(void) {
@@ -149,7 +158,7 @@ void fs_private_home(void) {
 	assert(homedir);
 	assert(private_homedir);
 	
-	store_xauthority();
+	int xflag = store_xauthority();
 	
 	uid_t u = getuid();
 	gid_t g = getgid();
@@ -194,7 +203,8 @@ void fs_private_home(void) {
 	
 
 	skel(homedir, u, g);
-	copy_xauthority();
+	if (xflag)
+		copy_xauthority();
 }
 
 
@@ -209,7 +219,7 @@ void fs_private(void) {
 	uid_t u = getuid();
 	gid_t g = getgid();
 
-	store_xauthority();
+	int xflag = store_xauthority();
 
 	// mask /home
 	if (arg_debug)
@@ -240,5 +250,6 @@ void fs_private(void) {
 	}
 	
 	skel(homedir, u, g);
-	copy_xauthority();
+	if (xflag)
+		copy_xauthority();
 }

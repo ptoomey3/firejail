@@ -49,3 +49,8 @@ echo "TESTING: chroot"
 echo "TESTING: firemon --interface"
 ./firemon-interface.exp
 
+if [ -f /sys/fs/cgroup/g1/tasks ]
+then
+	echo "TESTING: firemon --cgroup"
+	./firemon-cgroup.exp
+fi

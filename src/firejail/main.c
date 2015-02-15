@@ -515,6 +515,25 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 		}
+		else if (strncmp(argv[i], "--dns=", 6) == 0) {
+			uint32_t dns;
+			if (atoip(argv[i] + 6, &dns)) {
+				fprintf(stderr, "Error: invalid DNS server IP address, aborting\n");
+				return 1;
+			}
+			
+			if (cfg.dns1 == 0)
+				cfg.dns1 = dns;
+			else if (cfg.dns2 == 0)
+				cfg.dns2 = dns;
+			else if (cfg.dns3 == 0)
+				cfg.dns3 = dns;
+			else {
+				fprintf(stderr, "Error: up to 3 DNS servers can be specified\n");
+				return 1;
+			}
+		}
+		
 
 		//*************************************
 		// command

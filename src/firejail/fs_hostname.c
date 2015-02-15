@@ -106,3 +106,51 @@ void fs_hostname(const char *hostname) {
 		free(fhost);
 	}
 }
+
+void fs_resolvconf(void) {
+	if (cfg.dns1 == 0)
+		return;
+		
+	struct stat s;
+	fs_build_mnt_dir();
+	
+	// create a new /etc/hostname
+	if (stat("/etc/resolv.conf", &s) == 0) {
+		if (arg_debug)
+			printf("Creating a new /etc/resolv.conf file\n");
+		char *fname;
+		if (asprintf(&fname, "%s/resolv.conf", MNT_DIR) == -1)
+			errExit("asprintf");
+		FILE *fp = fopen(fname, "w");
+		if (!fp) {
+			fprintf(stderr, "Error: cannot create %s\n", fname);
+			free(fname);
+			exit(1);
+		}
+		
+		if (cfg.dns1)
+			fprintf(fp, "nameserver %d.%d.%d.%d\n", PRINT_IP(cfg.dns1));
+		if (cfg.dns2)
+			fprintf(fp, "nameserver %d.%d.%d.%d\n", PRINT_IP(cfg.dns2));
+		if (cfg.dns3)
+			fprintf(fp, "nameserver %d.%d.%d.%d\n", PRINT_IP(cfg.dns3));
+		fclose(fp);
+		
+		// mode and owner
+		if (chown(fname, 0, 0) < 0)
+			errExit("chown");
+		if (chmod(fname, S_IRUSR | S_IWRITE | S_IRGRP | S_IROTH ) < 0)
+			errExit("chmod");
+		
+		// bind-mount the file on top of /etc/hostname
+		if (mount(fname, "/etc/resolv.conf", NULL, MS_BIND|MS_REC, NULL) < 0)
+			errExit("mount bind /etc/resolv.conf");
+		free(fname);
+	}
+	else {
+		fprintf(stderr, "Error: cannot set DNS servers, /etc/resolv.conf file is missing\n");
+		exit(1);
+	}
+}
+
+	

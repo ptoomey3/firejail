@@ -71,6 +71,9 @@ typedef struct config_t {
 	Bridge bridge1;
 	Bridge bridge2;
 	Bridge bridge3;
+	uint32_t dns1;	// up to 3 IP addresses for dns servers
+	uint32_t dns2;
+	uint32_t dns3;
 
 	// rlimits
 	unsigned rlimit_nofile;
@@ -246,7 +249,7 @@ int seccomp_filter(void);
 void seccomp_set(void);
 
 // caps.c
-int caps_default_default(void);
+int caps_default_filter(void);
 void caps_print(void);
 void caps_drop_all(void);
 void caps_set(uint64_t caps);
@@ -264,6 +267,7 @@ void fs_trace(void);
 
 // fs_hostname.c
 void fs_hostname(const char *hostname);
+void fs_resolvconf(void);
 
 // rlimit.c
 void set_rlimits(void);

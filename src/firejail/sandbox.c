@@ -218,9 +218,9 @@ int sandbox(void* sandbox_arg) {
 		// configure lo and eth0...eth3
 		net_if_up("lo");
 		sandbox_if_up(&cfg.bridge0);
-		sandbox_if_up(&cfg.bridge0);
-		sandbox_if_up(&cfg.bridge0);
-		sandbox_if_up(&cfg.bridge0);
+		sandbox_if_up(&cfg.bridge1);
+		sandbox_if_up(&cfg.bridge2);
+		sandbox_if_up(&cfg.bridge3);
 		
 		// add a default route
 		if (cfg.defaultgw) {
@@ -233,6 +233,9 @@ int sandbox(void* sandbox_arg) {
 			printf("Network namespace enabled\n");
 	}
 	net_ifprint();
+	
+	// if any dns server is configured, it is time to set it now
+	fs_resolvconf();
 	
 	//****************************
 	// start executable

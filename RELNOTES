@@ -1,11 +1,17 @@
-New development (0.9.21) baseline; urgency=low
-  * Container stdout logging and log rotation - todo: add help and man
+firejail (0.9.21) baseline; urgency=low
+  * this is a rolling development version
+  * todo: help and man support for all
+  * Container stdout logging and log rotation
   * Added process_vm_readv and process_vm_writev to default seccomp blacklist
-  * Custom Linux capabilities whitefilter support - todo: add help and man
+  * Custom Linux capabilities whitefilter support
   * bugfix: check uid/gid for cgroup
   * replaced --noip option with --ip=none
+  * macvlan device driver support for --net option
+  * preserve .Xauthority file in private mode (test with ssh -X)
+  * todo: preserve .Xauthority file in chroot mode (test with a new --net=eth0)
+  * DNS server support, --dns option
 
- -- netblue30 <netblue30@yahoo.com>  Mon, 08 Feb 2015 08:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Sun, 15 Feb 2015 08:00:00 -0500
 
 firejail (0.9.20) baseline; urgency=low
   * utmp, btmp and wtmp enhancements

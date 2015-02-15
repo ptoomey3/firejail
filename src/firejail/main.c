@@ -158,6 +158,10 @@ static void init_cfg(void) {
 // Main program
 //*******************************************
 int main(int argc, char **argv) {
+
+uint32_t gw = network_get_defaultgw();
+printf("%d.%d.%d.%d\n", PRINT_IP(gw));
+
 	int i;
 	int prog_index = -1;			  // index in argv where the program command starts
 	int lockfd = -1;

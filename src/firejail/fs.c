@@ -658,5 +658,6 @@ void fs_chroot(const char *rootdir) {
 	// only in user mode
 	if (getuid())
 		sanitize_home();
+	
 }
 

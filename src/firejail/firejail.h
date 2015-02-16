@@ -242,7 +242,9 @@ void fs_dev_shm(void);
 // private mode: mount tmpfs over /home and /tmp
 void fs_private(void);
 void fs_private_home(void);
-
+int fs_store_xauthority(void);
+void fs_copy_xauthority(void);
+void fs_mount_xauthority(void);
 
 // seccomp.c
 int seccomp_filter(void);

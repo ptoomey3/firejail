@@ -55,13 +55,12 @@ install: all
 	# firemon executable
 	strip src/firemon/firemon
 	install -c -m 0755 src/firemon/firemon $(DESTDIR)/$(PREFIX)/bin/.
-	# ftee executable
-	strip src/ftee/ftee
-	install -c -m 0755 src/ftee/ftee $(DESTDIR)/$(PREFIX)/bin/.
 	# libraries and plugins
 	strip src/libtrace/libtrace.so
 	mkdir -p $(DESTDIR)/$(PREFIX)/lib/firejail
 	install -c -m 0644 src/libtrace/libtrace.so $(DESTDIR)/$(PREFIX)/lib/firejail/.
+	strip src/ftee/ftee
+	install -c -m 0755 src/ftee/ftee $(DESTDIR)/$(PREFIX)/lib/firejail/.
 	# documents
 	mkdir -p $(DESTDIR)/$(DOCDIR)
 	install -c -m 0644 COPYING $(DESTDIR)/$(DOCDIR)/.

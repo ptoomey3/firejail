@@ -6,7 +6,7 @@
 void check_output(int argc, char **argv) {
 	int i;
 	char *outfile = NULL;
-	
+
 	int found = 0;
 	for (i = 1; i < argc; i++) {
 		if (strncmp(argv[i], "--output=", 9) == 0) {
@@ -39,7 +39,7 @@ void check_output(int argc, char **argv) {
 	for (i = 0; i < argc; i++) {
 		len += strlen(argv[i]) + 1; // + ' '
 	}
-	len += 10 + strlen(outfile); // tee command
+	len += 50 + strlen(outfile); // tee command
 	
 	char *cmd = malloc(len + 1); // + '\0'
 	if (!cmd)
@@ -51,7 +51,7 @@ void check_output(int argc, char **argv) {
 			continue;
 		ptr += sprintf(ptr, "%s ", argv[i]);
 	}
-	sprintf(ptr, "| ftee %s", outfile);
+	sprintf(ptr, "| %s/lib/firejail/ftee %s", PREFIX, outfile);
 
 	// run command
 	char *a[4];

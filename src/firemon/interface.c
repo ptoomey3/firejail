@@ -27,6 +27,7 @@
 #include <linux/connector.h>
 #include <linux/netlink.h>
 #include <linux/if_link.h>
+#include <linux/sockios.h>
 
 //#include <net/route.h>
 //#include <linux/if_bridge.h>
@@ -36,6 +37,12 @@ static void net_ifprint(void) {
 	uint32_t ip;
 	uint32_t mask;
 	struct ifaddrs *ifaddr, *ifa;
+
+	int fd;
+	if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		fprintf(stderr, "Error: cannot open AF_INET socket\n");
+		exit(1);
+	}
 
 	if (getifaddrs(&ifaddr) == -1)
 		errExit("getifaddrs");
@@ -50,8 +57,20 @@ static void net_ifprint(void) {
 			if (ifa->ifa_flags & IFF_RUNNING && ifa->ifa_flags & IFF_UP) {
 				if (ifa->ifa_data != NULL) {
 					struct rtnl_link_stats *stats = ifa->ifa_data;
-					printf("     %s UP - tx/rx: %u/%u packets,  %u/%u bytes\n",
-						ifa->ifa_name, 
+
+					// extract mac address
+					struct ifreq ifr;
+					memset(&ifr, 0, sizeof(ifr));
+					strncpy(ifr.ifr_name,  ifa->ifa_name, IFNAMSIZ);
+					int rv = ioctl (fd, SIOCGIFHWADDR, &ifr);
+					
+					if (rv == 0)
+						printf("     %s UP, %02x:%02x:%02x:%02x:%02x:%02x\n",
+							ifa->ifa_name, PRINT_MAC((unsigned char *) &ifr.ifr_hwaddr.sa_data));
+					else
+						printf("     %s UP\n", ifa->ifa_name);
+					
+					printf("          tx/rx: %u/%u packets,  %u/%u bytes\n",
 						stats->tx_packets, stats->rx_packets,
 						stats->tx_bytes, stats->rx_bytes);
 				}
@@ -112,6 +131,7 @@ static void net_ifprint(void) {
 	}
 
 	freeifaddrs(ifaddr);
+	close(fd);
 }
 
 static void print_sandbox(pid_t pid) {

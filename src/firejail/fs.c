@@ -528,6 +528,8 @@ void fs_basic_fs(void) {
 
 // mount overlayfs on top of / directory
 // mounting an overlay and chrooting into it:
+//
+// Old Ubuntu kernel
 // # cd ~
 // # mkdir -p overlay/root
 // # mkdir -p overlay/diff
@@ -536,8 +538,47 @@ void fs_basic_fs(void) {
 // to shutdown, first exit the chroot and then  unmount the overlay
 // # exit
 // # umount /root/overlay/root
+//
+// Kernels 3.18+
+// # cd ~
+// # mkdir -p overlay/root
+// # mkdir -p overlay/diff
+// # mkdir -p overlay/work
+// # mount -t overlay -o lowerdir=/,upperdir=/root/overlay/diff,workdir=/root/overlay/work overlay /root/overlay/root
+// # cat /etc/mtab | grep overlay
+// /root/overlay /root/overlay/root overlay rw,relatime,lowerdir=/,upperdir=/root/overlay/diff,workdir=/root/overlay/work 0 0
+// # chroot /root/overlay/root
+// to shutdown, first exit the chroot and then  unmount the overlay
+// # exit
+// # umount /root/overlay/root
+
+
 // to do: fix the code below; also, it might work without /dev; impose seccomp/caps filters when not root
+#include <sys/utsname.h>
 void fs_overlayfs(void) {
+	// check kernel version
+	struct utsname u;
+	int rv = uname(&u);
+	if (rv != 0)
+		errExit("uname");
+	int major;
+	int minor;
+	if (2 != sscanf(u.release, "%d.%d", &major, &minor)) {
+		fprintf(stderr, "Error: cannot extract Linux kernel version: %s\n", u.version);
+		exit(1);
+	}
+	
+	if (arg_debug)
+		printf("Linux kernel version %d.%d\n", major, minor);
+	int oldkernel = 0;
+	if (major < 3) {
+		fprintf(stderr, "Error: minimum kernel version required 3.x\n");
+		exit(1);
+	}
+	if (major == 3 && minor < 18)
+		oldkernel = 1;
+	
+	// build overlay directories
 	fs_build_mnt_dir();
 
 	char *oroot;
@@ -560,14 +601,32 @@ void fs_overlayfs(void) {
 	if (chmod(odiff, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
 		errExit("chmod");
 
+	char *owork;
+	if(asprintf(&owork, "%s/owork", MNT_DIR) == -1)
+		errExit("asprintf");
+	if (mkdir(owork, S_IRWXU | S_IRWXG | S_IRWXO))
+		errExit("mkdir");
+	if (chown(owork, 0, 0) < 0)
+		errExit("chown");
+	if (chmod(owork, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
+		errExit("chmod");
+
 	// mount overlayfs
 	if (arg_debug)
 		printf("Mounting OverlayFS\n");
 	char *option;
-	if (asprintf(&option, "lowerdir=/,upperdir=%s", odiff) == -1)
-		errExit("asprintf");
-	if (mount("overlayfs", oroot, "overlayfs", MS_MGC_VAL, option) < 0)
-		errExit("mounting overlayfs");
+	if (oldkernel) { // old Ubuntu/OpenSUSE kernels
+		if (asprintf(&option, "lowerdir=/,upperdir=%s", odiff) == -1)
+			errExit("asprintf");
+		if (mount("overlayfs", oroot, "overlayfs", MS_MGC_VAL, option) < 0)
+			errExit("mounting overlayfs");
+	}
+	else { // kernel 3.18 or newer
+		if (asprintf(&option, "lowerdir=/,upperdir=%s,workdir=%s", odiff, owork) == -1)
+			errExit("asprintf");
+		if (mount("overlay", oroot, "overlay", MS_MGC_VAL, option) < 0)
+			errExit("mounting overlayfs");
+	}
 
 	// mount-bind dev directory
 	if (arg_debug)

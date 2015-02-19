@@ -99,6 +99,10 @@ int profile_check_line(char *ptr, int lineno) {
 		arg_nogroups = 1;
 		return 0;
 	}
+	else if (strcmp(ptr, "netfilter") == 0) {
+		arg_netfilter = 1;
+		return 0;
+	}
 	
 	// seccomp list
 	if (strncmp(ptr, "seccomp ", 8) == 0) {

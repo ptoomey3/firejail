@@ -5,3 +5,5 @@ blacklist ${HOME}/.adobe
 blacklist ${HOME}/.macromedia
 caps
 seccomp
+netfilter
+

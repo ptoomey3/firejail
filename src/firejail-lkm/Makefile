@@ -4,7 +4,7 @@
 
 VERSION = 0.1
 #KDIR  ?= /lib/modules/$(shell uname -r)/build
-KDIR = /usr/kernelsrc/linux-source-3.14
+KDIR = /usr/src/linux-3.18.7
 
 firejail-objs := main.o split.o syscall.o timeout.o uptime.o utils.o
 obj-m = firejail.o

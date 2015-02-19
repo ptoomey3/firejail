@@ -6,3 +6,5 @@ blacklist ${HOME}/.macromedia
 blacklist ${HOME}/.mozilla
 caps
 seccomp
+netfilter
+

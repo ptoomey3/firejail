@@ -37,11 +37,11 @@ typedef struct bridge_t {
 	char *dev;		// interface device name: bridge or regular ethernet
 	uint32_t ip;		// interface device IP address
 	uint32_t mask;		// interface device mask
-	
+
 	// inside the sandbox
 	char *devsandbox;	// name of the device inside the sandbox
 	uint32_t ipsandbox;	// ipaddress inside the sandbox
-	
+
 	// flags
 	uint8_t arg_ip_none;	// --ip=none
 	uint8_t macvlan;	// set by --net=eth0 (or eth1, ...); reset by --net=br0 (or br1, ...)
@@ -57,7 +57,7 @@ typedef struct config_t {
 	// user data
 	char *username;
 	char *homedir;
-	
+
 	// filesystem
 	ProfileEntry *profile;
 	char *chrootdir;	// chroot directory
@@ -80,11 +80,11 @@ typedef struct config_t {
 	unsigned rlimit_nproc;
 	unsigned rlimit_fsize;
 	unsigned rlimit_sigpending;
-	
+
 	// cpu affinity and control groups
 	uint32_t cpus;
 	char *cgroup;
-	
+
 
 	// command line
 	char *command_line;
@@ -122,7 +122,8 @@ extern int arg_nodbus;		// kill the program if D-Bus is accessed
 extern int arg_nogroups;	// disable supplementary groups
 extern int arg_netfilter;	// enable netfilter
 extern char *arg_netfilter_file;	// netfilter file
-extern int fds[2];
+extern int parent_to_child_fds[2];
+extern int child_to_parent_fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
 extern char *fullargv[MAX_ARGS];
@@ -291,6 +292,6 @@ void set_cgroup(const char *path);
 void check_output(int argc, char **argv);
 
 // netfilter.c
-void netfilter(const char *fname);
+// void netfilter(const char *fname);
 
 #endif

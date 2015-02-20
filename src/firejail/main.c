@@ -63,7 +63,8 @@ int arg_nogroups = 0;				// disable supplementary groups
 int arg_netfilter;				// enable netfilter
 char *arg_netfilter_file = NULL;			// netfilter file
 
-int fds[2];					// parent-child communication pipe
+int parent_to_child_fds[2];					// parent-child communication pipe
+int child_to_parent_fds[2];					// child-parent communication pipe
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
 int fullargc = 0;
 static pid_t child = 0;
@@ -72,7 +73,7 @@ static void myexit(int rv) {
 	logmsg("exiting...");
 	if (!arg_command)
 		printf("\nparent is shutting down, bye...\n");
-	exit(rv); 
+	exit(rv);
 }
 
 static void my_handler(int s){
@@ -107,7 +108,7 @@ static void extract_user_data(void) {
 		fprintf(stderr, "Error: user %s doesn't have a user directory assigned, aborting...\n", cfg.username);
 		exit(1);
 	}
-	
+
 	cfg.cwd = getcwd(NULL, 0);
 }
 
@@ -147,12 +148,12 @@ static int read_pid(char *str, pid_t *pid) {
 
 static void init_cfg(void) {
 	memset(&cfg, 0, sizeof(cfg));
-	
+
 	cfg.bridge0.devsandbox = "eth0";
 	cfg.bridge1.devsandbox = "eth1";
 	cfg.bridge2.devsandbox = "eth2";
 	cfg.bridge3.devsandbox = "eth3";
-	
+
 	extract_user_data();
 }
 
@@ -166,7 +167,7 @@ int main(int argc, char **argv) {
 	int arg_ipc = 0;
 	int arg_cgroup = 0;
 	int custom_profile = 0;	// custom profile loaded
-	
+
 	// initialize globals
 	init_cfg();
 
@@ -192,7 +193,7 @@ int main(int argc, char **argv) {
 		// check --output option and execute it;
 		check_output(argc, argv); // the function will not return if --output option was found
 	}
-		
+
 	// parse arguments
 	for (i = 1; i < argc; i++) {
 		//*************************************
@@ -233,20 +234,20 @@ int main(int argc, char **argv) {
 		}
 		else if (strncmp(argv[i], "--join=", 7) == 0) {
 			logargs(argc, argv);
-			
+
 			// join sandbox by pid or by name
 			pid_t pid;
-			if (read_pid(argv[i] + 7, &pid) == 0)		
+			if (read_pid(argv[i] + 7, &pid) == 0)
 				join(pid, cfg.homedir, argc, argv, i + 1);
 			else
 				join_name(argv[i] + 7, cfg.homedir, argc, argv, i + 1);
-				
+
 			// it will never get here!!!
 			exit(0);
 		}
 		else if (strncmp(argv[i], "--shutdown=", 11) == 0) {
 			logargs(argc, argv);
-			
+
 			// shutdown sandbox by pid or by name
 			pid_t pid;
 			if (read_pid(argv[i] + 11, &pid) == 0)
@@ -257,7 +258,7 @@ int main(int argc, char **argv) {
 			// it will never get here!!!
 			exit(0);
 		}
-		
+
 		//*************************************
 		// filtering
 		//*************************************
@@ -273,7 +274,7 @@ int main(int argc, char **argv) {
 			if (syscall_check_list(arg_seccomp_list, NULL))
 				return 1;
 		}
-#endif		
+#endif
 		else if (strcmp(argv[i], "--caps") == 0)
 			arg_caps_default_filter = 1;
 		else if (strcmp(argv[i], "--caps=none") == 0)
@@ -296,7 +297,7 @@ int main(int argc, char **argv) {
 			}
 			sscanf(argv[i] + 16, "%u", &cfg.rlimit_nofile);
 			arg_rlimit_nofile = 1;
-		}		
+		}
 		else if (strncmp(argv[i], "--rlimit-nproc=", 15) == 0) {
 			if (not_unsigned(argv[i] + 15)) {
 				fprintf(stderr, "Error: invalid rlimt nproc\n");
@@ -304,7 +305,7 @@ int main(int argc, char **argv) {
 			}
 			sscanf(argv[i] + 15, "%u", &cfg.rlimit_nproc);
 			arg_rlimit_nproc = 1;
-		}	
+		}
 		else if (strncmp(argv[i], "--rlimit-fsize=", 15) == 0) {
 			if (not_unsigned(argv[i] + 15)) {
 				fprintf(stderr, "Error: invalid rlimt fsize\n");
@@ -312,7 +313,7 @@ int main(int argc, char **argv) {
 			}
 			sscanf(argv[i] + 15, "%u", &cfg.rlimit_fsize);
 			arg_rlimit_fsize = 1;
-		}	
+		}
 		else if (strncmp(argv[i], "--rlimit-sigpending=", 20) == 0) {
 			if (not_unsigned(argv[i] + 20)) {
 				fprintf(stderr, "Error: invalid rlimt sigpending\n");
@@ -320,7 +321,7 @@ int main(int argc, char **argv) {
 			}
 			sscanf(argv[i] + 20, "%u", &cfg.rlimit_sigpending);
 			arg_rlimit_sigpending = 1;
-		}	
+		}
 		else if (strncmp(argv[i], "--ipc-namespace", 15) == 0)
 			arg_ipc = 1;
 		else if (strncmp(argv[i], "--cpu=", 6) == 0)
@@ -356,11 +357,11 @@ int main(int argc, char **argv) {
 				errExit("strdup");
 			set_cgroup(cfg.cgroup);
 		}
-		
+
 		//*************************************
 		// filesystem
 		//*************************************
-#ifdef HAVE_BIND		
+#ifdef HAVE_BIND
 		else if (strncmp(argv[i], "--bind=", 7) == 0) {
 			char *line;
 			if (asprintf(&line, "bind %s", argv[i] + 7) == -1)
@@ -374,7 +375,7 @@ int main(int argc, char **argv) {
 			char *line;
 			if (asprintf(&line, "tmpfs %s", argv[i] + 8) == -1)
 				errExit("asprintf");
-			
+
 			profile_check_line(line, 0);	// will exit if something wrong
 			profile_add(line);
 		}
@@ -382,7 +383,7 @@ int main(int argc, char **argv) {
 			char *line;
 			if (asprintf(&line, "blacklist %s", argv[i] + 12) == -1)
 				errExit("asprintf");
-			
+
 			profile_check_line(line, 0);	// will exit if something wrong
 			profile_add(line);
 		}
@@ -390,7 +391,7 @@ int main(int argc, char **argv) {
 			char *line;
 			if (asprintf(&line, "read-only %s", argv[i] + 12) == -1)
 				errExit("asprintf");
-			
+
 			profile_check_line(line, 0);	// will exit if something wrong
 			profile_add(line);
 		}
@@ -411,13 +412,13 @@ int main(int argc, char **argv) {
 			profile_read(argv[i] + 10);
 			custom_profile = 1;
 		}
-#ifdef HAVE_CHROOT		
+#ifdef HAVE_CHROOT
 		else if (strncmp(argv[i], "--chroot=", 9) == 0) {
 			if (arg_overlay) {
 				fprintf(stderr, "Error: --overlay and --chroot options are mutually exclusive\n");
 				exit(1);
 			}
-			
+
 			// extract chroot dirname
 			cfg.chrootdir = argv[i] + 9;
 			// if the directory starts with ~, expand the home directory
@@ -458,7 +459,7 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--nogroups") == 0)
 			arg_nogroups = 1;
-		
+
 		//*************************************
 		// network
 		//*************************************
@@ -523,7 +524,7 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: invalid DNS server IP address, aborting\n");
 				return 1;
 			}
-			
+
 			if (cfg.dns1 == 0)
 				cfg.dns1 = dns;
 			else if (cfg.dns2 == 0)
@@ -590,7 +591,7 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: invalid %s command line option\n", argv[i]);
 				return 1;
 			}
-			
+
 			// we have a program name coming
 			extract_command_name(argv[i]);
 			prog_index = i;
@@ -646,12 +647,12 @@ int main(int argc, char **argv) {
 			ptr += strlen(ptr);
 		}
 	}
-	
+
 	// load the profile
 	{
 		assert(cfg.command_name);
 		if (arg_debug)
-			printf("Command name #%s#\n", cfg.command_name);		
+			printf("Command name #%s#\n", cfg.command_name);
 		if (!custom_profile) {
 			// look for a profile in ~/.config/firejail directory
 			char *usercfgdir;
@@ -680,18 +681,22 @@ int main(int argc, char **argv) {
 		net_configure_sandbox_ip(&cfg.bridge3);
 	}
 
-	// create the parrent-child communication pipe
-	if (pipe(fds) < 0)
+	// create the parent-child communication pipe
+	if (pipe(parent_to_child_fds) < 0)
+		errExit("pipe");
+
+	// create the parent-child communication pipe
+	if (pipe(child_to_parent_fds) < 0)
 		errExit("pipe");
 
 	// clone environment
 	int flags = CLONE_NEWNS | CLONE_NEWPID | CLONE_NEWUTS | SIGCHLD;
-	
+
 	// in root mode also enable CLONE_NEWIPC
 	// in user mode CLONE_NEWIPC will break MIT Shared Memory Extension (MIT-SHM)
 	if (getuid() == 0 || arg_ipc)
 		flags |= CLONE_NEWIPC;
-	
+
 	if (any_bridge_configured() || arg_nonetwork) {
 		flags |= CLONE_NEWNET;
 	}
@@ -715,21 +720,21 @@ int main(int argc, char **argv) {
 		else
 			net_create_macvlan(cfg.bridge0.devsandbox, cfg.bridge0.dev, child);
 	}
-	
+
 	if (cfg.bridge1.configured && !arg_nonetwork) {
 		if (cfg.bridge1.macvlan == 0)
 			net_configure_veth_pair(&cfg.bridge1, "eth1", child);
 		else
 			net_create_macvlan(cfg.bridge1.devsandbox, cfg.bridge1.dev, child);
 	}
-	
+
 	if (cfg.bridge2.configured && !arg_nonetwork) {
 		if (cfg.bridge2.macvlan == 0)
 			net_configure_veth_pair(&cfg.bridge2, "eth2", child);
 		else
 			net_create_macvlan(cfg.bridge2.devsandbox, cfg.bridge2.dev, child);
 	}
-	
+
 	if (cfg.bridge3.configured && !arg_nonetwork) {
 		if (cfg.bridge3.macvlan == 0)
 			net_configure_veth_pair(&cfg.bridge3, "eth3", child);
@@ -737,13 +742,31 @@ int main(int argc, char **argv) {
 			net_create_macvlan(cfg.bridge3.devsandbox, cfg.bridge3.dev, child);
 	}
 
-	// notify the child the initialization is done
-	FILE* stream;
-	close(fds[0]);
-	stream = fdopen(fds[1], "w");
-	fprintf(stream, "%u\n", child);
-	fflush(stream);
-	close(fds[1]);
+	// close each end of the unused pipes
+	close(parent_to_child_fds[0]);
+	close(child_to_parent_fds[1]);
+
+    // notify child that base setup is complete
+	notify_other(parent_to_child_fds[1]);
+
+	// wait for child to create new user namespace with CLONE_NEWUSER
+	wait_for_other(child_to_parent_fds[0]);
+	close(child_to_parent_fds[0]);
+
+	char map_path[500];
+	// update the UID and GID maps in the new child user namespace
+    snprintf(map_path, 500, "/proc/%ld/uid_map",
+      (long) child);
+    update_map("1000 1000 1", map_path);
+
+    snprintf(map_path, 500, "/proc/%ld/gid_map",
+      (long) child);
+    update_map("1000 1000 1", map_path);
+
+    // notify child that UID/GID mapping is complete
+	notify_other(parent_to_child_fds[1]);
+	close(parent_to_child_fds[1]);
+
 
 	if (lockfd != -1) {
 		net_bridge_wait_ip(&cfg.bridge0);
@@ -760,11 +783,11 @@ int main(int argc, char **argv) {
 		logmsg(msg);
 		free(msg);
 	}
-	
+
 	// handle CTRL-C in parent
 	signal (SIGINT, my_handler);
 	signal (SIGTERM, my_handler);
-	
+
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
 	myexit(0);

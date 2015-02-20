@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-	
+
 #include "firejail.h"
 #include <sys/mount.h>
 #include <sys/wait.h>
@@ -25,6 +25,7 @@
 #include <sys/prctl.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sched.h>
 
 #define BUFLEN 500 // generic read buffer
 
@@ -48,7 +49,7 @@ void save_nogroups(void) {
 		free(fname);
 		exit(1);
 	}
-	
+
 	free(fname);
 }
 
@@ -56,7 +57,7 @@ static void sandbox_if_up(Bridge *br) {
 	assert(br);
 	if (!br->configured)
 		return;
-		
+
 	char *dev = br->devsandbox;
 	net_if_up(dev);
 	if (br->arg_ip_none == 0) {
@@ -71,30 +72,15 @@ static void sandbox_if_up(Bridge *br) {
 
 int sandbox(void* sandbox_arg) {
 	if (arg_debug)
-		printf("Initializing child process\n");	
+		printf("Initializing child process\n");
 
-	//****************************
-	// wait for the parent to be initialized
-	//****************************
-	char childstr[BUFLEN + 1];
-	FILE* stream;
-	close(fds[1]);
-	stream = fdopen(fds[0], "r");
-	*childstr = '\0';
-	if (fgets(childstr, BUFLEN, stream)) {
-		// remove \n
-		char *ptr = childstr;
-		while(*ptr !='\0' && *ptr != '\n')
-			ptr++;
-		if (*ptr == '\0')
-			errExit("fgets");
-		*ptr = '\0';
-	}
-	else {
-		fprintf(stderr, "Error: cannot establish communication with the parent, exiting...\n");
-		exit(1);
-	}
-	close(fds[0]);
+	// close each end of the unused pipes
+	close(parent_to_child_fds[1]);
+	close(child_to_parent_fds[0]);
+
+	// wait for paren to do base setup
+	wait_for_other(parent_to_child_fds[0]);
+
 	if (arg_debug && getpid() == 1)
 			printf("PID namespace installed\n");
 
@@ -118,13 +104,13 @@ int sandbox(void* sandbox_arg) {
 		if (strcmp(mycont, "firejail") != 0)
 			errExit("mounting filesystem as slave");
 	}
-	
+
 	//****************************
 	// netfilter
 	//****************************
-	if (arg_netfilter && any_bridge_configured()) { // assuming by default the client filter
-		netfilter(arg_netfilter_file);
-	}
+	// if (arg_netfilter && any_bridge_configured()) { // assuming by default the client filter
+	// 	netfilter(arg_netfilter_file);
+	// }
 
 	//****************************
 	// trace pre-install
@@ -142,20 +128,20 @@ int sandbox(void* sandbox_arg) {
 			// force seccomp inside the chroot
 			arg_seccomp = 1;
 			arg_seccomp_empty = 0; // force the default syscall list in case the user disabled it
-			
+
 			// disable all capabilities
 			if (arg_caps_default_filter || arg_caps_custom_filter)
 				fprintf(stderr, "Warning: all capabilities disabled for a regular user during chroot\n");
 			arg_caps_default_filter = 0;
 			arg_caps_custom_filter = 0;
 			arg_caps_drop_all = 1;
-			
+
 			// drop all supplementary groups; /etc/group file inside chroot
 			// is controlled by a regular usr
 			arg_nogroups = 1;
 			printf("Dropping all Linux capabilities and enforcing default seccomp filter\n");
 		}
-						
+
 		//****************************
 		// trace pre-install, this time inside chroot
 		//****************************
@@ -166,7 +152,7 @@ int sandbox(void* sandbox_arg) {
 		fs_overlayfs();
 	else
 		fs_basic_fs();
-	
+
 
 	//****************************
 	// set hostname in /etc/hostname
@@ -174,13 +160,13 @@ int sandbox(void* sandbox_arg) {
 	if (cfg.hostname) {
 		fs_hostname(cfg.hostname);
 	}
-	
+
 	//****************************
 	// apply the profile file
 	//****************************
 	if (cfg.profile)
 		fs_blacklist(cfg.homedir);
-	
+
 	//****************************
 	// private mode
 	//****************************
@@ -190,18 +176,18 @@ int sandbox(void* sandbox_arg) {
 		else
 			fs_private();
 	}
-	
+
 	//****************************
 	// install trace
 	//****************************
 	if (arg_trace)
 		fs_trace();
-		
+
 	//****************************
 	// update /proc, /dev, /boot directory
 	//****************************
 	fs_proc_sys_dev_boot();
-	
+
 	//****************************
 	// networking
 	//****************************
@@ -228,22 +214,22 @@ int sandbox(void* sandbox_arg) {
 		sandbox_if_up(&cfg.bridge1);
 		sandbox_if_up(&cfg.bridge2);
 		sandbox_if_up(&cfg.bridge3);
-		
+
 		// add a default route
 		if (cfg.defaultgw) {
 			// set the default route
 			if (net_add_route(0, 0, cfg.defaultgw))
 				fprintf(stderr, "Warning: cannot configure default route\n");
 		}
-			
+
 		if (arg_debug)
 			printf("Network namespace enabled\n");
 	}
 	net_ifprint();
-	
+
 	// if any dns server is configured, it is time to set it now
 	fs_resolvconf();
-	
+
 	//****************************
 	// start executable
 	//****************************
@@ -253,7 +239,7 @@ int sandbox(void* sandbox_arg) {
 		if (chdir(cfg.cwd) == 0)
 			cwd = 1;
 	}
-	
+
 	if (!cwd) {
 		if (chdir("/") < 0)
 			errExit("chdir");
@@ -265,7 +251,7 @@ int sandbox(void* sandbox_arg) {
 			}
 		}
 	}
-	
+
 	// set environment
 	// fix qt 4.8
 	if (setenv("QT_X11_NO_MITSHM", "1", 1) < 0)
@@ -282,7 +268,7 @@ int sandbox(void* sandbox_arg) {
 	//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '
 	if (setenv("PROMPT_COMMAND", "export PS1=\"\\[\\e[1;32m\\][\\u@\\h \\W]\\$\\[\\e[0m\\] \"", 1) < 0)
 		errExit("setenv");
-		
+
 
 	// set capabilities
 	if (arg_caps_drop_all)
@@ -306,14 +292,26 @@ int sandbox(void* sandbox_arg) {
 		save_cpu(); // save cpu affinity mask to MNT_DIR/cpu file
 		set_cpu_affinity();
 	}
-	
+
 	// save cgroup in MNT_DIR/cgroup file
 	if (cfg.cgroup)
 		save_cgroup();
-		
+
 	// drop privileges
 	save_nogroups();
 	drop_privs(arg_nogroups);
+
+	// create new user namespace now that privileged child setup is complete
+	unshare(CLONE_NEWUSER);
+
+	// notify parent that new user namespace has been created so a proper
+	// UID/GID map can be setup
+	notify_other(child_to_parent_fds[1]);
+	close(child_to_parent_fds[1]);
+
+	// wait for parent to finish setting up a proper UID/GID map
+	wait_for_other(parent_to_child_fds[0]);
+	close(parent_to_child_fds[0]);
 
 	// set the shell
 	char *sh;
@@ -325,7 +323,7 @@ int sandbox(void* sandbox_arg) {
 		sh = "/bin/csh";
 	else
 		sh = "/bin/bash";
-		
+
 	char *arg[4];
 	arg[0] = sh;
 	arg[1] = "-c";
@@ -339,12 +337,12 @@ int sandbox(void* sandbox_arg) {
 		printf("Child process initialized\n");
 	if (arg_debug) {
 		char *msg;
-		if (asprintf(&msg, "child pid %s, execvp into %s", childstr, cfg.command_line) == -1)
+		if (asprintf(&msg, "child pid %s, execvp into %s", getpid(), cfg.command_line) == -1)
 			errExit("asprintf");
 		logmsg(msg);
 		free(msg);
 	}
-	execvp(sh, arg); 
+	execvp(sh, arg);
 
 	perror("execvp");
 	return 0;

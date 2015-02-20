@@ -43,13 +43,13 @@ void drop_privs(int nogroups) {
 		int rv = getgrouplist(cfg.username, gid, groups, &ngroups);
 
 		if (arg_debug && rv) {
-			printf("username %s, groups ", cfg.username);		
+			printf("username %s, groups ", cfg.username);
 			int i;
 			for (i = 0; i < ngroups; i++)
 				printf("%u, ", groups[i]);
 			printf("\n");
 		}
-		
+
 		if (rv == -1) {
 			fprintf(stderr, "Warning: cannot extract supplementary group list, dropping them\n");
 			if (setgroups(0, NULL) < 0)
@@ -65,7 +65,7 @@ void drop_privs(int nogroups) {
 		}
 	}
 
-	// set uid/gid	
+	// set uid/gid
 	if (setgid(getgid()) < 0)
 		errExit("setgid/getgid");
 	if (setuid(getuid()) < 0)
@@ -103,7 +103,7 @@ void logargs(int argc, char **argv) {
 	}
 
 	// log message
-	logmsg(msg);	
+	logmsg(msg);
 }
 
 
@@ -291,7 +291,7 @@ int not_unsigned(const char *str) {
 		}
 		ptr++;
 	}
-	
+
 	return rv;
 }
 
@@ -309,7 +309,7 @@ int find_child(pid_t parent, pid_t *child) {
 			exit(1);
 		}
 	}
-	
+
 	struct dirent *entry;
 	char *end;
 	while (*child == 0 && (entry = readdir(dir))) {
@@ -352,7 +352,7 @@ int find_child(pid_t parent, pid_t *child) {
 		free(file);
 	}
 	closedir(dir);
-	
+
 	return (*child)? 0:1;	// 0 = found, 1 = not found
 }
 
@@ -371,7 +371,7 @@ void check_private_dir(void) {
 		fprintf(stderr, "Error: cannot find %s directory, aborting\n", cfg.home_private);
 		exit(1);
 	}
-	
+
 	// check home directory and chroot home directory have the same owner
 	struct stat s1;
 	rv = stat(cfg.homedir, &s1);
@@ -396,7 +396,7 @@ void extract_command_name(const char *str) {
 	while (*ptr != ' ' && *ptr != '\t' && *ptr != '\0')
 		ptr++;
 	*ptr = '\0';
-	
+
 	// remove the path: /usr/bin/firefox becomes firefox
 	ptr = strrchr(cfg.command_name, '/');
 	if (ptr) {
@@ -405,11 +405,69 @@ void extract_command_name(const char *str) {
 			fprintf(stderr, "Error: invalid command name\n");
 			exit(1);
 		}
-		
+
 		char *tmp = strdup(ptr);
 		if (!tmp)
 			errExit("strdup");
 		free(cfg.command_name);
 		cfg.command_name = tmp;
 	}
+}
+
+void update_map(char *mapping, char *map_file)
+{
+    int fd, j;
+    size_t map_len;     /* Length of 'mapping' */
+
+    /* Replace commas in mapping string with newlines */
+
+    map_len = strlen(mapping);
+    for (j = 0; j < map_len; j++)
+        if (mapping[j] == ',')
+            mapping[j] = '\n';
+
+    fd = open(map_file, O_RDWR);
+    if (fd == -1) {
+        fprintf(stderr, "open %s: %s\n", map_file, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    if (write(fd, mapping, map_len) != map_len) {
+        fprintf(stderr, "write %s: %s\n", map_file, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    close(fd);
+}
+
+void wait_for_other(int fd) {
+	//****************************
+	// wait for the parent to be initialized
+	//****************************
+	char childstr[BUFLEN + 1];
+	FILE* stream;
+	stream = fdopen(dup(fd), "r");
+	*childstr = '\0';
+	if (fgets(childstr, BUFLEN, stream)) {
+		// remove \n)
+		char *ptr = childstr;
+		while(*ptr !='\0' && *ptr != '\n')
+			ptr++;
+		if (*ptr == '\0')
+			errExit("fgets");
+		*ptr = '\0';
+	}
+	else {
+		fprintf(stderr, "Error: cannot establish communication with the parent, exiting...\n");
+		exit(1);
+	}
+	fclose(stream);
+}
+
+void notify_other(int fd) {
+	FILE* stream;
+	stream = fdopen(dup(fd), "w");
+	fprintf(stream, "%u\n", getpid());
+	fflush(stream);
+	fclose(stream);
 }

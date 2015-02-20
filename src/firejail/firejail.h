@@ -121,6 +121,7 @@ extern int arg_nox11;		// kill the program if x11 unix domain socket is accessed
 extern int arg_nodbus;		// kill the program if D-Bus is accessed
 extern int arg_nogroups;	// disable supplementary groups
 extern int arg_netfilter;	// enable netfilter
+extern char *arg_netfilter_file;	// netfilter file
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
@@ -288,5 +289,8 @@ void set_cgroup(const char *path);
 
 // output.c
 void check_output(int argc, char **argv);
+
+// netfilter.c
+void netfilter(const char *fname);
 
 #endif

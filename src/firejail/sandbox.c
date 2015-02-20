@@ -68,54 +68,6 @@ static void sandbox_if_up(Bridge *br) {
 	}
 }
 
-static char *client_filter = 
-"*filter\n"
-":INPUT DROP [0:0]\n"
-":FORWARD DROP [0:0]\n"
-":OUTPUT ACCEPT [0:0]\n"
-"-A INPUT -i lo -j ACCEPT\n"
-"-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n"
-"-A INPUT -p icmp -j ACCEPT\n"
-"COMMIT\n";
-
-
-
-static void netfilter(const char *filter) {
-	assert(filter);
-	if (strcmp(filter, "client") == 0) {
-		// mount a tempfs on top of /tmp directory
-		if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
-			errExit("mounting /tmp");
-	
-		// create the filter file
-		FILE *fp = fopen("/tmp/client", "w");
-		if (!fp) {
-			fprintf(stderr, "Error: cannot open /tmp/client file\n");
-			exit(1);
-		}
-		fprintf(fp, "%s\n", client_filter);
-		fclose(fp);
-		
-		// push filter
-		int rv;
-		if (arg_debug) {
-			printf("Installing network filter:\n");
-			rv = system("cat /tmp/client");
-		}
-		rv = system("/sbin/iptables-restore < /tmp/client");
-		if (rv == -1) {
-			fprintf(stderr, "Error: failed to configure netfilter. Probablym iptables-restore command is missing.\n");
-			exit(1);
-		}
-		if (arg_debug)
-			rv = system("/sbin/iptables -vL");
-		
-		// unmount /tmp
-		umount("/tmp");
-	}
-}
-
-
 
 int sandbox(void* sandbox_arg) {
 	if (arg_debug)
@@ -171,7 +123,7 @@ int sandbox(void* sandbox_arg) {
 	// netfilter
 	//****************************
 	if (arg_netfilter && any_bridge_configured()) { // assuming by default the client filter
-		netfilter("client");
+		netfilter(arg_netfilter_file);
 	}
 
 	//****************************

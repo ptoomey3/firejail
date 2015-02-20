@@ -61,6 +61,7 @@ int arg_nox11 = 0;				// kill the program if x11 unix domain socket is accessed
 int arg_nodbus = 0;				// kill the program if D-Bus is accessed
 int arg_nogroups = 0;				// disable supplementary groups
 int arg_netfilter;				// enable netfilter
+char *arg_netfilter_file = NULL;			// netfilter file
 
 int fds[2];					// parent-child communication pipe
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
@@ -536,7 +537,15 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--netfilter") == 0)
 			arg_netfilter = 1;
-		
+		else if (strncmp(argv[i], "--netfilter=", 12) == 0) {
+			arg_netfilter = 1;
+			arg_netfilter_file = argv[i] + 12;
+			struct stat s;
+			if (stat(arg_netfilter_file, &s) == -1) {
+				fprintf(stderr, "Error: network filter file not found\n");
+				exit(1);
+			}
+		}
 
 		//*************************************
 		// command

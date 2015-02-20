@@ -82,7 +82,7 @@ int sandbox(void* sandbox_arg) {
 	wait_for_other(parent_to_child_fds[0]);
 
 	if (arg_debug && getpid() == 1)
-			printf("PID namespace installed\n");
+		printf("PID namespace installed\n");
 
 	//****************************
 	// set hostname

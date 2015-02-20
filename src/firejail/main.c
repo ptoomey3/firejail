@@ -746,7 +746,7 @@ int main(int argc, char **argv) {
 	close(parent_to_child_fds[0]);
 	close(child_to_parent_fds[1]);
 
-    // notify child that base setup is complete
+	// notify child that base setup is complete
 	notify_other(parent_to_child_fds[1]);
 
 	// wait for child to create new user namespace with CLONE_NEWUSER
@@ -755,15 +755,15 @@ int main(int argc, char **argv) {
 
 	char map_path[500];
 	// update the UID and GID maps in the new child user namespace
-    snprintf(map_path, 500, "/proc/%ld/uid_map",
-      (long) child);
-    update_map("1000 1000 1", map_path);
+	snprintf(map_path, 500, "/proc/%ld/uid_map",
+		(long) child);
+	update_map("1000 1000 1", map_path);
 
-    snprintf(map_path, 500, "/proc/%ld/gid_map",
-      (long) child);
-    update_map("1000 1000 1", map_path);
+	snprintf(map_path, 500, "/proc/%ld/gid_map",
+		(long) child);
+	update_map("1000 1000 1", map_path);
 
-    // notify child that UID/GID mapping is complete
+	// notify child that UID/GID mapping is complete
 	notify_other(parent_to_child_fds[1]);
 	close(parent_to_child_fds[1]);
 

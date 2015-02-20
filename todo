@@ -58,43 +58,40 @@ su: System error
 * list dbus sockets
 sudo netstat -nap | grep dbus | grep CONNECTED | awk '{print $8}' | sort | uniq -c
 
-* libvirt-lxc:
- - /sys the host "sysfs" instance remounted read-only
- - /proc a new instance of the "proc" filesystem
- - /proc/sys the host "/proc/sys" bind-mounted read-only
- 
-* libvirt-lxc description
- http://libvirt.org/drvlxc.html#fsmounts
-All containers are launched with the CAP_MKNOD capability cleared and removed from the bounding set. 
+
+* private /dev directory
+CAP_MKNOD and mknod() syscall - create special files including device files under /dev directory
+libvirt-lxc containers clears CPA_MKNOD from the bounding set
+
+libvirt-lxc
+
+static virLXCCgroupDevicePolicy devices[] = {
+348         {'c', LXC_DEV_MAJ_MEMORY, LXC_DEV_MIN_NULL},
+349         {'c', LXC_DEV_MAJ_MEMORY, LXC_DEV_MIN_ZERO},
+350         {'c', LXC_DEV_MAJ_MEMORY, LXC_DEV_MIN_FULL},
+351         {'c', LXC_DEV_MAJ_MEMORY, LXC_DEV_MIN_RANDOM},
+352         {'c', LXC_DEV_MAJ_MEMORY, LXC_DEV_MIN_URANDOM},
+353         {'c', LXC_DEV_MAJ_TTY, LXC_DEV_MIN_TTY},
+354         {'c', LXC_DEV_MAJ_TTY, LXC_DEV_MIN_PTMX},
+355         {'c', LXC_DEV_MAJ_FUSE, LXC_DEV_MIN_FUSE},
+356         {0,   0, 0}};
+357 
+
     /dev/zero
     /dev/null
     /dev/full
     /dev/random
     /dev/urandom
+they also seem to use tty and fuse    
+    /dev/ptmx symlinked to /dev/pts/ptmx
+
     /dev/stdin symlinked to /proc/self/fd/0
     /dev/stdout symlinked to /proc/self/fd/1
     /dev/stderr symlinked to /proc/self/fd/2
     /dev/fd symlinked to /proc/self/fd
-    /dev/ptmx symlinked to /dev/pts/ptmx
     /dev/console symlinked to /dev/pts/0 
  
-* lxc description:
-Linux containers offer:
-- chroot
-- network isolation
-- Shared memory isolation
-- hostname/domainname per-container
-- PID isolation (many container can see PID number 314 in each of them, however these are different PIDs on the host machine
-- user mappings (map UID 433 on the host as UID 15 or UID 0 in the container)
-- resource limit isolation
-- CPU, Memory and I/O limits per-group
-- Device isolation per-group
-- there is a mechanism in the kernel to freeze/unfreeze all processes inside a container with a single command
-- Fine grained capabilities per-container
-- Tools: Docker, LXC and a lot of others.
-- Live migration - CRIU. If certain rules are met, you can even live migrate a linux container to another physical machine.
-
-
+LXC:
 lxc.cgroup.devices.deny = a # Deny all access to devices
 lxc.cgroup.devices.allow = c 1:3 rwm # dev/null
 lxc.cgroup.devices.allow = c 1:5 rwm # dev/zero
@@ -105,26 +102,29 @@ lxc.cgroup.devices.allow = c 1:9 rwm # dev/urandom
 lxc.cgroup.devices.allow = c 1:8 rwm # dev/random
 lxc.cgroup.devices.allow = c 136:* rwm # dev/pts/*
 lxc.cgroup.devices.allow = c 5:2 rwm # dev/pts/ptmx
-# No idea what this is .. dev/bsg/0:0:0:0 ???
 lxc.cgroup.devices.allow = c 254:0 rwm
 
-* lxc-freeze and lxc-clone - using btrfs to take a snapshot of a frozen container and cloning it
-https://blogs.oracle.com/OTNGarage/entry/linux_container_lxc_part_2
+static const struct lxc_devs lxc_devs[] = {
+	{ "null",	S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO, 1, 3	},
+	{ "zero",	S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO, 1, 5	},
+	{ "full",	S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO, 1, 7	},
+	{ "urandom",	S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO, 1, 9	},
+	{ "random",	S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO, 1, 8	},
+	{ "tty",	S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO, 5, 0	},
+	{ "console",	S_IFCHR | S_IRUSR | S_IWUSR,	       5, 1	},
+};
 
-* https://www.stgraber.org/2013/12/21/lxc-1-0-your-second-container/
-In such cases, “sudo lxc-freeze -n <container name>” can be used. That very simply freezes all the processes in the container
-so they won’t get any time allocated by the scheduler. However the processes will still exist and will still use whatever memory
-they used to.
 
-Once you need the service again, just call “sudo lxc-unfreeze -n <container name>” and all the processes will be restarted.
 
-* container usage
-http://www.enterprisetech.com/2014/05/28/google-runs-software-containers/
+Gnome sandbox: https://wiki.gnome.org/Projects/SandboxedApps/Sandbox
+    /dev/full, /dev/null, /dev/random, /dev/urandom, /dev/tty and /dev/zero
+    /dev/shm is a private tmpfs
+    /dev/dri is a bind mount of the host /dev/dri 
 
-* video device
+video device:
 /dev/video* 
 
-* sound devices
+sound devices:
 /dev/dsp
 /dev/adsp
 /dev/audio

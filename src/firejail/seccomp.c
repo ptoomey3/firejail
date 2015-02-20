@@ -335,6 +335,7 @@ int seccomp_filter(void) {
 		filter_add(SYS_syslog);
 		filter_add(SYS_process_vm_readv);
 		filter_add(SYS_process_vm_writev);
+		filter_add(SYS_mknod);
 	}
 	if (arg_seccomp_list) {
 		if (syscall_check_list(arg_seccomp_list, filter_add)) {

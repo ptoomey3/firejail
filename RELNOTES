@@ -2,7 +2,8 @@ firejail (0.9.21) baseline; urgency=low
   * this is a rolling development version
   * todo: help and man support for all
   * Container stdout logging and log rotation
-  * Added process_vm_readv and process_vm_writev to default seccomp blacklist
+  * Added process_vm_readv, process_vm_writev and mknod to default seccomp blacklist
+  * Added CAP_MKNOD to default caps blacklist
   * Custom Linux capabilities whitefilter support
   * bugfix: check uid/gid for cgroup
   * replaced --noip option with --ip=none

@@ -64,6 +64,11 @@ int caps_default_filter(void) {
 	else if (arg_debug)
 		printf("Drop CAP_SYSLOG\n");
 
+	if (prctl(PR_CAPBSET_DROP, CAP_MKNOD, 0, 0, 0) && arg_debug)
+		fprintf(stderr, "Warning: cannot drop CAP_MKNOD");
+	else if (arg_debug)
+		printf("Drop CAP_SYSLOG\n");
+
 	if (prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0) && arg_debug)
 		fprintf(stderr, "Warning: cannot drop CAP_SYS_ADMIN");
 	else if (arg_debug)
